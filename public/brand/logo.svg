@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 84" width="100%" height="100%" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&amp;display=swap');
+      .brand-title { font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; }
+      .brand-tagline { font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; }
+    </style>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#147A66" />
+      <stop offset="100%" stop-color="#0D5C4D" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5B731" />
+      <stop offset="100%" stop-color="#D96B27" />
+    </linearGradient>
+  </defs>
+
+  <!-- ANTRABUMI EMBLEM -->
+  <g transform="translate(6, 6)">
+    <!-- Base Emerald Mountain / Leaf Structure -->
+    <path d="M36 4 L65 60 C66.5 63 64.5 66 61 66 L49 66 C46.8 66 44.8 64.8 43.8 62.8 L36 46 L28.2 62.8 C27.2 64.8 25.2 66 23 66 L11 66 C7.5 66 5.5 63 7 60 L36 4 Z" fill="url(#leafGrad)" />
+    <!-- Dynamic Ribbon / Bridge of Knowledge to Nature (Amber Gold to Terracotta) -->
+    <path d="M12 55 C24 43 45 42 62 52 C52 58 35 60 20 64 Z" fill="url(#goldGrad)" />
+    <!-- Inner Light Opening -->
+    <path d="M36 22 L45 41 C39 38 33 38 27 41 L36 22 Z" fill="#FFFFFF" />
+  </g>
+
+  <!-- WORDMARK: ANTRABUMI -->
+  <g transform="translate(90, 44)">
+    <text class="brand-title" font-size="34" letter-spacing="0.06em">
+      <tspan fill="#0B1E1A">ANTRA</tspan><tspan fill="#0D5C4D">BUMI</tspan>
+    </text>
+  </g>
+
+  <!-- TAGLINE -->
+  <g transform="translate(91, 65)">
+    <text class="brand-tagline" font-size="11.5" letter-spacing="0.04em" fill="#4A5568">
+      Connecting Knowledge, Nature, &amp; Communities.
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,148 @@
+/**
+ * ANTRABUMI Design Tokens
+ * Source of Truth: DESIGN_SYSTEM.md & AGENTS.md
+ *
+ * NOTE ON BRAND COLORS:
+ * Exact brand hex values are marked as PROVISIONAL until official finalized
+ * Brand Guideline 2026 color codes are confirmed. The semantic token architecture
+ * ensures brand colors can be swapped in this file without altering components.
+ */
+
+:root {
+  /* ==========================================================================
+     1. COLOR SYSTEM (PROVISIONAL VALUES - SUBJECT TO BRAND CONFIRMATION)
+     ========================================================================== */
+
+  /* Official Brand Color System (Brand Guidelines 2026) */
+  --color-primary: #0D5C4D; /* Deep Forest Teal */
+  --color-primary-hover: #1A4B43; /* Richer Forest Teal */
+  --color-primary-active: #083B32; /* Deepest Forest Teal */
+  --color-primary-foreground: #ffffff;
+
+  /* Official Supporting Brand Colors */
+  --color-brand-teal: #0D5C4D;
+  --color-brand-teal-dark: #1A4B43;
+  --color-brand-terracotta: #D96B27; /* Earthy Terracotta / Orange */
+  --color-brand-terracotta-dark: #C85A17;
+  --color-brand-gold: #E5A823; /* Amber Gold */
+  --color-brand-slate: #2B8282; /* Ocean / Communities Slate */
+
+  /* Secondary */
+  --color-secondary: #f4f4f5; /* Zinc 100 */
+  --color-secondary-hover: #e4e4e7; /* Zinc 200 */
+  --color-secondary-foreground: #0D5C4D;
+
+  /* Neutral Scale (Light to Dark) */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+  --color-neutral-950: #09090b;
+
+  /* Semantic State Colors (WCAG AA Compliant contrast) */
+  --color-success: #15803d; /* Green 700 */
+  --color-success-bg: #f0fdf4;
+  --color-warning: #b45309; /* Amber 700 */
+  --color-warning-bg: #fffbeb;
+  --color-error: #b91c1c; /* Red 700 */
+  --color-error-bg: #fef2f2;
+  --color-info: #1d4ed8; /* Blue 700 */
+  --color-info-bg: #eff6ff;
+
+  /* CMS Content Status Colors */
+  --color-status-draft: #71717a;
+  --color-status-review: #b45309;
+  --color-status-published: #15803d;
+  --color-status-archived: #a1a1aa;
+
+  /* Surface Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafafa;
+  --bg-muted: #f4f4f5;
+  --bg-accent: #f7f9f7;
+  --bg-inverse: #09090b;
+
+  /* ==========================================================================
+     2. SPACING SYSTEM (Based on 4px base increments)
+     ========================================================================== */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+  --space-30: 7.5rem; /* 120px */
+  --space-40: 10rem; /* 160px */
+
+  /* Section Spacing (Responsive) */
+  --section-space-sm: clamp(2rem, 4vw, 3rem); /* 32-48px */
+  --section-space-md: clamp(3.5rem, 6vw, 6rem); /* 56-96px */
+  --section-space-lg: clamp(5rem, 8vw, 8.5rem); /* 80-136px */
+
+  /* ==========================================================================
+     3. TYPOGRAPHY SCALE (Responsive using clamp)
+     ========================================================================== */
+  --font-size-display-xl: clamp(3rem, 5vw + 1rem, 5rem); /* 48px - 80px */
+  --font-size-display-l: clamp(2.5rem, 4vw + 1rem, 4rem); /* 40px - 64px */
+  --font-size-h1: clamp(2.25rem, 3vw + 1rem, 3.5rem); /* 36px - 56px */
+  --font-size-h2: clamp(1.875rem, 2vw + 1rem, 2.75rem); /* 30px - 44px */
+  --font-size-h3: clamp(1.5rem, 1.5vw + 0.75rem, 2.25rem); /* 24px - 36px */
+  --font-size-h4: clamp(1.25rem, 1vw + 0.75rem, 1.75rem); /* 20px - 28px */
+  --font-size-h5: clamp(1.125rem, 0.5vw + 0.75rem, 1.375rem); /* 18px - 22px */
+  --font-size-body-l: clamp(1.125rem, 0.5vw + 0.875rem, 1.25rem); /* 18px - 20px */
+  --font-size-body: clamp(1rem, 0.2vw + 0.95rem, 1.125rem); /* 16px - 18px */
+  --font-size-body-s: clamp(0.875rem, 0.2vw + 0.8rem, 1rem); /* 14px - 16px */
+  --font-size-caption: 0.8125rem; /* 13px */
+
+  /* Line Heights */
+  --leading-tight: 1.15;
+  --leading-snug: 1.25;
+  --leading-heading: 1.3;
+  --leading-body: 1.65;
+  --leading-reading: 1.75;
+
+  /* ==========================================================================
+     4. CONTAINER & GUTTERS
+     ========================================================================== */
+  --container-max-width: 1280px;
+  --container-reading-width: 760px;
+  --gutter-desktop: 2.5rem; /* 40px */
+  --gutter-tablet: 1.75rem; /* 28px */
+  --gutter-mobile: 1.25rem; /* 20px */
+
+  /* ==========================================================================
+     5. BORDER RADIUS
+     ========================================================================== */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* ==========================================================================
+     6. ELEVATION / SHADOWS (Subtle, non-distracting)
+     ========================================================================== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  /* ==========================================================================
+     7. MOTION / TRANSITIONS (Subtle, fast, respectful of reduced motion)
+     ========================================================================== */
+  --motion-duration-micro: 120ms;
+  --motion-duration-normal: 220ms;
+  --motion-duration-macro: 350ms;
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}

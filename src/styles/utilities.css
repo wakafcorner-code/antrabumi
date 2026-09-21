@@ -1,0 +1,151 @@
+/**
+ * ANTRABUMI Utility Styles
+ * Accessible Focus, Skip Links, Responsive Helpers, Typography
+ */
+
+/* ==========================================================================
+   1. ACCESSIBILITY UTILITIES
+   ========================================================================== */
+
+/* Accessible Focus Ring: Visible keyboard focus replacement (WCAG 2.2 AA) */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Skip to Main Content Link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: top var(--motion-duration-micro) var(--motion-ease);
+}
+
+.skip-link:focus {
+  top: 1rem;
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHY SCALES
+   ========================================================================== */
+.type-display-xl {
+  font-size: var(--font-size-display-xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+.type-display-l {
+  font-size: var(--font-size-display-l);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.type-h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--leading-snug);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.type-h2 {
+  font-size: var(--font-size-h2);
+  line-height: var(--leading-snug);
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.type-h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--leading-heading);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.type-h4 {
+  font-size: var(--font-size-h4);
+  line-height: var(--leading-heading);
+  font-weight: 600;
+}
+
+.type-h5 {
+  font-size: var(--font-size-h5);
+  line-height: var(--leading-heading);
+  font-weight: 600;
+}
+
+.type-body-l {
+  font-size: var(--font-size-body-l);
+  line-height: var(--leading-body);
+}
+
+.type-body {
+  font-size: var(--font-size-body);
+  line-height: var(--leading-body);
+}
+
+.type-body-s {
+  font-size: var(--font-size-body-s);
+  line-height: var(--leading-body);
+}
+
+.type-caption {
+  font-size: var(--font-size-caption);
+  line-height: var(--leading-snug);
+}
+
+.type-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. LAYOUT & GUTTERS
+   ========================================================================== */
+.gutter-padding {
+  padding-left: var(--gutter-mobile);
+  padding-right: var(--gutter-mobile);
+}
+
+@media (min-width: 768px) {
+  .gutter-padding {
+    padding-left: var(--gutter-tablet);
+    padding-right: var(--gutter-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gutter-padding {
+    padding-left: var(--gutter-desktop);
+    padding-right: var(--gutter-desktop);
+  }
+}

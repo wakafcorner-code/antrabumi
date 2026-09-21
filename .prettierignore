@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+dist
+build
+.git
+package-lock.json
+
+# Reference specifications
+AGENTS.md
+API_SPEC.md
+BUSINESS_RULES.md
+CONTENT_STRUCTURE.md
+DATABASE_SCHEMA.md
+DESIGN_SYSTEM.md
+DEVELOPMENT_PLAN.md
+PRD.MD

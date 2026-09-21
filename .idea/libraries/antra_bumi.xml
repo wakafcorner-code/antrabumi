@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="antra_bumi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/antra_bumi.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
