@@ -34,3 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Uploaded media files
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Archives and artifacts
+*.zip
+*.tar.gz
+.artifacts/

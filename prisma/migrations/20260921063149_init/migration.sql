@@ -89,6 +89,7 @@ CREATE TABLE `ContributionAreaTranslation` (
 CREATE TABLE `Experience` (
     `id` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL DEFAULT 'EXPERIENCE',
     `year` INTEGER NULL,
     `location` VARCHAR(191) NULL,
     `clientName` VARCHAR(191) NULL,
@@ -102,6 +103,7 @@ CREATE TABLE `Experience` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Experience_slug_key`(`slug`),
+    INDEX `Experience_type_idx`(`type`),
     INDEX `Experience_status_idx`(`status`),
     INDEX `Experience_year_idx`(`year`),
     INDEX `Experience_featured_idx`(`featured`),

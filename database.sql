@@ -1,33 +1,14 @@
--- =============================================================================
--- ANTRABUMI — Database Schema SQL
--- =============================================================================
--- Project       : ANTRABUMI Organization Website + CMS
--- Database      : MySQL 8+
--- ORM           : Prisma 6
--- Generated     : 2026-09-21
--- Source        : prisma/schema.prisma
--- Generator Cmd : npx prisma migrate diff --from-empty --to-schema-datamodel
---
--- TABLES:
---   User, Permission
---   Page
---   ContributionArea, ContributionAreaTranslation
---   Experience, ExperienceTranslation, ExperienceMetric,
---     ExperienceContributionArea, ExperienceMedia, ExperienceKnowledge
---   Person, PersonTranslation, Expertise, PersonExpertise
---   Knowledge, KnowledgeTranslation, Category, KnowledgeCategory,
---     Tag, KnowledgeTag, KnowledgeContributionArea, KnowledgeDownload
---   Media
---   Partner
---   ContactMessage
---   NavigationItem
---   SiteSetting
---   AuditLog
---
--- NOTE:
---   Experience.type column (VARCHAR, default 'EXPERIENCE') discriminates
---   between "Pengalaman" (type='EXPERIENCE') and "Inisiatif" (type='INITIATIVE').
--- =============================================================================
+-- =========================================================================
+-- ANTRABUMI 2026 — Complete Database Export (DDL Schema + Initial Data)
+-- Generated: 2026-09-28T15:18:55.447Z
+-- Target Engine: MySQL 8+ / MariaDB 10.4+ (phpMyAdmin, cPanel, VPS, Cloud SQL)
+-- Default Charset: utf8mb4 / utf8mb4_unicode_ci
+-- =========================================================================
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 -- CreateTable
 CREATE TABLE `User` (
@@ -600,3 +581,202 @@ ALTER TABLE `NavigationItem` ADD CONSTRAINT `NavigationItem_parentId_fkey` FOREI
 -- AddForeignKey
 ALTER TABLE `AuditLog` ADD CONSTRAINT `AuditLog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
+
+-- =========================================================================
+-- INITIAL & SEED DATA
+-- =========================================================================
+
+--
+-- Dumping data for table `User`
+--
+LOCK TABLES `User` WRITE;
+INSERT INTO `User` (`id`, `name`, `email`, `passwordHash`, `role`, `status`, `imageId`, `lastLoginAt`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdfo0000vd7cz85wyrj2', 'ANTRABUMI Admin', 'admin@antrabumi.org', '$2b$12$x56VSUDk08iCUkPNzm41seYoomXgTwsk1p/cHz74ubvoUVy9L6XYO', 'SUPER_ADMIN', 'ACTIVE', NULL, '2026-09-28 14:19:50', '2026-09-28 14:11:09', '2026-09-28 14:19:50');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `Permission`
+--
+LOCK TABLES `Permission` WRITE;
+INSERT INTO `Permission` (`id`, `key`, `description`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdkk001fvd7celuy8cce', 'dashboard.view', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdkq001gvd7ct15itmq0', 'pages.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdks001hvd7c7k68q6rw', 'pages.write', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdkw001ivd7csr5kypb1', 'experiences.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdl0001jvd7cxn8ir7we', 'experiences.write', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdl2001kvd7czwyubloy', 'experiences.publish', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdl5001lvd7c7blxikmt', 'people.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdl7001mvd7c4e0k4a38', 'people.write', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdl9001nvd7ch02ltvut', 'knowledge.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlb001ovd7cv83oyams', 'knowledge.write', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlf001pvd7c4a0i1d8w', 'knowledge.publish', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlh001qvd7cvj6oa4nv', 'media.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlk001rvd7c8p200dba', 'media.write', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlm001svd7cfgb6xz2t', 'messages.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlo001tvd7c8ijg38k1', 'messages.update', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlr001uvd7casve0ju3', 'users.manage', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlt001vvd7cbmfbtb9z', 'settings.manage', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdlx001wvd7cmbix4eki', 'audit_logs.read', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `Expertise`
+--
+LOCK TABLES `Expertise` WRITE;
+INSERT INTO `Expertise` (`id`, `slug`, `name`, `description`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdg90001vd7cvzzb7jx5', 'community-development', 'Community Development', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdgi0002vd7cji6nmbcg', 'gedsi', 'GEDSI', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdgo0003vd7c1skfaqck', 'research-assessment', 'Research & Assessment', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdgs0004vd7cxk8e7c6h', 'communication', 'Communication', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdgx0005vd7ctw3y8n73', 'conservation', 'Conservation', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdh10006vd7c5ndhfxhy', 'policy', 'Policy', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdh40007vd7ci69w5njj', 'climate-sustainability', 'Climate & Sustainability', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdh70008vd7cwztgcmjx', 'partnership', 'Partnership', NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `ContributionArea`
+--
+LOCK TABLES `ContributionArea` WRITE;
+INSERT INTO `ContributionArea` (`id`, `slug`, `status`, `order`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdhd0009vd7cfrl3wkek', 'conservation-climate-sustainability', 'DRAFT', 1, '2026-09-28 14:11:09', '2026-09-28 14:28:40'),
+('cmulbsdhx000evd7ch6a7bv03', 'program-strategy', 'DRAFT', 2, '2026-09-28 14:11:09', '2026-09-28 14:28:40'),
+('cmulbsdic000jvd7c6vdl5wwh', 'partnership-collaboration', 'DRAFT', 3, '2026-09-28 14:11:09', '2026-09-28 14:28:40'),
+('cmulbsdio000ovd7cqpllygv1', 'media-storytelling-campaign', 'DRAFT', 4, '2026-09-28 14:11:09', '2026-09-28 14:28:40'),
+('cmulbsdiy000tvd7crbuqdxol', 'community-development', 'DRAFT', 5, '2026-09-28 14:11:09', '2026-09-28 14:28:40'),
+('cmulbsdj9000yvd7cg59f1n72', 'research-assessment-knowledge', 'DRAFT', 6, '2026-09-28 14:11:09', '2026-09-28 14:28:40');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `ContributionAreaTranslation`
+--
+LOCK TABLES `ContributionAreaTranslation` WRITE;
+INSERT INTO `ContributionAreaTranslation` (`id`, `contributionAreaId`, `language`, `title`, `description`, `imageId`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdhk000bvd7coxw9zduj', 'cmulbsdhd0009vd7cfrl3wkek', 'ID', 'Conservation, Climate & Sustainability', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdhs000dvd7c42prjbti', 'cmulbsdhd0009vd7cfrl3wkek', 'EN', 'Conservation, Climate & Sustainability', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdi2000gvd7cc4av6icr', 'cmulbsdhx000evd7ch6a7bv03', 'ID', 'Program & Strategy', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdi8000ivd7cpwvfln8c', 'cmulbsdhx000evd7ch6a7bv03', 'EN', 'Program & Strategy', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdif000lvd7ct8lf01ek', 'cmulbsdic000jvd7c6vdl5wwh', 'ID', 'Partnership & Collaboration', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdii000nvd7c00cdyn79', 'cmulbsdic000jvd7c6vdl5wwh', 'EN', 'Partnership & Collaboration', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdis000qvd7c2oq6usvf', 'cmulbsdio000ovd7cqpllygv1', 'ID', 'Media, Storytelling & Campaign', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdiv000svd7cxygkljk8', 'cmulbsdio000ovd7cqpllygv1', 'EN', 'Media, Storytelling & Campaign', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdj3000vvd7cvtjopy96', 'cmulbsdiy000tvd7crbuqdxol', 'ID', 'Community Development', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdj6000xvd7c3phrhyb9', 'cmulbsdiy000tvd7crbuqdxol', 'EN', 'Community Development', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjb0010vd7c47ujxov7', 'cmulbsdj9000yvd7cg59f1n72', 'ID', 'Research, Assessment & Knowledge', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdje0012vd7c2760ebz1', 'cmulbsdj9000yvd7cg59f1n72', 'EN', 'Research, Assessment & Knowledge', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `Experience`
+--
+LOCK TABLES `Experience` WRITE;
+INSERT INTO `Experience` (`id`, `slug`, `type`, `year`, `location`, `clientName`, `status`, `featured`, `coverMediaId`, `createdById`, `updatedById`, `publishedAt`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdn50026vd7c460rm0bo', 'indonesia-digital-ecosystem-assessment-idea', 'EXPERIENCE', 2024, NULL, NULL, 'PUBLISHED', 0, NULL, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnn002avd7cyimcwi7g', 'perencanaan-pengelolaan-ekowisata-desa', 'EXPERIENCE', 2023, NULL, NULL, 'PUBLISHED', 0, NULL, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnw002evd7cy64wdqh0', 'assessment-training-for-community-development', 'EXPERIENCE', 2023, NULL, NULL, 'PUBLISHED', 0, NULL, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdo3002ivd7cum0mzx44', 'assessment-pengembangan-batik-ekologis', 'EXPERIENCE', 2022, NULL, NULL, 'PUBLISHED', 0, NULL, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdob002mvd7cwopr04df', 'prototyping-pengelolaan-sampah-pasar-tradisional', 'EXPERIENCE', 2022, NULL, NULL, 'PUBLISHED', 0, NULL, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `ExperienceTranslation`
+--
+LOCK TABLES `ExperienceTranslation` WRITE;
+INSERT INTO `ExperienceTranslation` (`id`, `experienceId`, `language`, `title`, `excerpt`, `description`, `methodology`, `impact`, `seoTitle`, `seoDescription`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdn50027vd7cp2gzy9rr', 'cmulbsdn50026vd7c460rm0bo', 'ID', 'Indonesia Digital Ecosystem Assessment — IDEA', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdn50028vd7cfc0rktz9', 'cmulbsdn50026vd7c460rm0bo', 'EN', 'Indonesia Digital Ecosystem Assessment — IDEA', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnn002bvd7cfnvh5sq5', 'cmulbsdnn002avd7cyimcwi7g', 'ID', 'Perencanaan Pengelolaan Ekowisata Desa', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnn002cvd7c30ia9ec6', 'cmulbsdnn002avd7cyimcwi7g', 'EN', 'Village Ecotourism Management Planning', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnx002fvd7czw7x57si', 'cmulbsdnw002evd7cy64wdqh0', 'ID', 'Assessment Training for Community Development', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdnx002gvd7cp2gjxfyr', 'cmulbsdnw002evd7cy64wdqh0', 'EN', 'Assessment Training for Community Development', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdo3002jvd7cdrd3oluu', 'cmulbsdo3002ivd7cum0mzx44', 'ID', 'Assessment Pengembangan Batik Ekologis', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdo3002kvd7ckuy6bolb', 'cmulbsdo3002ivd7cum0mzx44', 'EN', 'Ecological Batik Development Assessment', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdob002nvd7cfdl9xqxa', 'cmulbsdob002mvd7cwopr04df', 'ID', 'Prototyping Pengelolaan Sampah Pasar Tradisional', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdob002ovd7cc3nf3r7d', 'cmulbsdob002mvd7cwopr04df', 'EN', 'Traditional Market Waste Management Prototyping', NULL, NULL, NULL, NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `Person`
+--
+LOCK TABLES `Person` WRITE;
+INSERT INTO `Person` (`id`, `slug`, `imageId`, `status`, `order`, `createdById`, `updatedById`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdok002qvd7czapwonsv', 'sendi-kenia-savitri', NULL, 'PUBLISHED', 1, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdov002uvd7cy6yhnmbe', 'ade-afrilian-saputra', NULL, 'PUBLISHED', 2, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdp5002yvd7cmhmbzmie', 'anna-agustina', NULL, 'PUBLISHED', 3, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpb0032vd7cnh6ihu1c', 'yando-zakaria', NULL, 'PUBLISHED', 4, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdph0036vd7cco1f6ajd', 'sekar-mira-c-herandarudewi', NULL, 'PUBLISHED', 5, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpo003avd7cvvutus94', 'arya-kusumo-harwinanto', NULL, 'PUBLISHED', 6, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpt003evd7ca2ds16sj', 'shaniya-utamidita', NULL, 'PUBLISHED', 7, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpz003ivd7chxohezxi', 'suluh-gembyeng-ciptadi', NULL, 'PUBLISHED', 8, 'cmulbsdfo0000vd7cz85wyrj2', 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `PersonTranslation`
+--
+LOCK TABLES `PersonTranslation` WRITE;
+INSERT INTO `PersonTranslation` (`id`, `personId`, `language`, `name`, `degree`, `role`, `biography`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdok002rvd7cvdf68t7o', 'cmulbsdok002qvd7czapwonsv', 'ID', 'Sendi Kenia Savitri, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdok002svd7ci6k13nyz', 'cmulbsdok002qvd7czapwonsv', 'EN', 'Sendi Kenia Savitri, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdov002vvd7cxq0s7rl9', 'cmulbsdov002uvd7cy6yhnmbe', 'ID', 'Ade Afrilian Saputra, M.M.Sus.', 'M.M.Sus.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdov002wvd7c2db4yed1', 'cmulbsdov002uvd7cy6yhnmbe', 'EN', 'Ade Afrilian Saputra, M.M.Sus.', 'M.M.Sus.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdp5002zvd7cwvliyv44', 'cmulbsdp5002yvd7cmhmbzmie', 'ID', 'Anna Agustina, Ph.D.', 'Ph.D.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdp50030vd7cvn4ygfkz', 'cmulbsdp5002yvd7cmhmbzmie', 'EN', 'Anna Agustina, Ph.D.', 'Ph.D.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpb0033vd7cbx4n8we3', 'cmulbsdpb0032vd7cnh6ihu1c', 'ID', 'Yando Zakaria', NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpc0034vd7c8kotac1s', 'cmulbsdpb0032vd7cnh6ihu1c', 'EN', 'Yando Zakaria', NULL, NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdph0037vd7chljwe8ri', 'cmulbsdph0036vd7cco1f6ajd', 'ID', 'Sekar Mira C. Herandarudewi, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdph0038vd7c9md1i1y8', 'cmulbsdph0036vd7cco1f6ajd', 'EN', 'Sekar Mira C. Herandarudewi, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpo003bvd7cqo419q9g', 'cmulbsdpo003avd7cvvutus94', 'ID', 'Arya Kusumo Harwinanto, S.I.Kom.', 'S.I.Kom.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpo003cvd7ckgykaomb', 'cmulbsdpo003avd7cvvutus94', 'EN', 'Arya Kusumo Harwinanto, S.I.Kom.', 'S.I.Kom.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpt003fvd7cxbw6hf5s', 'cmulbsdpt003evd7ca2ds16sj', 'ID', 'Shaniya Utamidita, M.S.', 'M.S.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpt003gvd7cj2u61cou', 'cmulbsdpt003evd7ca2ds16sj', 'EN', 'Shaniya Utamidita, M.S.', 'M.S.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpz003jvd7cz52khgyl', 'cmulbsdpz003ivd7chxohezxi', 'ID', 'Suluh Gembyeng Ciptadi, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdpz003kvd7cbqyetn3q', 'cmulbsdpz003ivd7chxohezxi', 'EN', 'Suluh Gembyeng Ciptadi, M.Si.', 'M.Si.', NULL, NULL, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `Media`
+--
+LOCK TABLES `Media` WRITE;
+INSERT INTO `Media` (`id`, `type`, `filename`, `originalName`, `mimeType`, `size`, `width`, `height`, `storageKey`, `url`, `altText`, `caption`, `attribution`, `uploadedById`, `createdAt`, `updatedAt`) VALUES
+('cmulc495g0003vdhgkrtgef0l', 'IMAGE', '1790605223743-whatsapp-image-2026-08-27-at-13-16-59-18496e59.jpeg', 'WhatsApp Image 2026-08-27 at 13.16.59.jpeg', 'image/jpeg', 255299, NULL, NULL, '1790605223743-whatsapp-image-2026-08-27-at-13-16-59-18496e59.jpeg', '/uploads/1790605223743-whatsapp-image-2026-08-27-at-13-16-59-18496e59.jpeg', NULL, NULL, NULL, 'cmulbsdfo0000vd7cz85wyrj2', '2026-09-28 14:20:23', '2026-09-28 14:20:23');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `SiteSetting`
+--
+LOCK TABLES `SiteSetting` WRITE;
+INSERT INTO `SiteSetting` (`id`, `key`, `value`, `language`, `description`, `updatedAt`, `createdAt`) VALUES
+('cmulbsdjh0013vd7cd50p30if', 'site.name', NULL, NULL, 'Organization name', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjo0014vd7c4zuobs0e', 'site.tagline', NULL, NULL, 'Organization tagline', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjr0015vd7co1dejyyu', 'site.description', NULL, NULL, 'Organization description', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjt0016vd7ccfd2kdk9', 'site.email', NULL, NULL, 'Contact email', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjv0017vd7cydddvv4z', 'site.phone', NULL, NULL, 'Contact phone', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdjy0018vd7cgeobka7t', 'site.address', NULL, NULL, 'Organization address', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdk30019vd7c9hxu61wm', 'site.instagram', NULL, NULL, 'Instagram handle', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdk6001avd7ci15pffcl', 'site.linkedin', NULL, NULL, 'LinkedIn URL', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdk8001bvd7c7oak7q82', 'site.website', NULL, NULL, 'Organization website URL', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdka001cvd7c9ec2g0yj', 'seo.defaultTitle', NULL, NULL, 'Default SEO page title', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdkd001dvd7cr9s2bbtm', 'seo.defaultDescription', NULL, NULL, 'Default SEO meta description', '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdkf001evd7c43taukbn', 'seo.defaultOgImage', NULL, NULL, 'Default OG image media ID', '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `NavigationItem`
+--
+LOCK TABLES `NavigationItem` WRITE;
+INSERT INTO `NavigationItem` (`id`, `label`, `url`, `language`, `parentId`, `order`, `visible`, `openInNewTab`, `createdAt`, `updatedAt`) VALUES
+('cmulbsdm3001xvd7cobx5c2eh', 'Tentang', '/tentang', 'ID', NULL, 1, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdm7001yvd7ct41trrd7', 'Inisiatif', '/inisiatif', 'ID', NULL, 2, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdma001zvd7ck3rh5g6m', 'Pengetahuan', '/pengetahuan', 'ID', NULL, 3, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdme0020vd7cpb0ahqsh', 'Kolaborasi', '/kolaborasi', 'ID', NULL, 4, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdmh0021vd7cd05qlbu1', 'About', '/about', 'EN', NULL, 1, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdml0022vd7cuh6st7p2', 'Initiatives', '/initiatives', 'EN', NULL, 2, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdmo0023vd7cm1g4z8ca', 'Knowledge', '/knowledge', 'EN', NULL, 3, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09'),
+('cmulbsdms0024vd7cmh9ukxa6', 'Collaboration', '/collaboration', 'EN', NULL, 4, 1, 0, '2026-09-28 14:11:09', '2026-09-28 14:11:09');
+UNLOCK TABLES;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =========================================================================
+-- END OF DUMP
+-- =========================================================================
