@@ -168,9 +168,42 @@ export function KnowledgeEditForm({ knowledge }: Props) {
             </Field>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Penulis / Kontributor (Opsional)" error={fieldErrors.authorName?.[0]}>
+              <input name="authorName" defaultValue={knowledge.authorName ?? ""} className={inputCls} placeholder="cth. Tim Riset ANTRABUMI" />
+            </Field>
+
+            <Field label="Tanggal Publikasi (Opsional)" error={fieldErrors.publicationDate?.[0]}>
+              <input
+                type="date"
+                name="publicationDate"
+                className={inputCls}
+                defaultValue={
+                  knowledge.publishedAt
+                    ? new Date(knowledge.publishedAt).toISOString().slice(0, 10)
+                    : ""
+                }
+              />
+            </Field>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="featured-edit"
+              name="featured"
+              value="true"
+              defaultChecked={knowledge.featured}
+              className="h-4 w-4 rounded border-neutral-300 text-[#0D5C4D] focus:ring-[#0D5C4D]"
+            />
+            <label htmlFor="featured-edit" className="text-sm text-neutral-700 font-medium cursor-pointer">
+              Tandai sebagai Konten Unggulan (Featured) di Beranda & Hub Pengetahuan
+            </label>
+          </div>
+
           <MediaPicker
             name="coverMediaId"
-            label="Gambar Sampul / Cover"
+            label="Gambar Sampul / Cover (PNG, JPG, WebP, atau URL Gambar)"
             initialMediaId={knowledge.coverMediaId}
             initialUrl={knowledge.coverMedia?.url}
           />

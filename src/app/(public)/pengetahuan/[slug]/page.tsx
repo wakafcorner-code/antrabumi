@@ -41,6 +41,7 @@ async function getKnowledge(slug: string) {
       type: true,
       authorName: true,
       publicationDate: true,
+      publishedAt: true,
       coverMedia: { select: { url: true, altText: true } },
       translations: {
         select: { title: true, excerpt: true, content: true, language: true },
@@ -60,11 +61,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const lang = await getLanguage();
   const t =
-    item.translations.find((tr) => tr.language === lang) ??
-    item.translations.find((tr) => tr.language === "ID") ??
+    item.translations.find((tr) => tr.language === lang && tr.title?.trim()) ??
+    item.translations.find((tr) => tr.language === "ID" && tr.title?.trim()) ??
     item.translations[0];
   return {
-    title: t ? `${t.title} — Pengetahuan ANTRABUMI` : `${slug} — ANTRABUMI`,
+    title: t?.title ? `${t.title} — Pengetahuan ANTRABUMI` : `${slug} — ANTRABUMI`,
     description: t?.excerpt ?? undefined,
   };
 }
@@ -77,14 +78,16 @@ export default async function KnowledgeDetailPage({ params }: Props) {
 
   const lang = await getLanguage();
   const isEn = lang === "EN";
-  const t =
-    item.translations.find((tr) => tr.language === lang) ??
-    item.translations.find((tr) => tr.language === "ID") ??
-    item.translations[0];
+  const tLang = item.translations.find((tr) => tr.language === lang && tr.title?.trim());
+  const tId = item.translations.find((tr) => tr.language === "ID" && tr.title?.trim());
+  const t = tLang ?? tId ?? item.translations[0];
+
+  const content = (tLang?.content && tLang.content !== "<p></p>") ? tLang.content : (tId?.content ?? t?.content);
   const typeMap = isEn ? typeLabelsEn : typeLabelsId;
   const typeLabel = typeMap[item.type] ?? item.type;
-  const pubDate = item.publicationDate
-    ? new Date(item.publicationDate).toLocaleDateString(isEn ? "en-US" : "id-ID", {
+  const rawDate = item.publicationDate || item.publishedAt;
+  const pubDate = rawDate
+    ? new Date(rawDate).toLocaleDateString(isEn ? "en-US" : "id-ID", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -162,12 +165,12 @@ export default async function KnowledgeDetailPage({ params }: Props) {
       )}
 
       {/* Content body */}
-      {t?.content && (
+      {content && (
         <section className="bg-white py-14 sm:py-20">
           <Container size="reading">
             <div
               className="prose prose-neutral max-w-none text-base sm:text-lg leading-relaxed text-neutral-800 prose-headings:font-heading prose-headings:font-bold prose-headings:text-neutral-950 prose-a:text-[#0D5C4D] prose-a:font-semibold hover:prose-a:text-[#116958]"
-              dangerouslySetInnerHTML={{ __html: t.content }}
+              dangerouslySetInnerHTML={{ __html: content }}
             />
           </Container>
         </section>

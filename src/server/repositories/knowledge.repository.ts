@@ -139,22 +139,31 @@ export async function findKnowledgeById(id: string): Promise<KnowledgeDetail | n
 export interface CreateKnowledgeInput {
   slug: string;
   type?: KnowledgeType;
+  status?: ContentStatus;
+  authorName?: string | null;
+  publicationDate?: string | Date | null;
   featured?: boolean;
-  coverMediaId?: string;
+  coverMediaId?: string | null;
   titleId: string;
-  excerptId?: string;
-  bodyId?: string;
-  titleEn?: string;
-  excerptEn?: string;
-  bodyEn?: string;
+  excerptId?: string | null;
+  bodyId?: string | null;
+  titleEn?: string | null;
+  excerptEn?: string | null;
+  bodyEn?: string | null;
 }
 
 export async function createKnowledge(input: CreateKnowledgeInput, userId: string) {
+  const pubDate = input.publicationDate ? new Date(input.publicationDate) : null;
+  const isPublished = input.status === ContentStatus.PUBLISHED;
+
   return prisma.knowledge.create({
     data: {
       slug: input.slug,
       type: input.type ?? KnowledgeType.ARTICLE,
-      status: ContentStatus.DRAFT,
+      status: input.status ?? ContentStatus.DRAFT,
+      authorName: input.authorName || null,
+      publicationDate: pubDate ?? (isPublished ? new Date() : null),
+      publishedAt: isPublished ? (pubDate ?? new Date()) : null,
       featured: input.featured ?? false,
       coverMediaId: input.coverMediaId || null,
       createdById: userId,
@@ -167,13 +176,15 @@ export async function createKnowledge(input: CreateKnowledgeInput, userId: strin
             excerpt: input.excerptId ?? null,
             content: input.bodyId ?? null,
           },
-          ...(input.titleEn
-            ? [{
-                language: Language.EN,
-                title: input.titleEn,
-                excerpt: input.excerptEn ?? null,
-                content: input.bodyEn ?? null,
-              }]
+          ...(input.titleEn?.trim()
+            ? [
+                {
+                  language: Language.EN,
+                  title: input.titleEn.trim(),
+                  excerpt: input.excerptEn ?? null,
+                  content: input.bodyEn ?? null,
+                },
+              ]
             : []),
         ],
       },
@@ -187,6 +198,8 @@ export interface UpdateKnowledgeInput extends Partial<CreateKnowledgeInput> {
 
 export async function updateKnowledge(input: UpdateKnowledgeInput, userId: string) {
   const { id, titleId, excerptId, bodyId, titleEn, excerptEn, bodyEn, ...core } = input;
+  const pubDate = core.publicationDate ? new Date(core.publicationDate) : undefined;
+  const isNowPublished = core.status === ContentStatus.PUBLISHED;
 
   return prisma.$transaction(async (tx) => {
     const k = await tx.knowledge.update({
@@ -194,6 +207,10 @@ export async function updateKnowledge(input: UpdateKnowledgeInput, userId: strin
       data: {
         ...(core.slug ? { slug: core.slug } : {}),
         ...(core.type ? { type: core.type } : {}),
+        ...(core.status ? { status: core.status } : {}),
+        ...(core.authorName !== undefined ? { authorName: core.authorName || null } : {}),
+        ...(pubDate !== undefined ? { publicationDate: pubDate } : {}),
+        ...(isNowPublished ? { publishedAt: new Date() } : {}),
         ...(core.featured !== undefined ? { featured: core.featured } : {}),
         ...(core.coverMediaId !== undefined ? { coverMediaId: core.coverMediaId || null } : {}),
         updatedById: userId,
@@ -217,18 +234,18 @@ export async function updateKnowledge(input: UpdateKnowledgeInput, userId: strin
         },
       });
     }
-    if (titleEn !== undefined) {
+    if (titleEn !== undefined && titleEn !== null) {
       await tx.knowledgeTranslation.upsert({
         where: { knowledgeId_language: { knowledgeId: id, language: Language.EN } },
         create: {
           knowledgeId: id,
           language: Language.EN,
-          title: titleEn,
+          title: titleEn || "",
           excerpt: excerptEn ?? null,
           content: bodyEn ?? null,
         },
         update: {
-          title: titleEn,
+          title: titleEn || "",
           excerpt: excerptEn ?? null,
           content: bodyEn ?? null,
         },

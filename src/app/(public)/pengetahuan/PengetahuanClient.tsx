@@ -18,6 +18,7 @@ export interface DisplayKnowledge {
   id: string;
   slug: string;
   type: string;
+  featured?: boolean;
   publishedAt: string | null;
   coverMedia: { url: string | null; altText: string | null } | null;
   title: string;
@@ -113,6 +114,7 @@ export function PengetahuanClient({ initialItems, lang }: PengetahuanClientProps
     "REPORT",
     "PUBLICATION",
     "ARTICLE",
+    "STORY",
     "INSIGHT",
   ];
 
@@ -329,8 +331,15 @@ export function PengetahuanClient({ initialItems, lang }: PengetahuanClientProps
                   <Link
                     key={item.id}
                     href={`/pengetahuan/${item.slug}`}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white transition-all duration-300 hover:border-[#0D5C4D]/60 hover:shadow-xl hover:-translate-y-1"
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white transition-all duration-300 hover:border-[#0D5C4D]/60 hover:shadow-xl hover:-translate-y-1"
                   >
+                    {/* Featured Badge */}
+                    {item.featured && (
+                      <div className="absolute top-3 right-3 z-10 rounded-full bg-[#E5A823] px-2.5 py-0.5 font-mono text-[10px] font-bold text-neutral-950 shadow-md">
+                        ★ {isEn ? "Featured" : "Unggulan"}
+                      </div>
+                    )}
+
                     {/* Cover Area */}
                     <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
                       {item.coverMedia?.url ? (
@@ -364,15 +373,20 @@ export function PengetahuanClient({ initialItems, lang }: PengetahuanClientProps
                     {/* Content Details */}
                     <div className="flex flex-1 flex-col justify-between gap-4 p-6">
                       <div className="space-y-2.5">
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <span className="rounded-full bg-[#0D5C4D]/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[#0D5C4D]">
                             {typeLabel}
                           </span>
-                          {date && (
-                            <span className="text-xs text-neutral-400 font-mono">{date}</span>
-                          )}
+                          <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono">
+                            {date && <span>{date}</span>}
+                            {item.authorName && (
+                              <span className="truncate max-w-[130px]" title={item.authorName}>
+                                · {item.authorName}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <h2 className="font-heading text-base font-bold leading-snug text-neutral-950 group-hover:text-[#0D5C4D] transition-colors">
+                        <h2 className="font-heading text-base font-bold leading-snug text-neutral-950 group-hover:text-[#0D5C4D] transition-colors line-clamp-2">
                           {item.title}
                         </h2>
                         {item.excerpt && (

@@ -35,6 +35,9 @@ export async function createKnowledgeAction(formData: FormData): Promise<ActionR
   await createAuditLog({ userId: user.id, action: AuditAction.CREATE, entity: "Knowledge", entityId: k.id });
 
   revalidatePath("/admin/knowledge");
+  revalidatePath("/pengetahuan");
+  revalidatePath(`/pengetahuan/${k.slug}`);
+  revalidatePath("/");
   redirect(`/admin/knowledge/${k.id}/edit`);
 }
 
@@ -44,17 +47,20 @@ export async function updateKnowledgeAction(id: string, formData: FormData): Pro
   const parsed = knowledgeSchema.safeParse(raw);
   if (!parsed.success) return { success: false, fieldErrors: parsed.error.flatten().fieldErrors };
 
-  await updateKnowledge({ id, ...parsed.data }, user.id);
+  const updated = await updateKnowledge({ id, ...parsed.data }, user.id);
   await createAuditLog({ userId: user.id, action: AuditAction.UPDATE, entity: "Knowledge", entityId: id });
 
   revalidatePath("/admin/knowledge");
   revalidatePath(`/admin/knowledge/${id}/edit`);
+  revalidatePath("/pengetahuan");
+  if (updated?.slug) revalidatePath(`/pengetahuan/${updated.slug}`);
+  revalidatePath("/");
   return { success: true };
 }
 
 export async function changeKnowledgeStatusAction(id: string, status: ContentStatus): Promise<ActionResult> {
   const user = await requireUser(Role.EDITOR);
-  await updateKnowledgeStatus(id, status, user.id);
+  const updated = await updateKnowledgeStatus(id, status, user.id);
 
   const action =
     status === ContentStatus.PUBLISHED
@@ -73,6 +79,9 @@ export async function changeKnowledgeStatusAction(id: string, status: ContentSta
 
   revalidatePath("/admin/knowledge");
   revalidatePath(`/admin/knowledge/${id}/edit`);
+  revalidatePath("/pengetahuan");
+  if (updated?.slug) revalidatePath(`/pengetahuan/${updated.slug}`);
+  revalidatePath("/");
   return { success: true };
 }
 
@@ -82,5 +91,7 @@ export async function deleteKnowledgeAction(id: string): Promise<ActionResult> {
   await createAuditLog({ userId: user.id, action: AuditAction.DELETE, entity: "Knowledge", entityId: id });
 
   revalidatePath("/admin/knowledge");
+  revalidatePath("/pengetahuan");
+  revalidatePath("/");
   redirect("/admin/knowledge");
 }

@@ -2,7 +2,7 @@
  * src/lib/validation/knowledge.schema.ts
  */
 import { z } from "zod";
-import { KnowledgeType } from "@prisma/client";
+import { KnowledgeType, ContentStatus } from "@prisma/client";
 
 export const knowledgeSchema = z.object({
   slug: z
@@ -12,14 +12,20 @@ export const knowledgeSchema = z.object({
     .max(100)
     .regex(/^[a-z0-9-]+$/, "Slug hanya boleh huruf kecil, angka, dan tanda hubung"),
   type: z.nativeEnum(KnowledgeType).optional().default(KnowledgeType.ARTICLE),
-  featured: z.boolean().optional().default(false),
-  coverMediaId: z.string().trim().optional(),
+  status: z.nativeEnum(ContentStatus).optional().default(ContentStatus.DRAFT),
+  authorName: z.string().trim().max(150).optional(),
+  publicationDate: z.string().optional().nullable(),
+  featured: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((val) => val === true || val === "true" || val === "on" || val === "1"),
+  coverMediaId: z.string().trim().optional().nullable(),
   titleId: z.string().trim().min(2, "Judul (ID) wajib diisi").max(300),
-  excerptId: z.string().trim().max(500).optional(),
-  bodyId: z.string().trim().optional(),
-  titleEn: z.string().trim().max(300).optional(),
-  excerptEn: z.string().trim().max(500).optional(),
-  bodyEn: z.string().trim().optional(),
+  excerptId: z.string().trim().max(1000).optional().nullable(),
+  bodyId: z.string().trim().optional().nullable(),
+  titleEn: z.string().trim().max(300).optional().nullable(),
+  excerptEn: z.string().trim().max(1000).optional().nullable(),
+  bodyEn: z.string().trim().optional().nullable(),
 });
 
 export type KnowledgeFormValues = z.infer<typeof knowledgeSchema>;
