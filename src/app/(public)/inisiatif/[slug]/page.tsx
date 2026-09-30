@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { PdfDocumentCard } from "@/components/ui/PdfDocumentCard";
 import { prisma } from "@/lib/db/prisma";
 import { ContentStatus } from "@prisma/client";
 import { getLanguage } from "@/lib/i18n/language";
@@ -114,6 +115,21 @@ async function getExperience(slug: string) {
         metrics: {
           select: { label: true, value: true, unit: true },
           orderBy: { order: "asc" },
+        },
+        gallery: {
+          include: {
+            media: {
+              select: {
+                id: true,
+                url: true,
+                filename: true,
+                originalName: true,
+                size: true,
+                mimeType: true,
+                type: true,
+              },
+            },
+          },
         },
       },
     });
@@ -334,27 +350,53 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 </div>
               ) : null}
 
-              {/* Editorial Notice on In-Depth Report */}
-              <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-6 sm:p-8 space-y-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-xl">📄</span>
-                  <div className="space-y-1">
-                    <h3 className="font-heading text-base font-bold text-neutral-950">
-                      {isEn ? "Access Documentation & Case Studies" : "Akses Dokumentasi & Studi Kasus"}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                      {isEn
-                        ? "Full project briefs, assessment reports, and methodology documentation can be requested for academic, collaborative, or programmatic purposes."
-                        : "Dokumen ringkasan inisiatif, laporan asesmen, dan catatan metodologi dapat diakses untuk kepentingan riset, kolaborasi, maupun perumusan program."}
-                    </p>
+              {/* PDF Documentation & Report */}
+              <div className="space-y-4">
+                {(() => {
+                  const pdfMedia = (exp as any).gallery?.find(
+                    (g: any) =>
+                      g.media?.mimeType === "application/pdf" ||
+                      g.media?.type === "DOCUMENT" ||
+                      g.media?.filename?.toLowerCase().endsWith(".pdf") ||
+                      g.media?.url?.toLowerCase().endsWith(".pdf")
+                  );
+                  const attachedPdfUrl = pdfMedia?.media?.url;
+                  if (!attachedPdfUrl) return null;
+
+                  return (
+                    <PdfDocumentCard
+                      title={pdfMedia?.media?.originalName || `${title} (Project Brief & Methodology)`}
+                      pdfUrl={attachedPdfUrl}
+                      category={fallbackInfo?.category || "Inisiatif & Aksi"}
+                      fileSize="PDF Document"
+                      description={
+                        t?.excerpt ??
+                        (isEn
+                          ? "Official project documentation covering methodology, stakeholder engagement, and field learnings."
+                          : "Dokumen resmi inisiatif mencakup kerangka kerja, pelibatan pemangku kepentingan, dan pembelajaran lapangan.")
+                      }
+                      lang={lang as "ID" | "EN"}
+                    />
+                  );
+                })()}
+
+                <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">💬</span>
+                    <div>
+                      <p className="font-heading text-xs font-bold text-neutral-900">
+                        {isEn ? "Need tailored collaboration or raw dataset?" : "Perlu kolaborasi khusus atau data mentah?"}
+                      </p>
+                      <p className="text-[11px] text-neutral-500">
+                        {isEn ? "Contact our team for contextual adaptation." : "Hubungi tim kami untuk adaptasi program."}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="pt-2">
                   <Link
                     href={`/kolaborasi#kontak?subject=Inquiry%20${encodeURIComponent(title)}`}
-                    className="inline-flex items-center gap-2 rounded-xl bg-white border border-neutral-200 px-5 py-2.5 text-xs font-semibold text-neutral-900 shadow-sm hover:border-[#0D5C4D] hover:text-[#0D5C4D] transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-xs font-semibold text-neutral-800 shadow-2xs hover:border-[#0D5C4D] hover:text-[#0D5C4D] transition-colors"
                   >
-                    <span>{isEn ? "Request details via email" : "Hubungi kami tentang inisiatif ini"}</span>
+                    <span>{isEn ? "Discuss" : "Hubungi Kami"}</span>
                     <span>→</span>
                   </Link>
                 </div>

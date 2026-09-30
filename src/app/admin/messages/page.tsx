@@ -92,7 +92,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
                       {STATUS_BADGE[m.status]?.label ?? m.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-neutral-500">
+                  <td className="px-4 py-3 text-xs text-neutral-500" suppressHydrationWarning>
                     {new Date(m.createdAt).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "short",

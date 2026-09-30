@@ -71,6 +71,42 @@ export async function findPartners(
   return { items, total };
 }
 
+export interface PublicPartnerItem {
+  id: string;
+  name: string;
+  slug: string;
+  category: string | null;
+  description: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  logoAlt: string | null;
+}
+
+export async function findPublishedPartners(): Promise<PublicPartnerItem[]> {
+  const partners = await prisma.partner.findMany({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    include: {
+      logoMedia: {
+        select: { url: true, altText: true },
+      },
+    },
+  });
+
+  return partners.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    description: p.description,
+    website: p.website,
+    logoUrl: p.logoMedia?.url ?? null,
+    logoAlt: p.logoMedia?.altText ?? p.name,
+  }));
+}
+
 export async function findPartnerById(id: string): Promise<PartnerDetail | null> {
   return prisma.partner.findUnique({
     where: { id },

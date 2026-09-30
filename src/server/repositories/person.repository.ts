@@ -89,6 +89,70 @@ export async function findPeople(
   };
 }
 
+export interface PublicPersonItem {
+  id: string;
+  slug: string;
+  order: number;
+  name: string;
+  role: string | null;
+  degree: string | null;
+  biography: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
+}
+
+export async function findPublishedPeople(language: string = "ID"): Promise<PublicPersonItem[]> {
+  const people = await prisma.person.findMany({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    include: {
+      image: {
+        select: { url: true, altText: true },
+      },
+      translations: {
+        select: {
+          language: true,
+          name: true,
+          role: true,
+          degree: true,
+          biography: true,
+        },
+      },
+    },
+  });
+
+  const langEnum = language.toUpperCase() === "EN" ? Language.EN : Language.ID;
+
+  return people.map((p) => {
+    const currentTranslation =
+      p.translations.find((t) => t.language === langEnum) ??
+      p.translations.find((t) => t.language === Language.ID) ??
+      p.translations[0];
+
+    const fallbackTranslation =
+      p.translations.find((t) => t.language !== langEnum);
+
+    const name = currentTranslation?.name || fallbackTranslation?.name || p.slug;
+    const role = currentTranslation?.role || fallbackTranslation?.role || null;
+    const degree = currentTranslation?.degree || fallbackTranslation?.degree || null;
+    const biography = currentTranslation?.biography || fallbackTranslation?.biography || null;
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      order: p.order,
+      name,
+      role,
+      degree,
+      biography,
+      imageUrl: p.image?.url ?? null,
+      imageAlt: p.image?.altText ?? name ?? null,
+    };
+  });
+}
+
 export async function findPersonById(id: string): Promise<PersonDetail | null> {
   const p = await prisma.person.findUnique({
     where: { id },

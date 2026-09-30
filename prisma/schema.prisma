@@ -41,13 +41,9 @@ enum Role {
 }
 
 enum KnowledgeType {
-  RESEARCH
-  ASSESSMENT
-  REPORT
-  PUBLICATION
   ARTICLE
+  RESEARCH_PUBLICATION
   STORY
-  INSIGHT
 }
 
 enum MessageStatus {
@@ -210,6 +206,7 @@ model Experience {
   type String @default("EXPERIENCE")
 
   year       Int?
+  category   String?
   location   String?
   clientName String?
 

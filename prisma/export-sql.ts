@@ -102,6 +102,8 @@ async function main() {
   dataSql += await dumpTable("SiteSetting", () => prisma.siteSetting.findMany());
   dataSql += await dumpTable("NavigationItem", () => prisma.navigationItem.findMany());
   dataSql += await dumpTable("Page", () => prisma.page.findMany());
+  dataSql += await dumpTable("ContactMessage", () => prisma.contactMessage.findMany());
+  dataSql += await dumpTable("AuditLog", () => prisma.auditLog.findMany());
 
   const header = `-- =========================================================================
 -- ANTRABUMI 2026 — Complete Database Export (DDL Schema + Initial Data)

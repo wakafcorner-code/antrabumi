@@ -162,11 +162,10 @@ export function HeroManagerClient({ initialSlides, initialConfig }: Props) {
     <div className="space-y-6">
       {statusMsg && (
         <div
-          className={`flex items-center justify-between rounded-md p-4 text-sm font-medium ${
-            statusMsg.type === "success"
+          className={`flex items-center justify-between rounded-md p-4 text-sm font-medium ${statusMsg.type === "success"
               ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
               : "bg-red-50 text-red-700 border border-red-200"
-          }`}
+            }`}
         >
           <span>{statusMsg.text}</span>
           <button
@@ -281,9 +280,8 @@ export function HeroManagerClient({ initialSlides, initialConfig }: Props) {
             {slides.map((s, index) => (
               <div
                 key={s.id}
-                className={`flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between ${
-                  !s.isActive ? "bg-neutral-50/60 opacity-65" : "bg-white"
-                }`}
+                className={`flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between ${!s.isActive ? "bg-neutral-50/60 opacity-65" : "bg-white"
+                  }`}
               >
                 {/* Left: Info */}
                 <div className="flex items-start gap-4">
@@ -334,11 +332,10 @@ export function HeroManagerClient({ initialSlides, initialConfig }: Props) {
                         {s.tagline || "ANTRABUMI"}
                       </span>
                       <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
-                          s.isActive
+                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase ${s.isActive
                             ? "bg-emerald-100 text-emerald-800"
                             : "bg-neutral-200 text-neutral-600"
-                        }`}
+                          }`}
                       >
                         {s.isActive ? "Aktif" : "Nonaktif"}
                       </span>
@@ -360,11 +357,10 @@ export function HeroManagerClient({ initialSlides, initialConfig }: Props) {
                   <button
                     type="button"
                     onClick={() => toggleActive(s.id)}
-                    className={`rounded border px-2.5 py-1 text-xs font-medium transition ${
-                      s.isActive
+                    className={`rounded border px-2.5 py-1 text-xs font-medium transition ${s.isActive
                         ? "border-neutral-200 text-neutral-600 hover:bg-neutral-100"
                         : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                    }`}
+                      }`}
                   >
                     {s.isActive ? "Nonaktifkan" : "Aktifkan"}
                   </button>

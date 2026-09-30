@@ -15,8 +15,5 @@ export default async function EditInitiativePage({ params }: PageProps) {
 
   if (!exp) notFound();
 
-  // Ensure this record is actually an initiative
-  if (exp.type !== "INITIATIVE") notFound();
-
   return <ExperienceEditForm experience={exp} backHref="/admin/initiatives" />;
 }

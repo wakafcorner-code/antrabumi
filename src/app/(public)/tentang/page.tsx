@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import { getLanguage } from "@/lib/i18n/language";
+import { findPublishedPeople } from "@/server/repositories/person.repository";
 import { TentangClient } from "./TentangClient";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const dynamic = "force-dynamic";
 
 export default async function TentangPage() {
   const lang = await getLanguage();
+  const people = await findPublishedPeople(lang);
 
-  return <TentangClient lang={lang} />;
+  return <TentangClient lang={lang} people={people} />;
 }

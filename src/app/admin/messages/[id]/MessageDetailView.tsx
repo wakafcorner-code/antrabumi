@@ -39,7 +39,7 @@ export function MessageDetailView({ message }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-neutral-900">Pesan dari {message.name}</h1>
-          <p className="mt-0.5 text-xs text-neutral-400">
+          <p className="mt-0.5 text-xs text-neutral-400" suppressHydrationWarning>
             Diterima pada {new Date(message.createdAt).toLocaleString("id-ID")}
           </p>
         </div>

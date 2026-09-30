@@ -4,6 +4,7 @@ import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createExperienceAction } from "@/features/experiences/actions";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PdfPicker } from "@/components/admin/PdfPicker";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export default function NewInitiativePage() {
@@ -47,28 +48,119 @@ export default function NewInitiativePage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6">
-        {/* Hidden type field */}
-        <input type="hidden" name="type" value="INITIATIVE" />
+        {/* Tipe Inisiatif */}
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
+            Tipe Inisiatif *
+          </legend>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="type"
+                value="INITIATIVE"
+                defaultChecked
+                className="accent-neutral-900"
+              />
+              <span>
+                <span className="font-semibold">Kampanye</span>
+                <span className="ml-1.5 text-xs text-neutral-400">— Advokasi, aksi, dan kesadaran publik</span>
+              </span>
+            </label>
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="type"
+                value="EXPERIENCE"
+                className="accent-neutral-900"
+              />
+              <span>
+                <span className="font-semibold">Proyek</span>
+                <span className="ml-1.5 text-xs text-neutral-400">— Program lapangan dan pendampingan</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
 
-        <fieldset className="space-y-4">
+        {/* Status */}
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
+            Status Publikasi
+          </legend>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="status"
+                value="DRAFT"
+                defaultChecked
+                className="accent-neutral-900"
+              />
+              Draft
+            </label>
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="status"
+                value="PUBLISHED"
+                className="accent-neutral-900"
+              />
+              Published
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-4 border-t border-neutral-100 pt-4">
           <legend className="text-sm font-semibold text-neutral-700">Informasi Dasar</legend>
 
           <Field label="Judul (ID) *" error={fieldErrors.titleId?.[0]}>
-            <input name="titleId" className={inputCls} placeholder="Contoh: Pelatihan Asesmen Pengembangan Komunitas" required />
+            <input
+              name="titleId"
+              className={inputCls}
+              placeholder="Contoh: Pelatihan Asesmen Pengembangan Komunitas"
+              required
+            />
           </Field>
 
           <Field label="Slug" hint="Akan dibuat otomatis jika kosong" error={fieldErrors.slug?.[0]}>
-            <input name="slug" className={inputCls} placeholder="pelatihan-asesmen-pengembangan-komunitas" />
+            <input
+              name="slug"
+              className={inputCls}
+              placeholder="pelatihan-asesmen-pengembangan-komunitas"
+            />
           </Field>
 
           <MediaPicker name="coverMediaId" label="Gambar Sampul / Cover" />
 
+          {/* Dokumen PDF Opsional */}
+          <PdfPicker
+            name="pdfMediaId"
+            labelName="pdfLabel"
+            title="Dokumen / Laporan PDF"
+            description="Lampirkan dokumen brief inisiatif atau laporan program PDF jika ada (opsional). File dapat diunduh dan dipratinjau langsung di halaman publik."
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="Tahun" error={fieldErrors.year?.[0]}>
-              <input name="year" type="number" min="2000" max="2100" className={inputCls} placeholder="2024" />
+              <input
+                name="year"
+                type="number"
+                min="2000"
+                max="2100"
+                className={inputCls}
+                placeholder="2024"
+              />
             </Field>
-            <Field label="Kategori" error={fieldErrors.category?.[0]}>
-              <input name="category" className={inputCls} placeholder="Community Development" />
+            <Field label="Kategori / Bidang Kerja" error={fieldErrors.category?.[0]}>
+              <select name="category" className={inputCls} defaultValue="">
+                <option value="">Pilih kategori…</option>
+                <option value="Konservasi, Iklim & Keberlanjutan">01 · Konservasi, Iklim &amp; Keberlanjutan</option>
+                <option value="Program & Strategy">02 · Program &amp; Strategy</option>
+                <option value="Partnership & Collaboration">03 · Partnership &amp; Collaboration</option>
+                <option value="Media, Storytelling & Campaign">04 · Media, Storytelling &amp; Campaign</option>
+                <option value="Community Development">05 · Community Development</option>
+                <option value="Research, Assessment & Knowledge">06 · Research, Assessment &amp; Knowledge</option>
+              </select>
             </Field>
           </div>
 
@@ -82,28 +174,51 @@ export default function NewInitiativePage() {
           </div>
 
           <Field label="Ringkasan (ID)" error={fieldErrors.excerptId?.[0]}>
-            <textarea name="excerptId" rows={3} className={inputCls} placeholder="Deskripsi singkat inisiatif…" />
+            <textarea
+              name="excerptId"
+              rows={3}
+              className={inputCls}
+              placeholder="Deskripsi singkat inisiatif…"
+            />
           </Field>
 
           <div className="space-y-1">
-            <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten Lengkap (ID)</label>
-            {fieldErrors.bodyId?.[0] && <p className="text-xs text-red-600">{fieldErrors.bodyId[0]}</p>}
+            <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">
+              Konten Lengkap (ID)
+            </label>
+            {fieldErrors.bodyId?.[0] && (
+              <p className="text-xs text-red-600">{fieldErrors.bodyId[0]}</p>
+            )}
             <RichTextEditor name="bodyId" placeholder="Deskripsi lengkap dan metodologi inisiatif…" />
           </div>
         </fieldset>
 
         <fieldset className="space-y-4 border-t border-neutral-100 pt-4">
-          <legend className="text-sm font-semibold text-neutral-700">Konten Bahasa Inggris (opsional)</legend>
+          <legend className="text-sm font-semibold text-neutral-700">
+            Konten Bahasa Inggris (opsional)
+          </legend>
           <Field label="Judul (EN)" error={fieldErrors.titleEn?.[0]}>
             <input name="titleEn" className={inputCls} placeholder="English title…" />
           </Field>
           <Field label="Ringkasan (EN)" error={fieldErrors.excerptEn?.[0]}>
-            <textarea name="excerptEn" rows={3} className={inputCls} placeholder="Short description…" />
+            <textarea
+              name="excerptEn"
+              rows={3}
+              className={inputCls}
+              placeholder="Short description…"
+            />
           </Field>
           <div className="space-y-1">
-            <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten Lengkap (EN)</label>
-            {fieldErrors.bodyEn?.[0] && <p className="text-xs text-red-600">{fieldErrors.bodyEn[0]}</p>}
-            <RichTextEditor name="bodyEn" placeholder="Full initiative description and methodology in English…" />
+            <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">
+              Konten Lengkap (EN)
+            </label>
+            {fieldErrors.bodyEn?.[0] && (
+              <p className="text-xs text-red-600">{fieldErrors.bodyEn[0]}</p>
+            )}
+            <RichTextEditor
+              name="bodyEn"
+              placeholder="Full initiative description and methodology in English…"
+            />
           </div>
         </fieldset>
 
@@ -120,7 +235,7 @@ export default function NewInitiativePage() {
             disabled={isPending}
             className="h-9 rounded-md bg-neutral-900 px-5 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50"
           >
-            {isPending ? "Menyimpan…" : "Simpan sebagai Draft"}
+            {isPending ? "Menyimpan…" : "Simpan"}
           </button>
         </div>
       </form>

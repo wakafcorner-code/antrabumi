@@ -60,12 +60,12 @@ describe("Validation Schemas", () => {
       const input = {
         titleId: "Laporan Tahunan 2025",
         slug: "laporan-tahunan-2025",
-        type: KnowledgeType.REPORT,
+        type: KnowledgeType.RESEARCH_PUBLICATION,
       };
       const res = knowledgeSchema.safeParse(input);
       expect(res.success).toBe(true);
       if (res.success) {
-        expect(res.data.type).toBe(KnowledgeType.REPORT);
+        expect(res.data.type).toBe(KnowledgeType.RESEARCH_PUBLICATION);
       }
     });
   });

@@ -2,12 +2,14 @@
  * src/lib/validation/experience.schema.ts
  */
 import { z } from "zod";
+import { ContentStatus } from "@prisma/client";
 
 export const experienceSchema = z.object({
   type: z
     .enum(["EXPERIENCE", "INITIATIVE"])
     .optional()
     .default("EXPERIENCE"),
+  status: z.nativeEnum(ContentStatus).optional().default(ContentStatus.DRAFT),
   slug: z
     .string()
     .trim()
@@ -19,7 +21,7 @@ export const experienceSchema = z.object({
     .optional()
     .transform((v) => (v ? parseInt(v, 10) : undefined))
     .pipe(z.number().min(2000).max(2100).optional()),
-  category: z.string().trim().max(80).optional(),
+  category: z.string().trim().max(120).optional(),
   client: z.string().trim().max(200).optional(),
   location: z.string().trim().max(200).optional(),
   featured: z.boolean().optional().default(false),

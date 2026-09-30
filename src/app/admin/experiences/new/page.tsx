@@ -4,6 +4,7 @@ import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createExperienceAction } from "@/features/experiences/actions";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PdfPicker } from "@/components/admin/PdfPicker";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 export default function NewExperiencePage() {
@@ -62,6 +63,14 @@ export default function NewExperiencePage() {
           </Field>
 
           <MediaPicker name="coverMediaId" label="Gambar Sampul / Cover" />
+
+          {/* Dokumen PDF Opsional */}
+          <PdfPicker
+            name="pdfMediaId"
+            labelName="pdfLabel"
+            title="Dokumen / Laporan PDF"
+            description="Lampirkan dokumen, studi kasus, atau laporan proyek PDF jika ada (opsional). Pengunjung dapat melihat dan mengunduh berkas ini."
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Tahun" error={fieldErrors.year?.[0]}>

@@ -3,7 +3,7 @@
 import React, { useTransition, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ContentStatus, KnowledgeType } from "@prisma/client";
+import { ContentStatus } from "@prisma/client";
 import {
   updateKnowledgeAction,
   changeKnowledgeStatusAction,
@@ -161,9 +161,9 @@ export function KnowledgeEditForm({ knowledge }: Props) {
             </Field>
             <Field label="Tipe Konten" error={fieldErrors.type?.[0]}>
               <select name="type" defaultValue={knowledge.type} className={inputCls}>
-                {Object.values(KnowledgeType).map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                <option value="ARTICLE">Artikel</option>
+                <option value="RESEARCH_PUBLICATION">Riset &amp; Publikasi</option>
+                <option value="STORY">Cerita Lapangan</option>
               </select>
             </Field>
           </div>

@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { PdfDocumentCard } from "@/components/ui/PdfDocumentCard";
 import { prisma } from "@/lib/db/prisma";
 import { ContentStatus } from "@prisma/client";
 import { getLanguage } from "@/lib/i18n/language";
@@ -187,6 +188,21 @@ async function getExperience(slug: string) {
         metrics: {
           select: { label: true, value: true, unit: true },
           orderBy: { order: "asc" },
+        },
+        gallery: {
+          include: {
+            media: {
+              select: {
+                id: true,
+                url: true,
+                filename: true,
+                originalName: true,
+                size: true,
+                mimeType: true,
+                type: true,
+              },
+            },
+          },
         },
       },
     });
@@ -447,6 +463,38 @@ export default async function PengalamanDetailPage({ params }: Props) {
                   </div>
                 </div>
               )}
+
+              {/* PDF Documentation & Report */}
+              {/* PDF Documentation & Report (Optional) */}
+              {(() => {
+                const pdfMedia = (exp as any).gallery?.find(
+                  (g: any) =>
+                    g.media?.mimeType === "application/pdf" ||
+                    g.media?.type === "DOCUMENT" ||
+                    g.media?.filename?.toLowerCase().endsWith(".pdf") ||
+                    g.media?.url?.toLowerCase().endsWith(".pdf")
+                );
+                const attachedPdfUrl = pdfMedia?.media?.url;
+                if (!attachedPdfUrl) return null;
+
+                return (
+                  <div className="pt-2">
+                    <PdfDocumentCard
+                      title={pdfMedia?.media?.originalName || `${title} (Brief & Case Study)`}
+                      pdfUrl={attachedPdfUrl}
+                      category={categoryTitle || (isEn ? "Field Experience" : "Dokumen Pengalaman")}
+                      fileSize="PDF Document"
+                      description={
+                        t?.excerpt ??
+                        (isEn
+                          ? "Official project summary detailing methodology, community participation, and outcomes."
+                          : "Ringkasan resmi proyek yang memuat metodologi, partisipasi masyarakat, dan capaian lapangan.")
+                      }
+                      lang={lang as "ID" | "EN"}
+                    />
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Sidebar Column */}

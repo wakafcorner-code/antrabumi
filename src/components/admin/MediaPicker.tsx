@@ -7,6 +7,8 @@ interface Props {
   initialMediaId?: string | null;
   initialUrl?: string | null;
   label?: string;
+  allowPdf?: boolean;
+  accept?: string;
 }
 
 export function MediaPicker({
@@ -14,6 +16,8 @@ export function MediaPicker({
   initialMediaId,
   initialUrl,
   label = "Gambar / Media",
+  allowPdf = true,
+  accept,
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(
     initialMediaId ?? null
@@ -25,6 +29,15 @@ export function MediaPicker({
   const [urlInput, setUrlInput] = useState("");
   const [tab, setTab] = useState<"upload" | "url">("upload");
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const defaultAccept = allowPdf
+    ? "image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,application/pdf"
+    : "image/png,image/jpeg,image/jpg,image/webp,image/svg+xml";
+  const resolvedAccept = accept || defaultAccept;
+
+  const isPdf =
+    selectedUrl?.toLowerCase().endsWith(".pdf") ||
+    selectedUrl?.toLowerCase().includes(".pdf");
 
   async function handleDirectUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -46,13 +59,12 @@ export function MediaPicker({
         setSelectedUrl(json.data.url);
         setUrlInput("");
       } else {
-        setUploadError(json.error ?? "Gagal mengunggah gambar.");
+        setUploadError(json.error ?? "Gagal mengunggah berkas.");
       }
     } catch {
       setUploadError("Terjadi kesalahan koneksi.");
     } finally {
       setIsUploading(false);
-      // reset input agar bisa upload file sama lagi
       e.target.value = "";
     }
   }
@@ -60,8 +72,6 @@ export function MediaPicker({
   function handleApplyUrl() {
     const trimmed = urlInput.trim();
     if (!trimmed) return;
-    // URL-based — no mediaId, just a direct URL stored via hidden input trick
-    // We store the URL in selectedUrl and clear mediaId
     setSelectedId(null);
     setSelectedUrl(trimmed);
     setUrlInput("");
@@ -82,25 +92,48 @@ export function MediaPicker({
 
       {/* Hidden inputs */}
       <input type="hidden" name={name} value={selectedId ?? ""} />
-      {/* Also expose the raw URL so Server Actions can use it if no mediaId */}
       <input type="hidden" name={`${name}Url`} value={selectedUrl ?? ""} />
 
       {/* Preview */}
       {selectedUrl && (
-        <div className="relative mb-2 h-32 w-full max-w-xs overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={selectedUrl}
-            alt="Pratinjau gambar"
-            className="h-full w-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
+        <div className="relative mb-2 w-full max-w-sm overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 shadow-sm">
+          {isPdf ? (
+            <div className="flex items-center gap-3 bg-red-50/80 p-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 border border-red-200 font-mono text-xs font-bold text-red-700">
+                PDF
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-semibold text-neutral-900">
+                  {selectedUrl.split("/").pop()}
+                </p>
+                <a
+                  href={selectedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-[11px] font-medium text-red-700 underline hover:text-red-800"
+                >
+                  Buka / Pratinjau Dokumen ↗
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="relative h-36 w-full bg-neutral-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selectedUrl}
+                alt="Pratinjau gambar"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-black/80"
+            className="absolute right-2 top-2 z-10 rounded-full bg-neutral-900/75 px-2.5 py-1 text-[10px] font-semibold text-white shadow-sm transition hover:bg-neutral-900"
           >
             Hapus
           </button>
@@ -118,7 +151,7 @@ export function MediaPicker({
               : "text-neutral-500 hover:text-neutral-700"
           }`}
         >
-          Unggah File
+          Unggah Berkas
         </button>
         <button
           type="button"
@@ -129,7 +162,7 @@ export function MediaPicker({
               : "text-neutral-500 hover:text-neutral-700"
           }`}
         >
-          URL Gambar
+          URL Berkas
         </button>
       </div>
 
@@ -140,11 +173,11 @@ export function MediaPicker({
             <svg className="h-4 w-4 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            {isUploading ? "Mengunggah…" : "Pilih Gambar (PNG, JPG, WebP)"}
+            {isUploading ? "Mengunggah…" : allowPdf ? "Pilih Gambar atau PDF" : "Pilih Gambar (PNG, JPG, WebP)"}
             <input
               type="file"
               onChange={handleDirectUpload}
-              accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+              accept={resolvedAccept}
               className="hidden"
               disabled={isUploading}
             />
@@ -153,7 +186,7 @@ export function MediaPicker({
             <p className="text-[11px] text-red-600">{uploadError}</p>
           )}
           <p className="text-[11px] text-neutral-400">
-            Format: PNG, JPG, WebP, SVG · Maks. 15MB
+            Format: PNG, JPG, WebP, SVG{allowPdf ? ", PDF" : ""} · Maks. 15MB
           </p>
         </div>
       )}
@@ -165,7 +198,7 @@ export function MediaPicker({
             type="url"
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="https://contoh.com/gambar.jpg"
+            placeholder="https://contoh.com/berkas.jpg atau .pdf"
             className="flex-1 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
           />
           <button

@@ -7,9 +7,12 @@ import {
   updateExperienceAction,
   changeExperienceStatusAction,
   deleteExperienceAction,
+  attachExperiencePdfAction,
+  removeExperiencePdfAction,
 } from "@/features/experiences/actions";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PdfUploader } from "@/components/admin/PdfUploader";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import type { ExperienceDetail } from "@/server/repositories/experience.repository";
 
@@ -124,8 +127,43 @@ export function ExperienceEditForm({ experience, backHref = "/admin/experiences"
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-neutral-200 bg-white p-6">
-        {/* Preserve type on update */}
-        <input type="hidden" name="type" value={experience.type} />
+        {/* Preserve status on update */}
+        <input type="hidden" name="status" value={experience.status} />
+
+        {/* Tipe (visible, editable) */}
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-semibold uppercase tracking-wide text-neutral-600">
+            Tipe Inisiatif *
+          </legend>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="type"
+                value="INITIATIVE"
+                defaultChecked={experience.type === "INITIATIVE"}
+                className="accent-neutral-900"
+              />
+              <span>
+                <span className="font-semibold">Kampanye</span>
+                <span className="ml-1.5 text-xs text-neutral-400">— Advokasi, aksi, dan kesadaran publik</span>
+              </span>
+            </label>
+            <label className="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <input
+                type="radio"
+                name="type"
+                value="EXPERIENCE"
+                defaultChecked={experience.type === "EXPERIENCE"}
+                className="accent-neutral-900"
+              />
+              <span>
+                <span className="font-semibold">Proyek</span>
+                <span className="ml-1.5 text-xs text-neutral-400">— Program lapangan dan pendampingan</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <fieldset className="space-y-4">
           <legend className="text-sm font-semibold text-neutral-700">Informasi Dasar</legend>
 
@@ -144,12 +182,49 @@ export function ExperienceEditForm({ experience, backHref = "/admin/experiences"
             initialUrl={experience.coverMedia?.url}
           />
 
+          {/* Dokumen / PDF Unduhan (Opsional) */}
+          <div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-red-50 text-red-600 font-bold text-xs">
+                📄
+              </span>
+              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-800">
+                Dokumen / Laporan PDF
+              </label>
+              <span className="rounded-full bg-neutral-200/80 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
+                Opsional
+              </span>
+            </div>
+            <p className="text-xs text-neutral-500">
+              Unggah dokumen PDF seperti ringkasan eksekutif, laporan lapangan, atau metodologi. Bersifat opsional.
+            </p>
+            <PdfUploader
+              existing={experience.pdfAttachments ?? []}
+              onUploaded={async (media) => {
+                await attachExperiencePdfAction(experience.id, media.id);
+                router.refresh();
+              }}
+              onRemove={async (mediaId) => {
+                await removeExperiencePdfAction(experience.id, mediaId);
+                router.refresh();
+              }}
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="Tahun" error={fieldErrors.year?.[0]}>
               <input name="year" type="number" defaultValue={experience.year ?? ""} className={inputCls} />
             </Field>
-            <Field label="Kategori" error={fieldErrors.category?.[0]}>
-              <input name="category" defaultValue="" className={inputCls} />
+            <Field label="Kategori / Bidang Kerja" error={fieldErrors.category?.[0]}>
+              <select name="category" defaultValue={experience.category ?? ""} className={inputCls}>
+                <option value="">Pilih kategori…</option>
+                <option value="Konservasi, Iklim & Keberlanjutan">01 · Konservasi, Iklim &amp; Keberlanjutan</option>
+                <option value="Program & Strategy">02 · Program &amp; Strategy</option>
+                <option value="Partnership & Collaboration">03 · Partnership &amp; Collaboration</option>
+                <option value="Media, Storytelling & Campaign">04 · Media, Storytelling &amp; Campaign</option>
+                <option value="Community Development">05 · Community Development</option>
+                <option value="Research, Assessment & Knowledge">06 · Research, Assessment &amp; Knowledge</option>
+              </select>
             </Field>
           </div>
 

@@ -73,11 +73,10 @@ export function HomeContentManagerClient({ initialContent }: Props) {
     <div className="space-y-6">
       {statusMsg && (
         <div
-          className={`flex items-center justify-between rounded-md p-4 text-sm font-medium ${
-            statusMsg.type === "success"
+          className={`flex items-center justify-between rounded-md p-4 text-sm font-medium ${statusMsg.type === "success"
               ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border border-red-200 bg-red-50 text-red-700"
-          }`}
+            }`}
         >
           <span>{statusMsg.text}</span>
           <button
@@ -103,11 +102,10 @@ export function HomeContentManagerClient({ initialContent }: Props) {
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
-              activeTab === tab.id
+            className={`rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${activeTab === tab.id
                 ? "bg-neutral-900 text-white"
                 : "bg-white text-neutral-600 hover:bg-neutral-100"
-            }`}
+              }`}
           >
             {tab.label}
           </button>
@@ -352,7 +350,7 @@ export function HomeContentManagerClient({ initialContent }: Props) {
 
           <div className="border-t border-neutral-100 pt-4 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">
-              Deskripsi Tiga Pilar Utama (Knowledge, Nature, Communities)
+
             </h3>
             {content.pillars.map((pillar, idx) => (
               <div key={pillar.id} className="rounded-md border border-neutral-200 bg-neutral-50/50 p-4 space-y-3">

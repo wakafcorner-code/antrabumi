@@ -10,6 +10,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Role, AuditAction, ContentStatus } from "@prisma/client";
+import { prisma } from "@/lib/db/prisma";
 import { requireUser } from "@/lib/auth/context";
 import { createAuditLog } from "@/lib/audit/audit";
 import { experienceSchema } from "@/lib/validation/experience.schema";
@@ -62,6 +63,22 @@ export async function createExperienceAction(
 
   const exp = await createExperience(parsed.data, user.id);
 
+  // Optional PDF attachment
+  const pdfMediaId = formData.get("pdfMediaId") as string | null;
+  if (pdfMediaId && pdfMediaId.trim() !== "") {
+    try {
+      await prisma.experienceMedia.create({
+        data: {
+          experienceId: exp.id,
+          mediaId: pdfMediaId.trim(),
+          order: 0,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to attach PDF on experience creation:", err);
+    }
+  }
+
   await createAuditLog({
     userId: user.id,
     action: AuditAction.CREATE,
@@ -73,6 +90,8 @@ export async function createExperienceAction(
   const isInitiative = parsed.data.type === "INITIATIVE";
   revalidatePath("/admin/experiences");
   revalidatePath("/admin/initiatives");
+  revalidatePath("/inisiatif");
+  revalidatePath("/pengalaman");
   redirect(`/admin/${ isInitiative ? "initiatives" : "experiences"}/${exp.id}/edit`);
 }
 
@@ -165,4 +184,70 @@ export async function deleteExperienceAction(id: string): Promise<ActionResult> 
   revalidatePath("/admin/experiences");
   revalidatePath("/admin/initiatives");
   redirect("/admin/experiences");
+}
+
+// ---------------------------------------------------------------------------
+// PDF Actions
+// ---------------------------------------------------------------------------
+
+export async function attachExperiencePdfAction(
+  experienceId: string,
+  mediaId: string
+): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  const exp = await prisma.experience.findUnique({ where: { id: experienceId } });
+  if (!exp) return { success: false, error: "Data inisiatif tidak ditemukan." };
+
+  const existing = await prisma.experienceMedia.findUnique({
+    where: {
+      experienceId_mediaId: { experienceId, mediaId },
+    },
+  });
+  if (!existing) {
+    await prisma.experienceMedia.create({
+      data: { experienceId, mediaId, order: 0 },
+    });
+  }
+
+  await createAuditLog({
+    userId: user.id,
+    action: AuditAction.UPDATE,
+    entity: "Experience",
+    entityId: experienceId,
+    metadata: { action: "attach_pdf", mediaId },
+  });
+
+  revalidatePath("/admin/experiences");
+  revalidatePath("/admin/initiatives");
+  revalidatePath(`/admin/experiences/${experienceId}/edit`);
+  revalidatePath(`/admin/initiatives/${experienceId}/edit`);
+  revalidatePath("/inisiatif");
+  revalidatePath("/pengalaman");
+  return { success: true };
+}
+
+export async function removeExperiencePdfAction(
+  experienceId: string,
+  mediaId: string
+): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  await prisma.experienceMedia.deleteMany({
+    where: { experienceId, mediaId },
+  });
+
+  await createAuditLog({
+    userId: user.id,
+    action: AuditAction.UPDATE,
+    entity: "Experience",
+    entityId: experienceId,
+    metadata: { action: "remove_pdf", mediaId },
+  });
+
+  revalidatePath("/admin/experiences");
+  revalidatePath("/admin/initiatives");
+  revalidatePath(`/admin/experiences/${experienceId}/edit`);
+  revalidatePath(`/admin/initiatives/${experienceId}/edit`);
+  revalidatePath("/inisiatif");
+  revalidatePath("/pengalaman");
+  return { success: true };
 }

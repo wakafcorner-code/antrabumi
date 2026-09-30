@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
+import { PdfDocumentCard } from "@/components/ui/PdfDocumentCard";
 import { prisma } from "@/lib/db/prisma";
 import { ContentStatus, KnowledgeType } from "@prisma/client";
 import { getLanguage } from "@/lib/i18n/language";
@@ -12,24 +13,16 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const typeLabelsId: Record<KnowledgeType, string> = {
-  RESEARCH: "Riset",
-  ASSESSMENT: "Asesmen",
-  REPORT: "Laporan",
-  PUBLICATION: "Publikasi",
+const typeLabelsId: Record<string, string> = {
   ARTICLE: "Artikel",
-  STORY: "Cerita",
-  INSIGHT: "Wawasan",
+  RESEARCH_PUBLICATION: "Riset & Publikasi",
+  STORY: "Cerita Lapangan",
 };
 
-const typeLabelsEn: Record<KnowledgeType, string> = {
-  RESEARCH: "Research",
-  ASSESSMENT: "Assessment",
-  REPORT: "Report",
-  PUBLICATION: "Publication",
+const typeLabelsEn: Record<string, string> = {
   ARTICLE: "Article",
-  STORY: "Story",
-  INSIGHT: "Insight",
+  RESEARCH_PUBLICATION: "Research & Publication",
+  STORY: "Field Story",
 };
 
 async function getKnowledge(slug: string) {
@@ -47,7 +40,7 @@ async function getKnowledge(slug: string) {
         select: { title: true, excerpt: true, content: true, language: true },
       },
       downloadableMedia: {
-        select: { media: { select: { url: true, originalName: true, filename: true } } },
+        select: { label: true, media: { select: { url: true, originalName: true, filename: true } } },
         orderBy: { order: "asc" },
       },
     },
@@ -126,7 +119,11 @@ export default async function KnowledgeDetailPage({ params }: Props) {
               <span className="rounded-full bg-[#0D5C4D] border border-[#147A66] px-3 py-1 font-mono text-xs font-semibold text-white">
                 {typeLabel}
               </span>
-              {pubDate && <span className="text-xs text-neutral-300 font-mono">{pubDate}</span>}
+              {pubDate && (
+                <span className="text-xs text-neutral-300 font-mono" suppressHydrationWarning>
+                  {pubDate}
+                </span>
+              )}
               {item.authorName && (
                 <span className="text-xs text-neutral-300 font-mono">
                   · {isEn ? `By ${item.authorName}` : `Oleh ${item.authorName}`}
@@ -176,37 +173,35 @@ export default async function KnowledgeDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* Downloads */}
+      {/* Downloads / PDF Documents — Only shown when PDF is attached (optional) */}
       {item.downloadableMedia.length > 0 && (
-        <section className="border-t border-neutral-100 bg-neutral-50 py-12 sm:py-16">
+        <section className="border-t border-neutral-100 bg-[#FBF9F4] py-12 sm:py-16">
           <Container size="reading">
-            <h2 className="mb-4 font-heading text-lg font-bold text-neutral-950">
-              {isEn ? "Downloadable Documents & Reports" : "Dokumen & Berkas Unduhan"}
-            </h2>
-            <div className="space-y-3">
+            <div className="mb-6 space-y-1">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D5C4D]">
+                {isEn ? "OFFICIAL PUBLICATION & DOCUMENT" : "DOKUMEN & PUBLIKASI RESMI"}
+              </span>
+              <h2 className="font-heading text-xl sm:text-2xl font-bold text-neutral-950">
+                {isEn ? "Document Download & Preview" : "Berkas Unduhan & Pratinjau Dokumen"}
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-600">
+                {isEn
+                  ? "Access the full briefing, methodology, or assessment paper in PDF format."
+                  : "Akses naskah lengkap, ringkasan eksekutif, dan metodologi dalam format PDF."}
+              </p>
+            </div>
+
+            <div className="space-y-4">
               {item.downloadableMedia.map((d, i) => (
-                <a
+                <PdfDocumentCard
                   key={i}
-                  href={d.media.url ?? "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-5 py-4 text-sm font-medium text-neutral-900 transition-all hover:border-[#0D5C4D] hover:shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D5C4D]/10 text-[#0D5C4D]">
-                      📄
-                    </span>
-                    <div>
-                      <p className="font-semibold text-neutral-900">
-                        {d.media.originalName ?? d.media.filename}
-                      </p>
-                      <p className="text-xs text-neutral-400">PDF / Document</p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-semibold text-[#0D5C4D]">
-                    {isEn ? "Download ↓" : "Unduh ↓"}
-                  </span>
-                </a>
+                  title={d.label || d.media.originalName || d.media.filename}
+                  pdfUrl={d.media.url ?? ""}
+                  category={typeLabel}
+                  fileSize="PDF Document"
+                  description={t?.excerpt ?? undefined}
+                  lang={lang as "ID" | "EN"}
+                />
               ))}
             </div>
           </Container>

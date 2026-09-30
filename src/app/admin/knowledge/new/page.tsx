@@ -4,19 +4,16 @@ import React, { useTransition, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createKnowledgeAction } from "@/features/knowledge/actions";
-import { KnowledgeType, ContentStatus } from "@prisma/client";
+import { ContentStatus } from "@prisma/client";
 import { MediaPicker } from "@/components/admin/MediaPicker";
+import { PdfPicker } from "@/components/admin/PdfPicker";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
-const typeLabels: Record<KnowledgeType, string> = {
-  RESEARCH: "Riset (RESEARCH)",
-  ASSESSMENT: "Asesmen (ASSESSMENT)",
-  REPORT: "Laporan (REPORT)",
-  PUBLICATION: "Publikasi (PUBLICATION)",
-  ARTICLE: "Artikel (ARTICLE)",
-  STORY: "Cerita (STORY)",
-  INSIGHT: "Wawasan (INSIGHT)",
-};
+const KNOWLEDGE_TYPE_OPTIONS = [
+  { value: "ARTICLE", label: "Artikel" },
+  { value: "RESEARCH_PUBLICATION", label: "Riset & Publikasi" },
+  { value: "STORY", label: "Cerita Lapangan" },
+];
 
 export default function NewKnowledgePage() {
   const router = useRouter();
@@ -125,9 +122,9 @@ export default function NewKnowledgePage() {
             </Field>
 
             <Field label="Tipe Konten" error={fieldErrors.type?.[0]}>
-              <select name="type" className={inputCls} defaultValue={KnowledgeType.ARTICLE}>
-                {Object.values(KnowledgeType).map((t) => (
-                  <option key={t} value={t}>{typeLabels[t] ?? t}</option>
+              <select name="type" className={inputCls} defaultValue="ARTICLE">
+                {KNOWLEDGE_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
             </Field>
@@ -144,6 +141,7 @@ export default function NewKnowledgePage() {
                 name="publicationDate"
                 className={inputCls}
                 defaultValue={new Date().toISOString().slice(0, 10)}
+                suppressHydrationWarning
               />
             </Field>
           </div>
@@ -162,6 +160,14 @@ export default function NewKnowledgePage() {
           </div>
 
           <MediaPicker name="coverMediaId" label="Gambar Sampul / Cover (PNG, JPG, WebP, atau URL Gambar)" />
+
+          {/* Dokumen PDF Opsional */}
+          <PdfPicker
+            name="pdfMediaId"
+            labelName="pdfLabel"
+            title="Dokumen / Berkas PDF"
+            description="Lampirkan dokumen atau publikasi PDF jika tersedia (opsional). File dapat diunduh dan dipratinjau langsung di halaman publik."
+          />
 
           <Field label="Ringkasan (ID)" error={fieldErrors.excerptId?.[0]}>
             <textarea name="excerptId" rows={3} className={inputCls} placeholder="Ringkasan singkat untuk kartu pratinjau di halaman /pengetahuan..." />
