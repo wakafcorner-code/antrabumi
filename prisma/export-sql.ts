@@ -97,6 +97,7 @@ async function main() {
   dataSql += await dumpTable("KnowledgeTag", () => prisma.knowledgeTag.findMany());
   dataSql += await dumpTable("KnowledgeContributionArea", () => prisma.knowledgeContributionArea.findMany());
   dataSql += await dumpTable("KnowledgeDownload", () => prisma.knowledgeDownload.findMany());
+  dataSql += await dumpTable("KnowledgeMedia", () => prisma.knowledgeMedia.findMany());
   dataSql += await dumpTable("Media", () => prisma.media.findMany());
   dataSql += await dumpTable("Partner", () => prisma.partner.findMany());
   dataSql += await dumpTable("SiteSetting", () => prisma.siteSetting.findMany());

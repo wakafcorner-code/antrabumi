@@ -9,11 +9,14 @@ import {
   deleteExperienceAction,
   attachExperiencePdfAction,
   removeExperiencePdfAction,
+  attachExperienceImageAction,
+  removeExperienceImageAction,
 } from "@/features/experiences/actions";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { PdfUploader } from "@/components/admin/PdfUploader";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { ImageGalleryPicker } from "@/components/admin/ImageGalleryPicker";
 import type { ExperienceDetail } from "@/server/repositories/experience.repository";
 
 const inputCls =
@@ -182,6 +185,20 @@ export function ExperienceEditForm({ experience, backHref = "/admin/experiences"
             initialUrl={experience.coverMedia?.url}
           />
 
+          <ImageGalleryPicker
+            initialImages={experience.galleryImages}
+            label="Galeri Gambar Inisiatif"
+            onChange={async (images) => {
+              const currentIds = new Set(experience.galleryImages.map((image) => image.id));
+              const nextIds = new Set(images.map((image) => image.id));
+              await Promise.all([
+                ...images.filter((image) => !currentIds.has(image.id)).map((image) => attachExperienceImageAction(experience.id, image.id)),
+                ...experience.galleryImages.filter((image) => !nextIds.has(image.id)).map((image) => removeExperienceImageAction(experience.id, image.id)),
+              ]);
+              router.refresh();
+            }}
+          />
+
           {/* Dokumen / PDF Unduhan (Opsional) */}
           <div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-4 space-y-3">
             <div className="flex items-center gap-2">
@@ -211,7 +228,7 @@ export function ExperienceEditForm({ experience, backHref = "/admin/experiences"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Tahun" error={fieldErrors.year?.[0]}>
               <input name="year" type="number" defaultValue={experience.year ?? ""} className={inputCls} />
             </Field>
@@ -228,7 +245,7 @@ export function ExperienceEditForm({ experience, backHref = "/admin/experiences"
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Klien / Mitra" error={fieldErrors.client?.[0]}>
               <input name="client" defaultValue={experience.clientName ?? ""} className={inputCls} />
             </Field>

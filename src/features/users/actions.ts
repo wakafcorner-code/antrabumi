@@ -10,7 +10,6 @@ import {
   updateUserRole,
   updateUserStatus,
   createUser,
-  updateUserEmail,
   updateUserPassword,
   updateUserProfile,
 } from "@/server/repositories/user.repository";

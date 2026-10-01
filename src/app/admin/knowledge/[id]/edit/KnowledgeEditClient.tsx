@@ -6,6 +6,7 @@ import { KnowledgeType, ContentStatus } from "@prisma/client";
 import { MediaPicker } from "@/components/admin/MediaPicker";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { PdfUploader } from "@/components/admin/PdfUploader";
+import { ImageGalleryPicker, GalleryImage } from "@/components/admin/ImageGalleryPicker";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import {
   updateKnowledgeAction,
@@ -13,6 +14,8 @@ import {
   deleteKnowledgeAction,
   attachKnowledgeDownloadAction,
   removeKnowledgeDownloadAction,
+  attachKnowledgeImageAction,
+  removeKnowledgeImageAction,
 } from "@/features/knowledge/actions";
 
 const KNOWLEDGE_TYPE_OPTIONS = [
@@ -46,6 +49,7 @@ interface KnowledgeEditClientProps {
   excerptEn: string | null;
   bodyEn: string | null;
   pdfAttachments: PdfItem[];
+  galleryImages: GalleryImage[];
 }
 
 export function KnowledgeEditClient({
@@ -64,6 +68,7 @@ export function KnowledgeEditClient({
   excerptEn,
   bodyEn,
   pdfAttachments: initialPdfs,
+  galleryImages: initialGalleryImages,
 }: KnowledgeEditClientProps) {
   const [isPending, startTransition] = useTransition();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | undefined>>({});
@@ -260,6 +265,18 @@ export function KnowledgeEditClient({
           </div>
 
           <MediaPicker name="coverMediaId" initialMediaId={coverMediaId} initialUrl={coverMediaUrl} label="Gambar Sampul / Cover" />
+          <ImageGalleryPicker
+            initialImages={initialGalleryImages}
+            label="Galeri Gambar Pengetahuan"
+            onChange={async (images) => {
+              const currentIds = new Set(initialGalleryImages.map((image) => image.id));
+              const nextIds = new Set(images.map((image) => image.id));
+              await Promise.all([
+                ...images.filter((image) => !currentIds.has(image.id)).map((image) => attachKnowledgeImageAction(id, image.id)),
+                ...initialGalleryImages.filter((image) => !nextIds.has(image.id)).map((image) => removeKnowledgeImageAction(id, image.id)),
+              ]);
+            }}
+          />
 
           {/* Dokumen / PDF Unduhan (Opsional) */}
           <div className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-4 space-y-3">

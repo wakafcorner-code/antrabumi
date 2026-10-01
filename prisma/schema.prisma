@@ -413,6 +413,7 @@ model Knowledge {
   contributionAreas KnowledgeContributionArea[]
 
   downloadableMedia KnowledgeDownload[]
+  gallery           KnowledgeMedia[]
 
   @@index([type])
   @@index([status])
@@ -521,6 +522,18 @@ model KnowledgeDownload {
   @@index([knowledgeId])
 }
 
+model KnowledgeMedia {
+  knowledgeId String
+  mediaId     String
+  order       Int @default(0)
+
+  knowledge Knowledge @relation(fields: [knowledgeId], references: [id], onDelete: Cascade)
+  media     Media     @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([knowledgeId, mediaId])
+  @@index([knowledgeId])
+}
+
 // ─── MEDIA ────────────────────────────────────────────────────────────────────
 
 model Media {
@@ -565,6 +578,7 @@ model Media {
 
   knowledgeCovers    Knowledge[]         @relation("KnowledgeCoverMedia")
   knowledgeDownloads KnowledgeDownload[]
+  knowledgeGallery   KnowledgeMedia[]
 
   partnerLogos Partner[] @relation("PartnerLogoMedia")
 

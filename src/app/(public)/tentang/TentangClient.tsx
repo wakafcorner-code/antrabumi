@@ -123,7 +123,6 @@ export function TentangClient({ lang, people }: TentangClientProps) {
     <div>
       {/* ─── 1. HERO SECTION ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-neutral-200/70 bg-gradient-to-b from-[#FBF9F5] via-white to-white py-24 sm:py-32">
-        <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#0D5C4D_1px,transparent_1px)] [background-size:32px_32px]" />
         <div className="absolute -top-32 right-10 h-96 w-96 rounded-full bg-[#0D5C4D]/5 blur-3xl pointer-events-none" />
         <Container size="default">
           <div className="relative z-10 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-center">
@@ -588,9 +587,10 @@ export function TentangClient({ lang, people }: TentangClientProps) {
               const biography = p.biography;
 
               return (
-                <div
+                <Link
                   key={p.name}
-                  className="group relative flex flex-col justify-between rounded-3xl border border-neutral-200/90 bg-white p-6 sm:p-7 shadow-xs transition-all duration-300 hover:border-[#0D5C4D]/40 hover:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.08)] hover:-translate-y-1.5"
+                  href={`/tentang/tim/${p.slug}`}
+                  className="group relative flex min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-neutral-200/90 bg-white p-5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-[#0D5C4D]/40 hover:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.08)] sm:p-7"
                 >
                   <div>
                     {imageUrl ? (
@@ -607,12 +607,12 @@ export function TentangClient({ lang, people }: TentangClientProps) {
                       </div>
                     )}
 
-                    <h3 className="text-base sm:text-lg font-bold text-neutral-950 group-hover:text-[#0D5C4D] transition-colors font-heading leading-snug">
+                    <h3 className="break-words text-base font-bold leading-snug text-neutral-950 transition-colors group-hover:text-[#0D5C4D] sm:text-lg">
                       {p.name}
                     </h3>
 
                     {role && role !== "—" && (
-                      <div className="mt-2 inline-block rounded-md bg-[#0D5C4D]/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#0D5C4D]">
+                      <div className="mt-2 inline-block max-w-full break-words rounded-md bg-[#0D5C4D]/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[#0D5C4D]">
                         {role}
                       </div>
                     )}
@@ -630,11 +630,11 @@ export function TentangClient({ lang, people }: TentangClientProps) {
                     )}
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-neutral-100 flex items-center justify-between text-[11px] font-mono text-neutral-400">
+                  <div className="mt-6 flex items-center justify-between border-t border-neutral-100 pt-4 text-[11px] font-mono text-neutral-400">
                     <span>ANTRABUMI</span>
                     <span className="text-[#0D5C4D] font-semibold">●</span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

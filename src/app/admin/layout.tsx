@@ -19,7 +19,7 @@ export default async function AdminLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="flex h-16 items-center justify-between border-b border-neutral-200 bg-white px-8">
+        <header className="flex min-h-16 flex-wrap items-center justify-between gap-3 border-b border-neutral-200 bg-white px-4 py-3 sm:px-6 lg:px-8">
           {/* Left — workspace label */}
           <div className="flex items-center gap-2">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
@@ -33,10 +33,10 @@ export default async function AdminLayout({
 
           {/* Right — user identity + logout */}
           {user && (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col items-end leading-tight">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+              <div className="hidden min-w-0 flex-col items-end leading-tight sm:flex">
                 <span className="text-sm font-semibold text-neutral-900">
-                  {user.name}
+                  <span className="block max-w-[180px] truncate">{user.name}</span>
                 </span>
                 <span className="text-xs text-neutral-400">{user.role}</span>
               </div>
@@ -63,7 +63,7 @@ export default async function AdminLayout({
         </header>
 
         {/* Main content */}
-        <main id="admin-main" className="flex-1 bg-neutral-50/50 p-8">
+        <main id="admin-main" className="min-w-0 flex-1 bg-neutral-50/50 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

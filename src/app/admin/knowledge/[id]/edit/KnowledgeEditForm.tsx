@@ -155,7 +155,7 @@ export function KnowledgeEditForm({ knowledge }: Props) {
             <input name="titleId" defaultValue={idTranslation?.title ?? ""} required className={inputCls} />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Slug URL" error={fieldErrors.slug?.[0]}>
               <input name="slug" defaultValue={knowledge.slug} required className={inputCls} />
             </Field>

@@ -46,7 +46,7 @@ export function SettingsForm({ initialSettings }: Props) {
       } else {
         alert(data.error || "Gagal mengunggah file logo. Pastikan format file adalah SVG, PNG, WebP, atau JPG (maks 15MB).");
       }
-    } catch (err) {
+    } catch {
       alert("Terjadi kesalahan koneksi saat mengunggah gambar logo.");
     } finally {
       if (target === "light") setIsUploadingLight(false);

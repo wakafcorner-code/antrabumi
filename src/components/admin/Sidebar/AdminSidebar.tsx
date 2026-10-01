@@ -152,10 +152,50 @@ export const AdminSidebar: React.FC = () => {
       : pathname.startsWith(href);
 
   return (
-    <aside
+    <>
+      <div className="sticky top-0 z-30 border-b border-neutral-200 bg-white lg:hidden">
+        <details className="group">
+          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-neutral-900 [&::-webkit-details-marker]:hidden">
+            <span className="flex items-center gap-2">
+              <span className="font-mono text-xs tracking-[0.18em]">ANTRABUMI</span>
+              <span className="rounded bg-neutral-900 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-white">CMS</span>
+            </span>
+            <span className="text-neutral-500 transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
+          </summary>
+          <nav className="border-t border-neutral-100 px-3 pb-4 pt-2" aria-label="Navigasi Admin Mobile">
+            <Link
+              href="/admin"
+              className={`mb-2 flex items-center rounded-md px-3 py-2 text-sm font-medium ${isActive("/admin") ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}
+            >
+              Dashboard
+            </Link>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {NAV_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">{group.label}</p>
+                  <div className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium ${isActive(item.href) ? "bg-neutral-900 text-white" : "text-neutral-600 hover:bg-neutral-100"}`}
+                      >
+                        <span className={isActive(item.href) ? "text-white" : "text-neutral-400"}>{item.icon}</span>
+                        <span className="truncate">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </nav>
+        </details>
+      </div>
+
+      <aside
       aria-label="Admin Navigation"
-      className="flex min-h-screen w-60 flex-shrink-0 flex-col justify-between border-r border-neutral-200 bg-white"
-    >
+      className="hidden min-h-screen w-60 flex-shrink-0 flex-col justify-between border-r border-neutral-200 bg-white lg:flex"
+      >
       {/* Wordmark */}
       <div>
         <div className="flex h-16 items-center border-b border-neutral-200 px-5">
@@ -243,6 +283,7 @@ export const AdminSidebar: React.FC = () => {
           Lihat Website Publik
         </Link>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };

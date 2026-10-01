@@ -15,7 +15,8 @@ export default async function UsersPage({ searchParams }: PageProps) {
   const currentUser = await requireUser(Role.SUPER_ADMIN);
 
   const params = await searchParams;
-  const page = parseInt(params.page ?? "1", 10);
+  const requestedPage = Number.parseInt(params.page ?? "1", 10);
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const search = params.q;
 
   const { items, total } = await findUsers({ page, search });

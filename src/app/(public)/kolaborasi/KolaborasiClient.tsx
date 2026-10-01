@@ -119,7 +119,7 @@ export function KolaborasiClient({ lang, partners = [] }: KolaborasiClientProps)
       } else {
         setErrorMessage(data.error || "Gagal mengirim formulir. Mohon periksa kembali isian Anda.");
       }
-    } catch (err) {
+    } catch {
       setErrorMessage("Terjadi kesalahan koneksi. Silakan periksa jaringan internet Anda.");
     } finally {
       setIsSubmitting(false);

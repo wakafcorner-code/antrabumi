@@ -152,7 +152,7 @@ export function PersonEditForm({ person }: Props) {
             <input name="nameId" defaultValue={idTranslation?.name ?? ""} required className={inputCls} />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Gelar Akademik / Kredensial" error={fieldErrors.credentialsId?.[0]}>
               <input name="credentialsId" defaultValue={idTranslation?.degree ?? ""} className={inputCls} />
             </Field>
@@ -162,7 +162,7 @@ export function PersonEditForm({ person }: Props) {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Slug URL" error={fieldErrors.slug?.[0]}>
               <input name="slug" defaultValue={person.slug} required className={inputCls} />
             </Field>
@@ -187,7 +187,7 @@ export function PersonEditForm({ person }: Props) {
         <fieldset className="space-y-4 border-t border-neutral-100 pt-4">
           <legend className="text-sm font-semibold text-neutral-700">Konten Bahasa Inggris (Opsional)</legend>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Nama (EN)" error={fieldErrors.nameEn?.[0]}>
               <input name="nameEn" defaultValue={enTranslation?.name ?? ""} className={inputCls} />
             </Field>

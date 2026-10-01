@@ -180,3 +180,27 @@ export async function removeKnowledgeDownloadAction(
   if (k.slug) revalidatePath(`/pengetahuan/${k.slug}`);
   return { success: true };
 }
+
+export async function attachKnowledgeImageAction(knowledgeId: string, mediaId: string): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  const k = await prisma.knowledge.findUnique({ where: { id: knowledgeId }, select: { id: true, slug: true } });
+  if (!k) return { success: false, error: "Konten pengetahuan tidak ditemukan." };
+  await prisma.knowledgeMedia.upsert({ where: { knowledgeId_mediaId: { knowledgeId, mediaId } }, update: {}, create: { knowledgeId, mediaId, order: 0 } });
+  await createAuditLog({ userId: user.id, action: AuditAction.UPDATE, entity: "Knowledge", entityId: knowledgeId, metadata: { action: "attach_image", mediaId } });
+  revalidatePath(`/admin/knowledge/${knowledgeId}/edit`);
+  revalidatePath("/pengetahuan");
+  revalidatePath(`/pengetahuan/${k.slug}`);
+  return { success: true };
+}
+
+export async function removeKnowledgeImageAction(knowledgeId: string, mediaId: string): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  const k = await prisma.knowledge.findUnique({ where: { id: knowledgeId }, select: { id: true, slug: true } });
+  if (!k) return { success: false, error: "Konten pengetahuan tidak ditemukan." };
+  await prisma.knowledgeMedia.deleteMany({ where: { knowledgeId, mediaId } });
+  await createAuditLog({ userId: user.id, action: AuditAction.UPDATE, entity: "Knowledge", entityId: knowledgeId, metadata: { action: "remove_image", mediaId } });
+  revalidatePath(`/admin/knowledge/${knowledgeId}/edit`);
+  revalidatePath("/pengetahuan");
+  revalidatePath(`/pengetahuan/${k.slug}`);
+  return { success: true };
+}

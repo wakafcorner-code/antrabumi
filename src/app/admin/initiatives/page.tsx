@@ -88,7 +88,7 @@ export default async function InitiativesPage({ searchParams }: PageProps) {
           name="q"
           defaultValue={search}
           placeholder="Cari judul inisiatif…"
-          className="h-9 w-64 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
+          className="h-9 w-full min-w-0 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 sm:w-64"
         />
         <select
           name="status"

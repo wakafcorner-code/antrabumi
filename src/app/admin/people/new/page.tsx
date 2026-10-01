@@ -61,7 +61,7 @@ export default function NewPersonPage() {
             <input name="nameId" required className={inputCls} placeholder="cth. Sendi Kenia Savitri" />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Gelar Akademik / Kredensial" error={fieldErrors.credentialsId?.[0]}>
               <input name="credentialsId" className={inputCls} placeholder="cth. M.Si., Ph.D." />
             </Field>
@@ -71,7 +71,7 @@ export default function NewPersonPage() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Slug URL (opsional, otomatis jika kosong)" error={fieldErrors.slug?.[0]}>
               <input name="slug" className={inputCls} placeholder="cth. sendi-kenia-savitri" />
             </Field>
@@ -91,7 +91,7 @@ export default function NewPersonPage() {
         <fieldset className="space-y-4 border-t border-neutral-100 pt-4">
           <legend className="text-sm font-semibold text-neutral-700">Konten Bahasa Inggris (Opsional)</legend>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Nama (EN)" error={fieldErrors.nameEn?.[0]}>
               <input name="nameEn" className={inputCls} placeholder="English name variation if any" />
             </Field>

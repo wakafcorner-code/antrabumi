@@ -14,7 +14,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    let rawBody: Record<string, any> = {};
+    let rawBody: Record<string, unknown> = {};
 
     // Support both JSON payload and FormData
     const contentType = req.headers.get("content-type") || "";

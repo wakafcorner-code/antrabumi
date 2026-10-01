@@ -48,6 +48,7 @@ export interface ExperienceDetail {
   featured: boolean;
   coverMediaId: string | null;
   coverMedia?: { id: string; url: string | null; altText: string | null } | null;
+  galleryImages: Array<{ id: string; url: string; altText: string | null }>;
   createdAt: Date;
   updatedAt: Date;
   translations: Array<{
@@ -156,7 +157,7 @@ export async function findExperiences(
         type: e.type,
         status: e.status,
         year: e.year,
-        category: (e as Record<string, any>).category ?? null,
+        category: e.category,
         clientName: e.clientName,
         location: e.location,
         featured: e.featured,
@@ -236,12 +237,16 @@ export async function findExperienceById(id: string): Promise<ExperienceDetail |
     type: exp.type,
     status: exp.status,
     year: exp.year,
-    category: (exp as Record<string, any>).category ?? null,
+    category: exp.category,
     clientName: exp.clientName,
     location: exp.location,
     featured: exp.featured,
     coverMediaId: exp.coverMediaId,
     coverMedia: exp.coverMedia,
+    galleryImages: (exp.gallery ?? [])
+      .filter((g) => g.media.type === "IMAGE" && g.media.url)
+      .sort((a, b) => a.order - b.order)
+      .map((g) => ({ id: g.mediaId, url: g.media.url!, altText: g.media.originalName })),
     createdAt: exp.createdAt,
     updatedAt: exp.updatedAt,
     translations: exp.translations,
@@ -282,7 +287,7 @@ export async function createExperience(input: CreateExperienceInput, userId: str
       status: input.status ?? ContentStatus.DRAFT,
       publishedAt: isPublished ? new Date() : null,
       year: input.year,
-      ...((input.category !== undefined ? { category: input.category } : {}) as any),
+      ...(input.category !== undefined ? { category: input.category } : {}),
       clientName: input.client ?? null,
       location: input.location ?? null,
       featured: input.featured ?? false,
@@ -330,7 +335,7 @@ export async function updateExperience(input: UpdateExperienceInput, userId: str
         ...(core.status ? { status: core.status } : {}),
         ...(isNowPublished ? { publishedAt: new Date() } : {}),
         ...(core.year !== undefined ? { year: core.year } : {}),
-        ...((core.category !== undefined ? { category: core.category ?? null } : {}) as any),
+        ...(core.category !== undefined ? { category: core.category ?? null } : {}),
         ...(core.client !== undefined ? { clientName: core.client } : {}),
         ...(core.location !== undefined ? { location: core.location } : {}),
         ...(core.featured !== undefined ? { featured: core.featured } : {}),

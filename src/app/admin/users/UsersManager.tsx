@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useTransition, useState, useRef } from "react";
+import React, { useTransition, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Role, UserStatus } from "@prisma/client";
 import { UserListItem } from "@/server/repositories/user.repository";
@@ -66,6 +67,8 @@ export function UsersManager({ users, total, currentPage, currentUserId, search 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[] | undefined>>({});
+  const totalPages = Math.max(1, Math.ceil(total / 20));
+  const page = Math.min(Math.max(currentPage, 1), totalPages);
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -184,7 +187,7 @@ export function UsersManager({ users, total, currentPage, currentUserId, search 
             {successMsg}
           </div>
         )}
-        {errorMsg && !modal && (
+        {errorMsg && modal.kind === "none" && (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
             {errorMsg}
           </div>
@@ -196,7 +199,7 @@ export function UsersManager({ users, total, currentPage, currentUserId, search 
             name="q"
             defaultValue={search}
             placeholder="Cari nama atau email…"
-            className="h-9 w-64 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
+            className="h-9 w-full min-w-0 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 sm:w-64"
           />
           <button
             type="submit"
@@ -330,6 +333,40 @@ export function UsersManager({ users, total, currentPage, currentUserId, search 
             </table>
           </div>
         )}
+
+        {total > 20 && (
+          <nav aria-label="Navigasi halaman pengguna" className="flex items-center justify-between text-sm">
+            <span className="text-neutral-500">
+              Halaman {page} dari {totalPages}
+            </span>
+            <div className="flex items-center gap-2">
+              {page > 1 ? (
+                <Link
+                  href={usersPageUrl(page - 1, search)}
+                  className="rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 hover:bg-neutral-50"
+                >
+                  Sebelumnya
+                </Link>
+              ) : (
+                <span aria-disabled="true" className="rounded-md border border-neutral-100 px-3 py-1.5 text-neutral-300">
+                  Sebelumnya
+                </span>
+              )}
+              {page < totalPages ? (
+                <Link
+                  href={usersPageUrl(page + 1, search)}
+                  className="rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 hover:bg-neutral-50"
+                >
+                  Berikutnya
+                </Link>
+              ) : (
+                <span aria-disabled="true" className="rounded-md border border-neutral-100 px-3 py-1.5 text-neutral-300">
+                  Berikutnya
+                </span>
+              )}
+            </div>
+          </nav>
+        )}
       </div>
 
       {/* ── Modals ──────────────────────────────────────────────────────────── */}
@@ -459,6 +496,12 @@ export function UsersManager({ users, total, currentPage, currentUserId, search 
       )}
     </>
   );
+}
+
+function usersPageUrl(page: number, search?: string) {
+  const params = new URLSearchParams({ page: String(page) });
+  if (search) params.set("q", search);
+  return `/admin/users?${params.toString()}`;
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────

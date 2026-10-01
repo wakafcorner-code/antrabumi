@@ -68,7 +68,7 @@ export default async function MediaPage({ searchParams }: PageProps) {
             name="q"
             defaultValue={search}
             placeholder="Cari nama atau deskripsi…"
-            className="h-9 w-60 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900"
+            className="h-9 w-full min-w-0 rounded-md border border-neutral-200 bg-white px-3 text-xs outline-none focus:border-neutral-900 sm:w-60"
           />
           <button type="submit" className="h-9 rounded-md border border-neutral-200 px-3 text-xs font-medium hover:bg-neutral-50">
             Cari

@@ -35,6 +35,7 @@ export default async function KnowledgeEditPage({ params }: PageProps) {
         },
         orderBy: { order: "asc" },
       },
+      gallery: { include: { media: { select: { id: true, url: true, originalName: true } } }, orderBy: { order: "asc" } },
     },
   });
 
@@ -69,6 +70,7 @@ export default async function KnowledgeEditPage({ params }: PageProps) {
       excerptEn={transEn?.excerpt ?? null}
       bodyEn={transEn?.content ?? null}
       pdfAttachments={pdfAttachments}
+      galleryImages={k.gallery.filter((item) => item.media.url).map((item) => ({ id: item.media.id, url: item.media.url!, filename: item.media.originalName }))}
     />
   );
 }

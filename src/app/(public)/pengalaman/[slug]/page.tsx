@@ -252,6 +252,7 @@ async function getExperience(slug: string) {
       },
     ],
     metrics: [],
+    gallery: [],
   };
 }
 
@@ -467,8 +468,8 @@ export default async function PengalamanDetailPage({ params }: Props) {
               {/* PDF Documentation & Report */}
               {/* PDF Documentation & Report (Optional) */}
               {(() => {
-                const pdfMedia = (exp as any).gallery?.find(
-                  (g: any) =>
+                const pdfMedia = exp.gallery.find(
+                  (g) =>
                     g.media?.mimeType === "application/pdf" ||
                     g.media?.type === "DOCUMENT" ||
                     g.media?.filename?.toLowerCase().endsWith(".pdf") ||

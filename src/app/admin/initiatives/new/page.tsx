@@ -140,7 +140,7 @@ export default function NewInitiativePage() {
             description="Lampirkan dokumen brief inisiatif atau laporan program PDF jika ada (opsional). File dapat diunduh dan dipratinjau langsung di halaman publik."
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Tahun" error={fieldErrors.year?.[0]}>
               <input
                 name="year"
@@ -164,7 +164,7 @@ export default function NewInitiativePage() {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Klien / Mitra" error={fieldErrors.client?.[0]}>
               <input name="client" className={inputCls} placeholder="—" />
             </Field>

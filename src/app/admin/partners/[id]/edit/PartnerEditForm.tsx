@@ -143,7 +143,7 @@ export function PartnerEditForm({ partner }: Props) {
           <input name="name" defaultValue={partner.name} required className={inputCls} />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Slug URL" error={fieldErrors.slug?.[0]}>
             <input name="slug" defaultValue={partner.slug} required className={inputCls} />
           </Field>
@@ -153,7 +153,7 @@ export function PartnerEditForm({ partner }: Props) {
           </Field>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Website Resmi (URL)" error={fieldErrors.website?.[0]}>
             <input name="website" type="url" defaultValue={partner.website ?? ""} className={inputCls} />
           </Field>

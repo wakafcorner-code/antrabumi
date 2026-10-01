@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { getLanguage } from "@/lib/i18n/language";
@@ -236,7 +235,7 @@ export default async function HomePage() {
               <div className="relative mx-auto max-w-md overflow-hidden rounded-3xl border border-neutral-200/80 bg-white p-3 shadow-xl">
                 <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-neutral-900">
                   <img
-                    src="/images/inisiatif/iklim-lanskap.jpg"
+                    src={homeContent.whyUs.imageUrl || "/images/inisiatif/iklim-lanskap.jpg"}
                     alt="Bentang alam dan masyarakat pesisir Belitung"
                     className="h-full w-full object-cover brightness-[0.92] contrast-[1.05] transition-transform duration-700 hover:scale-105"
                   />
@@ -676,7 +675,7 @@ export default async function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {latestKnowledge.map((item, idx) => {
+              {latestKnowledge.map((item) => {
                 const trId = item.translations.find((t) => t.language === "ID");
                 const trEn = item.translations.find((t) => t.language === "EN");
                 const title = (isEn && trEn?.title) ? trEn.title : trId?.title || item.slug;

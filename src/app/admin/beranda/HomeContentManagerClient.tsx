@@ -12,6 +12,7 @@ export function HomeContentManagerClient({ initialContent }: Props) {
   const [content, setContent] = useState<HomeSectionsContent>(initialContent);
   const [activeTab, setActiveTab] = useState<"whyUs" | "about" | "growth" | "framework" | "cta">("whyUs");
   const [isPending, startTransition] = useTransition();
+  const [isUploadingDiagram, setIsUploadingDiagram] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Timeline helpers
@@ -52,6 +53,42 @@ export function HomeContentManagerClient({ initialContent }: Props) {
         timeline: prev.growth.timeline.filter((_, idx) => idx !== index),
       },
     }));
+  }
+
+  async function handleDiagramUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setStatusMsg(null);
+    setIsUploadingDiagram(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/v1/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error ?? "Gagal mengunggah gambar diagram.");
+      }
+
+      setContent((prev) => ({
+        ...prev,
+        whyUs: { ...prev.whyUs, imageUrl: result.data.url },
+      }));
+    } catch (error) {
+      setStatusMsg({
+        type: "error",
+        text: error instanceof Error ? error.message : "Gagal mengunggah gambar diagram.",
+      });
+    } finally {
+      setIsUploadingDiagram(false);
+      e.target.value = "";
+    }
   }
 
   function handleSaveAll() {
@@ -265,10 +302,36 @@ export function HomeContentManagerClient({ initialContent }: Props) {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-3">
               <label className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">
                 URL Gambar Diagram / Visual
               </label>
+              {content.whyUs.imageUrl && (
+                <div className="relative h-40 w-full max-w-sm overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={content.whyUs.imageUrl}
+                    alt="Pratinjau gambar diagram"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <label className="flex w-fit cursor-pointer items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 transition hover:border-neutral-900 hover:bg-neutral-50">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  {isUploadingDiagram ? "Mengunggah..." : "Upload Gambar"}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={handleDiagramUpload}
+                    disabled={isUploadingDiagram}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-xs text-neutral-400">PNG, JPG, WebP, atau SVG · Maks. 15MB</span>
+              </div>
               <input
                 value={content.whyUs.imageUrl || ""}
                 onChange={(e) =>

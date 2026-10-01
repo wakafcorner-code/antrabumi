@@ -58,7 +58,7 @@ export default function NewPartnerPage() {
           <input name="name" required className={inputCls} placeholder="cth. Kementerian Lingkungan Hidup..." />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Slug URL (opsional, otomatis jika kosong)" error={fieldErrors.slug?.[0]}>
             <input name="slug" className={inputCls} placeholder="cth. kementerian-lh" />
           </Field>
@@ -68,7 +68,7 @@ export default function NewPartnerPage() {
           </Field>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Website Resmi (URL)" error={fieldErrors.website?.[0]}>
             <input name="website" type="url" className={inputCls} placeholder="https://example.org" />
           </Field>

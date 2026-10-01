@@ -251,3 +251,29 @@ export async function removeExperiencePdfAction(
   revalidatePath("/pengalaman");
   return { success: true };
 }
+
+export async function attachExperienceImageAction(experienceId: string, mediaId: string): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  await prisma.experienceMedia.upsert({
+    where: { experienceId_mediaId: { experienceId, mediaId } },
+    update: {},
+    create: { experienceId, mediaId, order: 0 },
+  });
+  await createAuditLog({ userId: user.id, action: AuditAction.UPDATE, entity: "Experience", entityId: experienceId, metadata: { action: "attach_image", mediaId } });
+  revalidatePath(`/admin/experiences/${experienceId}/edit`);
+  revalidatePath(`/admin/initiatives/${experienceId}/edit`);
+  revalidatePath("/inisiatif");
+  revalidatePath("/pengalaman");
+  return { success: true };
+}
+
+export async function removeExperienceImageAction(experienceId: string, mediaId: string): Promise<ActionResult> {
+  const user = await requireUser(Role.EDITOR);
+  await prisma.experienceMedia.deleteMany({ where: { experienceId, mediaId } });
+  await createAuditLog({ userId: user.id, action: AuditAction.UPDATE, entity: "Experience", entityId: experienceId, metadata: { action: "remove_image", mediaId } });
+  revalidatePath(`/admin/experiences/${experienceId}/edit`);
+  revalidatePath(`/admin/initiatives/${experienceId}/edit`);
+  revalidatePath("/inisiatif");
+  revalidatePath("/pengalaman");
+  return { success: true };
+}

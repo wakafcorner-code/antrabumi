@@ -2,11 +2,11 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import { PdfDocumentCard } from "@/components/ui/PdfDocumentCard";
+import { SocialShare } from "@/components/ui/SocialShare";
+import { ImageSlider } from "@/components/ui/ImageSlider";
 import { prisma } from "@/lib/db/prisma";
-import { ContentStatus, KnowledgeType } from "@prisma/client";
+import { ContentStatus } from "@prisma/client";
 import { getLanguage } from "@/lib/i18n/language";
 
 interface Props {
@@ -43,6 +43,7 @@ async function getKnowledge(slug: string) {
         select: { label: true, media: { select: { url: true, originalName: true, filename: true } } },
         orderBy: { order: "asc" },
       },
+      gallery: { include: { media: { select: { id: true, url: true, originalName: true } } }, orderBy: { order: "asc" } },
     },
   });
 }
@@ -60,6 +61,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t?.title ? `${t.title} — Pengetahuan ANTRABUMI` : `${slug} — ANTRABUMI`,
     description: t?.excerpt ?? undefined,
+    openGraph: {
+      title: t?.title ?? slug,
+      description: t?.excerpt ?? "Pengetahuan dan pembelajaran ANTRABUMI.",
+      images: item.coverMedia?.url ? [{ url: item.coverMedia.url }] : undefined,
+    },
   };
 }
 
@@ -144,18 +150,70 @@ export default async function KnowledgeDetailPage({ params }: Props) {
         </Container>
       </section>
 
-      {/* Cover image */}
-      {item.coverMedia?.url && (
-        <section className="border-b border-neutral-100 bg-neutral-50 py-8">
-          <Container size="reading">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-sm">
-              <Image
-                src={item.coverMedia.url}
-                alt={item.coverMedia.altText ?? t?.title ?? ""}
-                fill
-                className="object-cover"
-                priority
-              />
+      {(item.gallery.length > 0 || item.coverMedia?.url || item.downloadableMedia.length > 0) && (
+        <section className="relative overflow-hidden border-b border-neutral-100 bg-[#F4F5F0] py-10 sm:py-16">
+          <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-[#0D5C4D]/5 blur-3xl" />
+          <Container size="default">
+            <div className="relative z-10 mb-7 flex flex-col gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
+              <div className="space-y-1">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#0D5C4D] sm:text-xs">
+                {isEn ? "OFFICIAL PUBLICATION & DOCUMENT" : "DOKUMEN & PUBLIKASI RESMI"}
+                </span>
+                <h2 className="font-heading text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
+                  {isEn ? "Document Download & Preview" : "Berkas Unduhan & Pratinjau Dokumen"}
+                </h2>
+                <p className="max-w-2xl text-xs leading-relaxed text-neutral-600 sm:text-sm">
+                  {isEn
+                    ? "Access the full briefing, methodology, or assessment paper in PDF format."
+                    : "Akses naskah lengkap, ringkasan eksekutif, dan metodologi dalam format PDF."}
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-[#0D5C4D]/15 bg-white/70 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#0D5C4D]">
+                ANTRABUMI · {typeLabel}
+              </span>
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-7">
+              {(item.gallery.length > 0 || item.coverMedia?.url) && (
+                <div className="rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)] sm:p-3">
+                  <div className="mb-3 flex items-center justify-between px-1 sm:px-2">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">01 / Visual</span>
+                    <span className="text-[10px] font-medium text-neutral-400">{isEn ? "Gallery" : "Galeri"}</span>
+                  </div>
+                  <ImageSlider
+                    images={[
+                      ...(item.coverMedia?.url ? [{ id: "cover", url: item.coverMedia.url, alt: item.coverMedia.altText ?? t?.title }] : []),
+                      ...item.gallery
+                        .filter((image) => image.media.url)
+                        .map((image) => ({ id: image.media.id, url: image.media.url!, alt: image.media.originalName })),
+                    ]}
+                    label={t?.title ?? item.slug}
+                  />
+                </div>
+              )}
+
+              {item.downloadableMedia[0]?.media.url && (
+                <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)]">
+                  <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 sm:px-5">
+                    <div>
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">02 / PDF</span>
+                      <p className="mt-0.5 max-w-[220px] truncate text-xs font-semibold text-neutral-800">{item.downloadableMedia[0].label || item.downloadableMedia[0].media.originalName || "Dokumen PDF"}</p>
+                    </div>
+                    <span className="rounded-md bg-red-50 px-2 py-1 font-mono text-[10px] font-bold text-red-600">PDF</span>
+                  </div>
+                  <iframe
+                    src={`${item.downloadableMedia[0].media.url}#toolbar=0&view=FitH`}
+                    title={item.downloadableMedia[0].label || item.downloadableMedia[0].media.originalName || "Pratinjau PDF"}
+                    className="h-[500px] w-full bg-neutral-100 sm:h-[640px]"
+                  />
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 p-4 sm:p-5">
+                    <p className="min-w-0 truncate text-[11px] font-medium text-neutral-500">{item.downloadableMedia[0].media.filename}</p>
+                    <a href={item.downloadableMedia[0].media.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-[#0D5C4D] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#116958]">
+                      {isEn ? "Open / Download" : "Buka / Unduh"}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </Container>
         </section>
@@ -173,40 +231,16 @@ export default async function KnowledgeDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* Downloads / PDF Documents — Only shown when PDF is attached (optional) */}
-      {item.downloadableMedia.length > 0 && (
-        <section className="border-t border-neutral-100 bg-[#FBF9F4] py-12 sm:py-16">
-          <Container size="reading">
-            <div className="mb-6 space-y-1">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#0D5C4D]">
-                {isEn ? "OFFICIAL PUBLICATION & DOCUMENT" : "DOKUMEN & PUBLIKASI RESMI"}
-              </span>
-              <h2 className="font-heading text-xl sm:text-2xl font-bold text-neutral-950">
-                {isEn ? "Document Download & Preview" : "Berkas Unduhan & Pratinjau Dokumen"}
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-600">
-                {isEn
-                  ? "Access the full briefing, methodology, or assessment paper in PDF format."
-                  : "Akses naskah lengkap, ringkasan eksekutif, dan metodologi dalam format PDF."}
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {item.downloadableMedia.map((d, i) => (
-                <PdfDocumentCard
-                  key={i}
-                  title={d.label || d.media.originalName || d.media.filename}
-                  pdfUrl={d.media.url ?? ""}
-                  category={typeLabel}
-                  fileSize="PDF Document"
-                  description={t?.excerpt ?? undefined}
-                  lang={lang as "ID" | "EN"}
-                />
-              ))}
-            </div>
-          </Container>
-        </section>
-      )}
+      <section className="border-t border-neutral-100 bg-white py-8 sm:py-10">
+        <Container size="reading">
+          <SocialShare
+            url={`/pengetahuan/${item.slug}`}
+            title={t?.title ?? item.slug}
+            text={t?.excerpt ?? undefined}
+            label={isEn ? "Share this publication" : "Bagikan publikasi ini"}
+          />
+        </Container>
+      </section>
 
       {/* Bottom Navigation & CTA */}
       <section className="border-t border-neutral-100 bg-white py-12">

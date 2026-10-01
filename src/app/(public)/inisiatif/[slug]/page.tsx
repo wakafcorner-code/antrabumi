@@ -2,9 +2,9 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Container } from "@/components/ui/Container";
-import { PdfDocumentCard } from "@/components/ui/PdfDocumentCard";
+import { SocialShare } from "@/components/ui/SocialShare";
+import { ImageSlider } from "@/components/ui/ImageSlider";
 import { prisma } from "@/lib/db/prisma";
 import { ContentStatus } from "@prisma/client";
 import { getLanguage } from "@/lib/i18n/language";
@@ -134,7 +134,15 @@ async function getExperience(slug: string) {
       },
     });
 
-    if (fromDb) return fromDb;
+    if (fromDb) {
+      return {
+        ...fromDb,
+        galleryImages: fromDb.gallery
+          .filter((item) => item.media.type === "IMAGE" && item.media.url)
+          .sort((a, b) => a.order - b.order)
+          .map((item) => ({ id: item.media.id, url: item.media.url!, altText: item.media.originalName })),
+      };
+    }
   } catch {
     // Fallback if DB error
   }
@@ -169,6 +177,8 @@ async function getExperience(slug: string) {
       },
     ],
     metrics: [],
+    gallery: [],
+    galleryImages: [],
   };
 }
 
@@ -186,6 +196,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t ? `${t.title} — Inisiatif ANTRABUMI` : `${slug} — Inisiatif ANTRABUMI`,
     description: t?.excerpt ?? "Inisiatif dan pengalaman lapangan ANTRABUMI.",
+    openGraph: {
+      title: t?.title ?? slug,
+      description: t?.excerpt ?? "Inisiatif dan pengalaman lapangan ANTRABUMI.",
+      images: exp.coverMedia?.url ? [{ url: exp.coverMedia.url }] : undefined,
+    },
   };
 }
 
@@ -204,6 +219,14 @@ export default async function ExperienceDetailPage({ params }: Props) {
 
   const title = t?.title ?? exp.slug;
   const fallbackInfo = fallbackInitiatives[exp.slug];
+  const pdfMedia = exp.gallery.find(
+    (galleryItem) =>
+      galleryItem.media?.mimeType === "application/pdf" ||
+      galleryItem.media?.type === "DOCUMENT" ||
+      galleryItem.media?.filename?.toLowerCase().endsWith(".pdf") ||
+      galleryItem.media?.url?.toLowerCase().endsWith(".pdf")
+  );
+  const attachedPdfUrl = pdfMedia?.media?.url;
 
   return (
     <div className="min-h-screen bg-white">
@@ -268,18 +291,59 @@ export default async function ExperienceDetailPage({ params }: Props) {
         </Container>
       </section>
 
-      {/* Cover Image banner if exists */}
-      {exp.coverMedia?.url && (
-        <section className="border-b border-neutral-100 bg-neutral-100">
+      {(exp.galleryImages.length > 0 || exp.coverMedia?.url || attachedPdfUrl) && (
+        <section className="relative overflow-hidden border-b border-neutral-100 bg-[#F4F5F0] py-10 sm:py-16">
+          <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-[#0D5C4D]/5 blur-3xl" />
           <Container size="default">
-            <div className="relative aspect-[21/9] w-full overflow-hidden">
-              <Image
-                src={exp.coverMedia.url}
-                alt={exp.coverMedia.altText ?? title}
-                fill
-                className="object-cover"
-                priority
-              />
+            <div className="relative z-10 mb-7 flex flex-col gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#0D5C4D] sm:text-xs">
+                  {isEn ? "FIELD EXPERIENCE & DOCUMENT" : "PENGALAMAN & DOKUMENTASI"}
+                </span>
+                <h2 className="mt-1 font-heading text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
+                  {isEn ? "Explore the work" : "Jelajahi dokumentasi kerja"}
+                </h2>
+              </div>
+              <span className="w-fit rounded-full border border-[#0D5C4D]/15 bg-white/70 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#0D5C4D]">
+                ANTRABUMI · {exp.year ?? "FIELD"}
+              </span>
+            </div>
+
+            <div className="relative z-10 grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-7">
+              {(exp.galleryImages.length > 0 || exp.coverMedia?.url) && (
+                <div className="rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)] sm:p-3">
+                  <div className="mb-3 flex items-center justify-between px-1 sm:px-2">
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">01 / Visual</span>
+                    <span className="text-[10px] font-medium text-neutral-400">{isEn ? "Gallery" : "Galeri"}</span>
+                  </div>
+                  <ImageSlider
+                    images={[
+                      ...(exp.coverMedia?.url ? [{ id: "cover", url: exp.coverMedia.url, alt: exp.coverMedia.altText ?? title }] : []),
+                      ...exp.galleryImages,
+                    ]}
+                    label={title}
+                  />
+                </div>
+              )}
+
+              {attachedPdfUrl && (
+                <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)]">
+                  <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 sm:px-5">
+                    <div>
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">02 / PDF</span>
+                      <p className="mt-0.5 max-w-[220px] truncate text-xs font-semibold text-neutral-800">{pdfMedia?.media?.originalName || `${title} PDF`}</p>
+                    </div>
+                    <span className="rounded-md bg-red-50 px-2 py-1 font-mono text-[10px] font-bold text-red-600">PDF</span>
+                  </div>
+                  <iframe src={`${attachedPdfUrl}#toolbar=0&view=FitH`} title={pdfMedia?.media?.originalName || "Pratinjau PDF"} className="h-[500px] w-full bg-neutral-100 sm:h-[640px]" />
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 p-4 sm:p-5">
+                    <p className="min-w-0 truncate text-[11px] font-medium text-neutral-500">{pdfMedia?.media?.filename}</p>
+                    <a href={attachedPdfUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-[#0D5C4D] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#116958]">
+                      {isEn ? "Open / Download" : "Buka / Unduh"}
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </Container>
         </section>
@@ -350,36 +414,7 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 </div>
               ) : null}
 
-              {/* PDF Documentation & Report */}
               <div className="space-y-4">
-                {(() => {
-                  const pdfMedia = (exp as any).gallery?.find(
-                    (g: any) =>
-                      g.media?.mimeType === "application/pdf" ||
-                      g.media?.type === "DOCUMENT" ||
-                      g.media?.filename?.toLowerCase().endsWith(".pdf") ||
-                      g.media?.url?.toLowerCase().endsWith(".pdf")
-                  );
-                  const attachedPdfUrl = pdfMedia?.media?.url;
-                  if (!attachedPdfUrl) return null;
-
-                  return (
-                    <PdfDocumentCard
-                      title={pdfMedia?.media?.originalName || `${title} (Project Brief & Methodology)`}
-                      pdfUrl={attachedPdfUrl}
-                      category={fallbackInfo?.category || "Inisiatif & Aksi"}
-                      fileSize="PDF Document"
-                      description={
-                        t?.excerpt ??
-                        (isEn
-                          ? "Official project documentation covering methodology, stakeholder engagement, and field learnings."
-                          : "Dokumen resmi inisiatif mencakup kerangka kerja, pelibatan pemangku kepentingan, dan pembelajaran lapangan.")
-                      }
-                      lang={lang as "ID" | "EN"}
-                    />
-                  );
-                })()}
-
                 <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-neutral-50/70 p-5">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">💬</span>
@@ -464,6 +499,19 @@ export default async function ExperienceDetailPage({ params }: Props) {
                 </Link>
               </div>
             </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-t border-neutral-100 bg-white py-8 sm:py-10">
+        <Container size="default">
+          <div className="mx-auto max-w-4xl">
+            <SocialShare
+              url={`/inisiatif/${exp.slug}`}
+              title={title}
+              text={t?.excerpt ?? undefined}
+              label={isEn ? "Share this initiative" : "Bagikan inisiatif ini"}
+            />
           </div>
         </Container>
       </section>

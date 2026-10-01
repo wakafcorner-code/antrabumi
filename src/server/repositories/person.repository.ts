@@ -153,6 +153,14 @@ export async function findPublishedPeople(language: string = "ID"): Promise<Publ
   });
 }
 
+export async function findPublishedPersonBySlug(
+  slug: string,
+  language: string = "ID"
+): Promise<PublicPersonItem | null> {
+  const people = await findPublishedPeople(language);
+  return people.find((person) => person.slug === slug) ?? null;
+}
+
 export async function findPersonById(id: string): Promise<PersonDetail | null> {
   const p = await prisma.person.findUnique({
     where: { id },
