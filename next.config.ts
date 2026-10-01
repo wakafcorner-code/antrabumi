@@ -50,6 +50,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  distDir: isProd ? ".next" : ".next-dev",
   reactStrictMode: true,
   images: {
     formats: ["image/avif", "image/webp"],

@@ -15,7 +15,7 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-white">
-      <AdminSidebar />
+      <AdminSidebar isSuperAdmin={user?.role === "SUPER_ADMIN"} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}

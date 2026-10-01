@@ -143,7 +143,7 @@ const NAV_GROUPS = [
 // Component
 // ---------------------------------------------------------------------------
 
-export const AdminSidebar: React.FC = () => {
+export const AdminSidebar: React.FC<{ isSuperAdmin: boolean }> = ({ isSuperAdmin }) => {
   const pathname = usePathname();
 
   const isActive = (href: string) =>
@@ -174,7 +174,7 @@ export const AdminSidebar: React.FC = () => {
                 <div key={group.label}>
                   <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">{group.label}</p>
                   <div className="space-y-0.5">
-                    {group.items.map((item) => (
+                    {group.items.filter((item) => isSuperAdmin || item.href !== "/admin/users").map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
@@ -243,7 +243,7 @@ export const AdminSidebar: React.FC = () => {
                 {group.label}
               </p>
               <div className="space-y-0.5">
-                {group.items.map((item) => (
+                {group.items.filter((item) => isSuperAdmin || item.href !== "/admin/users").map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

@@ -92,6 +92,9 @@ export default async function KnowledgeDetailPage({ params }: Props) {
         day: "numeric",
       })
     : null;
+  const downloadable = item.downloadableMedia.find((attachment) => attachment.media.url);
+  const downloadUrl = downloadable?.media.url;
+  const hasVisuals = Boolean(item.coverMedia?.url) || item.gallery.some((image) => image.media.url);
 
   return (
     <div className="min-h-screen bg-white">
@@ -150,31 +153,39 @@ export default async function KnowledgeDetailPage({ params }: Props) {
         </Container>
       </section>
 
-      {(item.gallery.length > 0 || item.coverMedia?.url || item.downloadableMedia.length > 0) && (
+      {(hasVisuals || downloadUrl) && (
         <section className="relative overflow-hidden border-b border-neutral-100 bg-[#F4F5F0] py-10 sm:py-16">
           <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-[#0D5C4D]/5 blur-3xl" />
           <Container size="default">
             <div className="relative z-10 mb-7 flex flex-col gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-1">
                 <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#0D5C4D] sm:text-xs">
-                {isEn ? "OFFICIAL PUBLICATION & DOCUMENT" : "DOKUMEN & PUBLIKASI RESMI"}
+                  {downloadUrl
+                    ? isEn ? "OFFICIAL PUBLICATION & DOCUMENT" : "DOKUMEN & PUBLIKASI RESMI"
+                    : isEn ? "FIELD DOCUMENTATION" : "DOKUMENTASI VISUAL"}
                 </span>
                 <h2 className="font-heading text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
-                  {isEn ? "Document Download & Preview" : "Berkas Unduhan & Pratinjau Dokumen"}
+                  {downloadUrl
+                    ? isEn ? "Document Download & Preview" : "Berkas Unduhan & Pratinjau Dokumen"
+                    : isEn ? "Project Gallery" : "Galeri Kegiatan"}
                 </h2>
-                <p className="max-w-2xl text-xs leading-relaxed text-neutral-600 sm:text-sm">
-                  {isEn
-                    ? "Access the full briefing, methodology, or assessment paper in PDF format."
-                    : "Akses naskah lengkap, ringkasan eksekutif, dan metodologi dalam format PDF."}
-                </p>
+                {downloadUrl && (
+                  <p className="max-w-2xl text-xs leading-relaxed text-neutral-600 sm:text-sm">
+                    {isEn
+                      ? "Access the full briefing, methodology, or assessment paper in PDF format."
+                      : "Akses naskah lengkap, ringkasan eksekutif, dan metodologi dalam format PDF."}
+                  </p>
+                )}
               </div>
               <span className="w-fit rounded-full border border-[#0D5C4D]/15 bg-white/70 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#0D5C4D]">
                 ANTRABUMI · {typeLabel}
               </span>
             </div>
 
-            <div className="relative z-10 grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-7">
-              {(item.gallery.length > 0 || item.coverMedia?.url) && (
+            <div
+              className={`relative z-10 ${hasVisuals && downloadUrl ? "grid grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:gap-7" : "mx-auto max-w-4xl"}`}
+            >
+              {hasVisuals && (
                 <div className="rounded-2xl border border-neutral-200/80 bg-white p-2 shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)] sm:p-3">
                   <div className="mb-3 flex items-center justify-between px-1 sm:px-2">
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">01 / Visual</span>
@@ -192,23 +203,23 @@ export default async function KnowledgeDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {item.downloadableMedia[0]?.media.url && (
+              {downloadable && downloadUrl && (
                 <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)]">
                   <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 sm:px-5">
                     <div>
                       <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">02 / PDF</span>
-                      <p className="mt-0.5 max-w-[220px] truncate text-xs font-semibold text-neutral-800">{item.downloadableMedia[0].label || item.downloadableMedia[0].media.originalName || "Dokumen PDF"}</p>
+                      <p className="mt-0.5 max-w-[220px] truncate text-xs font-semibold text-neutral-800">{downloadable.label || downloadable.media.originalName || "Dokumen PDF"}</p>
                     </div>
                     <span className="rounded-md bg-red-50 px-2 py-1 font-mono text-[10px] font-bold text-red-600">PDF</span>
                   </div>
                   <iframe
-                    src={`${item.downloadableMedia[0].media.url}#toolbar=0&view=FitH`}
-                    title={item.downloadableMedia[0].label || item.downloadableMedia[0].media.originalName || "Pratinjau PDF"}
+                    src={`${downloadUrl}#toolbar=0&view=FitH`}
+                    title={downloadable.label || downloadable.media.originalName || "Pratinjau PDF"}
                     className="h-[500px] w-full bg-neutral-100 sm:h-[640px]"
                   />
                   <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 p-4 sm:p-5">
-                    <p className="min-w-0 truncate text-[11px] font-medium text-neutral-500">{item.downloadableMedia[0].media.filename}</p>
-                    <a href={item.downloadableMedia[0].media.url} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-[#0D5C4D] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#116958]">
+                    <p className="min-w-0 truncate text-[11px] font-medium text-neutral-500">{downloadable.media.filename}</p>
+                    <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-[#0D5C4D] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#116958]">
                       {isEn ? "Open / Download" : "Buka / Unduh"}
                     </a>
                   </div>
