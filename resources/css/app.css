@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+
+@theme {
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --color-brand-teal: #0D5C4D;
+    --color-brand-teal-dark: #1A4B43;
+    --color-brand-terracotta: #D96B27;
+    --color-brand-gold: #E5A823;
+    --color-brand-slate: #2B8282;
+}
+
+:root {
+    --font-body: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer components {
+    .public-header.is-scrolled {
+        border-color: rgb(229 231 235 / 80%);
+        background-color: rgb(255 255 255 / 98%);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+        backdrop-filter: blur(12px);
+    }
+
+    .skip-link {
+        @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg;
+    }
+
+    .admin-nav-link {
+        @apply block rounded-md px-3 py-2 text-neutral-700 transition hover:bg-neutral-100 hover:text-brand-teal;
+    }
+
+    .rich-content > :first-child {
+        margin-top: 0;
+    }
+
+    .rich-content h1,
+    .rich-content h2,
+    .rich-content h3,
+    .rich-content h4 {
+        margin-top: 1.75em;
+        margin-bottom: 0.75em;
+        color: #171717;
+        font-family: var(--font-heading);
+        font-weight: 700;
+        line-height: 1.25;
+    }
+
+    .rich-content p,
+    .rich-content ul,
+    .rich-content ol,
+    .rich-content blockquote,
+    .rich-content pre {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+
+    .rich-content ul,
+    .rich-content ol {
+        padding-left: 1.5rem;
+    }
+
+    .rich-content ul {
+        list-style: disc;
+    }
+
+    .rich-content ol {
+        list-style: decimal;
+    }
+
+    .rich-content a {
+        color: #0D5C4D;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .rich-content blockquote {
+        border-left: 3px solid #0D5C4D;
+        padding-left: 1rem;
+        color: #525252;
+    }
+
+    .rich-content pre {
+        overflow-x: auto;
+        border-radius: 0.75rem;
+        background: #f5f5f5;
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+}
