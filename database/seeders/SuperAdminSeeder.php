@@ -16,8 +16,8 @@ class SuperAdminSeeder extends Seeder
         $email = env('SEED_ADMIN_EMAIL');
         $password = env('SEED_ADMIN_PASSWORD');
 
-        if (! $email || ! $password || strlen($password) < 12) {
-            throw new RuntimeException('Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least 12 characters before seeding the super admin.');
+        if (! $email || ! $password || strlen($password) < 6) {
+            throw new RuntimeException('Set SEED_ADMIN_EMAIL and a SEED_ADMIN_PASSWORD of at least 6 characters before seeding the super admin.');
         }
 
         User::firstOrCreate(

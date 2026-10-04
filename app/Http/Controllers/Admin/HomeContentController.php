@@ -7,19 +7,29 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\HomeContentUpdateRequest;
 use App\Models\SiteSetting;
 use App\Services\AuditLogService;
+use App\Services\Media\MediaUrlNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class HomeContentController extends Controller
 {
-    public function index(): View
+    public function index(MediaUrlNormalizer $mediaUrls): View
     {
         $value = SiteSetting::query()->where('key', 'home_sections_content')->value('value');
         $decoded = is_string($value) && $value !== '' ? json_decode($value, true) : null;
-        $content = is_array($decoded) ? $decoded : config('public_home.content', []);
+        $content = array_replace_recursive(config('public_home.content', []), is_array($decoded) ? $decoded : []);
+        foreach (['pillars', 'growth.timeline', 'framework.steps'] as $path) {
+            $items = is_array($decoded) ? data_get($decoded, $path) : null;
+            if (is_array($items) && $items !== []) {
+                data_set($content, $path, $items);
+            }
+        }
+        foreach (['whyUs.imageUrl', 'about.diagramUrl'] as $path) {
+            data_set($content, $path, $mediaUrls->normalize(data_get($content, $path)));
+        }
 
         return view('admin.beranda.index', [
-            'contentJson' => json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            'content' => $content,
         ]);
     }
 

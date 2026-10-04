@@ -35,6 +35,8 @@ class ExperienceRequest extends FormRequest
             'featured' => ['sometimes', 'boolean'],
             'coverMediaId' => ['nullable', 'string', 'exists:Media,id'],
             'pdfMediaId' => ['nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
+            'galleryMediaIds' => ['sometimes', 'array'],
+            'galleryMediaIds.*' => ['required', 'string', Rule::exists('Media', 'id')->where('type', MediaType::IMAGE->value)],
             'titleId' => ['required', 'string', 'min:2', 'max:191'],
             'excerptId' => ['nullable', 'string', 'max:500'],
             'descriptionId' => ['nullable', 'string'],

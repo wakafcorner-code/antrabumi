@@ -43,6 +43,11 @@
     <section aria-labelledby="pillars-heading" class="border-b border-neutral-100 bg-white py-16 sm:py-24 lg:py-28">
         <div class="mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
             <div class="mx-auto max-w-3xl text-center"><span class="inline-block rounded-full bg-[#0D5C4D]/10 px-3.5 py-1 font-mono text-xs font-bold uppercase tracking-widest text-[#0D5C4D]">{{ $isEn ? 'THREE CORE PILLARS' : 'TIGA PILAR UTAMA' }}</span><h2 id="pillars-heading" class="mt-4 font-heading text-3xl font-bold tracking-tight text-neutral-950 sm:text-4xl lg:text-[40px]">{{ $localized($content['about'], 'title') }}</h2><p class="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">{{ $localized($content['about'], 'description') }}</p></div>
+            @if(!empty($content['about']['diagramUrl']))
+                <figure class="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-neutral-200 bg-white p-2 shadow-sm sm:mt-12 sm:p-3">
+                    <img src="{{ $content['about']['diagramUrl'] }}" alt="{{ $localized($content['about'], 'title') }}" loading="lazy" class="mx-auto max-h-[34rem] w-full rounded-xl object-contain">
+                </figure>
+            @endif
             <div class="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 @foreach($content['pillars'] as $index => $pillar)
                     @php

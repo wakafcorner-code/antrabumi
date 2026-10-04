@@ -63,9 +63,13 @@
         </div>
 
         <div>
-            <label for="knowledge-content-id" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten (ID)</label>
-            <textarea id="knowledge-content-id" name="bodyId" rows="8" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">{{ old('bodyId', old('contentId')) }}</textarea>
-            @error('contentId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
+            @include('admin.knowledge.partials.rich-editor', [
+                'id' => 'knowledge-content-id',
+                'name' => 'bodyId',
+                'label' => 'Konten (ID)',
+                'value' => old('bodyId', old('contentId', '')),
+                'errorKey' => 'contentId',
+            ])
         </div>
 
         <div>
@@ -81,9 +85,13 @@
         </div>
 
         <div>
-            <label for="knowledge-content-en" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten Lengkap (EN)</label>
-            <textarea id="knowledge-content-en" name="bodyEn" rows="8" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">{{ old('bodyEn', old('contentEn')) }}</textarea>
-            @error('contentEn')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
+            @include('admin.knowledge.partials.rich-editor', [
+                'id' => 'knowledge-content-en',
+                'name' => 'bodyEn',
+                'label' => 'Konten Lengkap (EN)',
+                'value' => old('bodyEn', old('contentEn', '')),
+                'errorKey' => 'contentEn',
+            ])
         </div>
 
         @include('admin.knowledge.partials.cover-media', [
@@ -91,6 +99,7 @@
             'coverMediaUrl' => null,
             'coverMediaName' => null,
         ])
+        @include('admin.partials.media-gallery-upload')
         <div class="flex items-center gap-2">
             <input id="knowledge-featured" type="checkbox" name="featured" value="true" @checked(old('featured')) class="h-4 w-4 rounded border-neutral-300 text-[#0D5C4D]">
             <label for="knowledge-featured" class="text-sm font-medium text-neutral-700">Tandai sebagai konten unggulan</label>

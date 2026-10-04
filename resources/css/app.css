@@ -38,6 +38,90 @@
         @apply block rounded-md px-3 py-2 text-neutral-700 transition hover:bg-neutral-100 hover:text-brand-teal;
     }
 
+    .social-link-instagram {
+        color: #f9a8d4;
+        border-color: rgb(244 114 182 / 35%);
+        background-color: rgb(236 72 153 / 10%);
+    }
+
+    .social-link-instagram:hover {
+        color: #fff;
+        border-color: rgb(249 168 212 / 75%);
+        background-color: rgb(236 72 153 / 22%);
+    }
+
+    .social-link-linkedin {
+        color: #7dd3fc;
+        border-color: rgb(125 211 252 / 35%);
+        background-color: rgb(14 165 233 / 10%);
+    }
+
+    .social-link-linkedin:hover {
+        color: #fff;
+        border-color: rgb(125 211 252 / 75%);
+        background-color: rgb(14 165 233 / 22%);
+    }
+
+    .social-link-youtube {
+        color: #fca5a5;
+        border-color: rgb(252 165 165 / 35%);
+        background-color: rgb(239 68 68 / 10%);
+    }
+
+    .social-link-youtube:hover {
+        color: #fff;
+        border-color: rgb(252 165 165 / 75%);
+        background-color: rgb(239 68 68 / 22%);
+    }
+
+    .social-link-x {
+        color: #f5f5f5;
+        border-color: rgb(245 245 245 / 35%);
+        background-color: rgb(255 255 255 / 10%);
+    }
+
+    .social-link-x:hover {
+        color: #fff;
+        border-color: rgb(245 245 245 / 75%);
+        background-color: rgb(255 255 255 / 20%);
+    }
+
+    .social-link-facebook {
+        color: #93c5fd;
+        border-color: rgb(147 197 253 / 35%);
+        background-color: rgb(59 130 246 / 10%);
+    }
+
+    .social-link-facebook:hover {
+        color: #fff;
+        border-color: rgb(147 197 253 / 75%);
+        background-color: rgb(59 130 246 / 22%);
+    }
+
+    .social-link-whatsapp {
+        color: #6ee7b7;
+        border-color: rgb(110 231 183 / 35%);
+        background-color: rgb(16 185 129 / 10%);
+    }
+
+    .social-link-whatsapp:hover {
+        color: #fff;
+        border-color: rgb(110 231 183 / 75%);
+        background-color: rgb(16 185 129 / 22%);
+    }
+
+    .motion-ready [data-reveal] {
+        opacity: 0;
+        transform: translate3d(0, 1rem, 0);
+        transition: opacity 650ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+        transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .motion-ready [data-reveal].is-visible {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+
     .rich-content > :first-child {
         margin-top: 0;
     }
@@ -95,5 +179,21 @@
         background: #f5f5f5;
         padding: 1rem;
         font-size: 0.875rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .motion-ready [data-reveal] {
+        opacity: 1;
+        transform: none;
     }
 }

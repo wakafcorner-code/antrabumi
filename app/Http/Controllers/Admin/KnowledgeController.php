@@ -92,11 +92,19 @@ class KnowledgeController extends Controller
                     'order' => 0,
                 ]);
             }
+            if (! empty($data['galleryMediaIds'])) {
+                $knowledge->gallery()->syncWithoutDetaching(collect($data['galleryMediaIds'])->unique()->values()->mapWithKeys(
+                    fn (string $mediaId, int $order): array => [$mediaId => ['order' => $order]]
+                )->all());
+            }
 
             return $knowledge;
         });
 
-        $audit->record($request->user(), AuditAction::CREATE, 'Knowledge', $knowledge->id, ['slug' => $knowledge->slug]);
+        $audit->record($request->user(), AuditAction::CREATE, 'Knowledge', $knowledge->id, [
+            'slug' => $knowledge->slug,
+            'galleryImageCount' => count($data['galleryMediaIds'] ?? []),
+        ]);
 
         return redirect()->route('admin.knowledge.index')->with('success', 'Pengetahuan berhasil dibuat.');
     }

@@ -8,6 +8,7 @@ use App\Models\Knowledge;
 use App\Models\Partner;
 use App\Models\Person;
 use App\Models\SiteSetting;
+use App\Services\Media\MediaUrlNormalizer;
 use Illuminate\Support\Facades\Schema;
 
 class PublicSiteData
@@ -55,9 +56,21 @@ class PublicSiteData
         if (! isset($storedContent['framework']['steps']) || ! is_array($storedContent['framework']['steps']) || $storedContent['framework']['steps'] === []) {
             $homeContent['framework']['steps'] = $defaults['framework']['steps'];
         }
+        $mediaUrls = app(MediaUrlNormalizer::class);
+        foreach (['whyUs.imageUrl', 'about.diagramUrl'] as $path) {
+            data_set($homeContent, $path, $mediaUrls->normalize(data_get($homeContent, $path)));
+        }
 
         $heroDefaults = config('public_home.hero');
         $heroSlides = $this->decodeArray($settings['home_hero_slides'] ?? null);
+        if (is_array($heroSlides)) {
+            foreach ($heroSlides as &$slide) {
+                if (is_array($slide) && isset($slide['imageUrl'])) {
+                    $slide['imageUrl'] = $mediaUrls->normalize($slide['imageUrl']);
+                }
+            }
+            unset($slide);
+        }
         $heroConfig = $this->decodeArray($settings['home_hero_slider_config'] ?? null);
 
         $experiences = Experience::query()

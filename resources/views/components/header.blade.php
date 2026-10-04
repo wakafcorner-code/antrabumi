@@ -16,7 +16,7 @@
 
         @include('components.navigation.main')
 
-        <div class="hidden items-center gap-3 md:flex">
+        <div class="hidden items-center gap-3 lg:flex">
             <form method="POST" action="{{ route('language.update') }}" class="flex items-center rounded-full border border-neutral-200 bg-neutral-50 p-0.5" aria-label="Pilih bahasa">
                 @csrf
                 <input type="hidden" name="return_to" value="{{ $returnTo }}">
@@ -26,7 +26,7 @@
             <a href="/kolaborasi#formulir" class="inline-flex h-9 items-center rounded-lg bg-brand-teal px-4 text-sm font-semibold text-white transition hover:bg-brand-teal-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal">{{ $isEnglish ? 'Contact Us' : 'Hubungi Kami' }}</a>
         </div>
 
-        <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-100 md:hidden" aria-label="{{ $isEnglish ? 'Open main navigation' : 'Buka navigasi utama' }}" aria-controls="public-mobile-navigation" aria-expanded="false" data-menu-toggle data-menu-target="public-mobile-navigation">
+        <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-100 lg:hidden" aria-label="{{ $isEnglish ? 'Open main navigation' : 'Buka navigasi utama' }}" aria-controls="public-mobile-navigation" aria-expanded="false" data-menu-toggle data-menu-target="public-mobile-navigation">
             <svg data-menu-icon-open class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
             <svg data-menu-icon-close class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" /></svg>
         </button>

@@ -30,6 +30,8 @@ class MediaUploadTest extends TestCase
         $this->assertSame(['id', 'filename', 'url', 'type', 'size', 'altText'], array_keys($response->json('data')));
         $media = Media::findOrFail($response->json('data.id'));
         $this->assertSame(MediaType::IMAGE, $media->type);
+        $this->assertSame('/media-file/'.$media->storageKey, $media->url);
+        $this->assertSame('/media-file/'.$media->storageKey, $response->json('data.url'));
         $this->assertSame($editor->id, $media->uploadedById);
         $this->assertSame('Kegiatan lapangan', $media->altText);
         $this->assertSame(640, $media->width);

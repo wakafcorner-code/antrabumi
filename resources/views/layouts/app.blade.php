@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <meta name="theme-color" content="#0B1E1A">
     <title>@yield('title', 'ANTRABUMI — Connecting Knowledge, Nature, & Communities')</title>
     <meta name="description" content="@yield('description', 'ANTRABUMI is an independent organization working at the intersection of knowledge, nature, and communities.')">
     <link rel="canonical" href="@yield('canonical', url()->current())">

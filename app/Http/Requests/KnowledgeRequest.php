@@ -54,6 +54,8 @@ class KnowledgeRequest extends FormRequest
             'coverMediaId' => ['nullable', 'string', 'exists:Media,id'],
             'pdfMediaId' => ['sometimes', 'nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
             'pdfLabel' => ['nullable', 'string', 'max:191'],
+            'galleryMediaIds' => ['sometimes', 'array'],
+            'galleryMediaIds.*' => ['required', 'string', Rule::exists('Media', 'id')->where('type', MediaType::IMAGE->value)],
             'titleId' => ['required', 'string', 'min:2', 'max:300'],
             'excerptId' => ['nullable', 'string', 'max:1000'],
             'contentId' => ['nullable', 'string'],

@@ -6,43 +6,80 @@
         ? [['label' => 'About', 'href' => '/tentang'], ['label' => 'Experiences', 'href' => '/experience'], ['label' => 'Initiatives', 'href' => '/inisiatif'], ['label' => 'Knowledge', 'href' => '/pengetahuan'], ['label' => 'Collaboration', 'href' => '/kolaborasi']]
         : [['label' => 'Tentang', 'href' => '/tentang'], ['label' => 'Pengalaman', 'href' => '/experience'], ['label' => 'Inisiatif', 'href' => '/inisiatif'], ['label' => 'Pengetahuan', 'href' => '/pengetahuan'], ['label' => 'Kolaborasi', 'href' => '/kolaborasi']];
     $socialLinks = [
-        'instagram_url' => 'Instagram', 'linkedin_url' => 'LinkedIn', 'youtube_url' => 'YouTube',
-        'twitter_url' => 'X / Twitter', 'facebook_url' => 'Facebook', 'whatsapp_url' => 'WhatsApp',
+        'instagram_url' => ['label' => 'Instagram', 'icon' => 'instagram', 'fallback' => 'https://instagram.com/antrabumi_org'],
+        'linkedin_url' => ['label' => 'LinkedIn', 'icon' => 'linkedin', 'fallback' => 'https://www.linkedin.com/company/antrabumi'],
+        'youtube_url' => ['label' => 'YouTube', 'icon' => 'youtube', 'fallback' => null],
+        'twitter_url' => ['label' => 'X / Twitter', 'icon' => 'x', 'fallback' => null],
+        'facebook_url' => ['label' => 'Facebook', 'icon' => 'facebook', 'fallback' => null],
+        'whatsapp_url' => ['label' => 'WhatsApp', 'icon' => 'whatsapp', 'fallback' => 'https://wa.me/6282330387505'],
     ];
 @endphp
-<footer role="contentinfo" class="border-t border-[#0D5C4D]/30 bg-[#0B1E1A] pb-10 pt-16 text-neutral-400">
+<footer role="contentinfo" class="border-t border-[#0D5C4D]/30 bg-[#0B1E1A] pb-8 pt-12 text-neutral-400 sm:pb-10 sm:pt-16">
     <div class="mx-auto max-w-[1280px] px-5 md:px-7 lg:px-10">
-        <div class="grid grid-cols-1 gap-12 border-b border-white/10 pb-12 md:grid-cols-12">
-            <div class="space-y-4 md:col-span-5">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-3"><img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="h-9 w-auto max-w-[200px] object-contain md:h-10"></a>
+        <div class="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 sm:gap-12 sm:pb-12 lg:grid-cols-12">
+            <div class="min-w-0 space-y-4 sm:col-span-2 lg:col-span-5">
+                <a href="{{ route('home') }}" class="inline-flex max-w-full items-center gap-3"><img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="h-9 w-auto max-w-[min(200px,70vw)] object-contain md:h-10"></a>
                 <p class="max-w-xs text-sm font-medium leading-relaxed text-[#E5A823]">{{ $siteSettings['site_tagline'] ?? 'Connecting Knowledge, Nature, & Communities.' }}</p>
                 <p class="max-w-xs text-xs leading-relaxed text-neutral-400">{{ $isEnglish ? 'An independent organization working at the intersection of knowledge, nature, and communities.' : 'Organisasi independen yang bekerja di persimpangan pengetahuan, alam, dan komunitas.' }}</p>
-                <div class="flex flex-wrap items-center gap-3 pt-2">
-                    @foreach($socialLinks as $key => $label)
-                        @if(!empty($siteSettings[$key]))
-                            <a href="{{ $siteSettings[$key] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $label }} ANTRABUMI" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xs font-bold text-neutral-300 transition hover:border-[#E5A823]/50 hover:bg-[#E5A823]/10 hover:text-[#E5A823]">{{ strtoupper(substr($label, 0, 1)) }}</a>
+                <div class="space-y-3 pt-2" data-reveal>
+                    <h2 class="text-xs font-semibold uppercase tracking-widest text-[#E5A823]">{{ $isEnglish ? 'Connect with us' : 'Ikuti & hubungi kami' }}</h2>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                    @foreach($socialLinks as $key => $social)
+                        @php($socialUrl = filled($siteSettings[$key] ?? null) ? $siteSettings[$key] : $social['fallback'])
+                        @if($socialUrl)
+                            <a href="{{ $socialUrl }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $social['label'] }} ANTRABUMI" class="social-link social-link-{{ $social['icon'] }} group inline-flex min-h-11 items-center gap-2 rounded-full border px-3.5 text-sm font-semibold shadow-sm transition duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-lg hover:shadow-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E5A823]">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    @switch($social['icon'])
+                                        @case('instagram')
+                                            <rect x="3" y="3" width="18" height="18" rx="5" />
+                                            <circle cx="12" cy="12" r="4" />
+                                            <circle cx="17.5" cy="6.5" r=".75" fill="currentColor" stroke="none" />
+                                            @break
+                                        @case('linkedin')
+                                            <path d="M7 9v8M7 6.5v.01M11 17v-8m0 3.5c0-2 5-3.5 5 1V17" />
+                                            <rect x="3" y="3" width="18" height="18" rx="3" />
+                                            @break
+                                        @case('youtube')
+                                            <rect x="2.5" y="5" width="19" height="14" rx="4" />
+                                            <path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none" />
+                                            @break
+                                        @case('x')
+                                            <path d="M5 4h3.8L19 20h-3.8zM19 4l-6 7m-2 2-6 7" />
+                                            @break
+                                        @case('facebook')
+                                            <path d="M14 21v-8h3l.5-4H14V7c0-1.2.4-2 2-2h1.7V1.4C17 1.2 15.8 1 14.4 1 11.2 1 9 2.9 9 6.5V9H6v4h3v8z" fill="currentColor" stroke="none" />
+                                            @break
+                                        @case('whatsapp')
+                                            <path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.4-4.9a8.4 8.4 0 1 1 16.1-3.9Z" />
+                                            <path d="M8.5 8.2c.3-.6.6-.6 1-.6h.4c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.5.8 1.2 1.5 2 2 .3.2.5.2.7-.1l.8-.9c.2-.2.4-.3.7-.2l1.8.9c.3.1.4.3.4.5 0 .4-.2 1-.6 1.4-.5.5-1.2.7-2 .6-1.1-.2-2.5-.9-3.8-2-1.3-1.1-2.3-2.5-2.6-3.7-.2-.8 0-1.7.6-2.2Z" fill="currentColor" stroke="none" />
+                                            @break
+                                    @endswitch
+                                </svg>
+                                <span>{{ $social['label'] }}</span>
+                            </a>
                         @endif
                     @endforeach
+                    </div>
                 </div>
             </div>
-            <div class="space-y-4 md:col-span-3">
+            <div class="min-w-0 space-y-4 lg:col-span-3">
                 <h2 class="text-xs font-semibold uppercase tracking-widest text-[#E5A823]">{{ $isEnglish ? 'Navigation' : 'Navigasi' }}</h2>
                 <ul class="space-y-2.5 text-sm">
                     @foreach($navLinks as $link)<li><a href="{{ $link['href'] }}" class="transition-colors hover:text-[#E5A823]">{{ $link['label'] }}</a></li>@endforeach
                 </ul>
             </div>
-            <div class="space-y-4 md:col-span-4">
+            <div class="min-w-0 space-y-4 lg:col-span-4">
                 <h2 class="text-xs font-semibold uppercase tracking-widest text-[#E5A823]">{{ $isEnglish ? 'Contact' : 'Kontak' }}</h2>
                 <ul class="space-y-2.5 text-sm">
-                    <li><a href="mailto:{{ $siteSettings['contact_email'] ?? 'hello@antrabumi.org' }}" class="hover:text-[#E5A823]">{{ $siteSettings['contact_email'] ?? 'hello@antrabumi.org' }}</a></li>
-                    <li><a href="tel:{{ preg_replace('/[^0-9+]/', '', $siteSettings['contact_phone'] ?? '+62-823-3038-7505') }}" class="hover:text-[#E5A823]">{{ $siteSettings['contact_phone'] ?? '+62-823-3038-7505' }}</a></li>
-                    <li class="whitespace-pre-line pt-1 text-xs leading-relaxed text-neutral-500">{{ $siteSettings['contact_address'] ?? 'TRIGHA Creative Hub, Sudirman St, 08, Belitung' }}</li>
+                    <li class="break-words"><a href="mailto:{{ $siteSettings['contact_email'] ?? 'hello@antrabumi.org' }}" class="hover:text-[#E5A823]">{{ $siteSettings['contact_email'] ?? 'hello@antrabumi.org' }}</a></li>
+                    <li class="break-words"><a href="tel:{{ preg_replace('/[^0-9+]/', '', $siteSettings['contact_phone'] ?? '+62-823-3038-7505') }}" class="hover:text-[#E5A823]">{{ $siteSettings['contact_phone'] ?? '+62-823-3038-7505' }}</a></li>
+                    <li class="whitespace-pre-line break-words pt-1 text-xs leading-relaxed text-neutral-500">{{ $siteSettings['contact_address'] ?? 'TRIGHA Creative Hub, Sudirman St, 08, Belitung' }}</li>
                 </ul>
             </div>
         </div>
-        <div class="flex flex-col items-start justify-between gap-4 pt-8 text-xs text-neutral-500 sm:flex-row sm:items-center">
+        <div class="flex flex-col items-start justify-between gap-3 pt-6 text-xs text-neutral-500 sm:flex-row sm:items-center sm:gap-4 sm:pt-8">
             <p>© {{ date('Y') }} {{ $siteName }}. {{ $isEnglish ? 'All rights reserved.' : 'Seluruh hak dilindungi.' }}</p>
-            <a href="https://www.antrabumi.org" class="transition-colors hover:text-[#E5A823]">www.antrabumi.org</a>
+            <a href="{{ route('home') }}" class="break-all transition-colors hover:text-[#E5A823]">antrabumi.org</a>
         </div>
     </div>
 </footer>

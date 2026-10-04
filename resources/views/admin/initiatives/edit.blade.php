@@ -95,14 +95,10 @@
                 @error('category')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
             </div>
             <div class="md:col-span-2">
-                <label for="initiative-cover-media" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Media Sampul (opsional)</label>
-                <select id="initiative-cover-media" name="coverMediaId" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
-                    <option value="">Tanpa media sampul</option>
-                    @foreach($mediaItems as $mediaItem)
-                        <option value="{{ $mediaItem->id }}" @selected(old('coverMediaId', $initiative->coverMediaId) === $mediaItem->id)>{{ $mediaItem->originalName ?: $mediaItem->filename }}</option>
-                    @endforeach
-                </select>
-                @error('coverMediaId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
+                @include('admin.initiatives.partials.cover-media', [
+                    'coverMediaId' => $initiative->coverMediaId,
+                    'coverMediaUrl' => $initiative->coverMedia?->url,
+                ])
             </div>
         </div>
 
@@ -114,7 +110,9 @@
 
         <div>
             <label for="initiative-body-id" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten (ID)</label>
-            <textarea id="initiative-body-id" name="bodyId" rows="8" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">{{ old('bodyId', $initiative->translations->firstWhere('language', \App\Enums\Language::ID)?->description) }}</textarea>
+            <p class="mb-2 text-xs text-neutral-500">Teks panjang ditampilkan sebagai paragraf. Gunakan baris kosong untuk memisahkan bagian.</p>
+            <textarea id="initiative-body-id" name="bodyId" rows="18" data-longform-counter="initiative-body-id-count" class="w-full resize-y rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm leading-7 focus:border-[#0D5C4D] focus:bg-white focus:outline-none">{{ old('bodyId', $initiative->translations->firstWhere('language', \App\Enums\Language::ID)?->description) }}</textarea>
+            <p id="initiative-body-id-count" class="mt-1 text-right text-[11px] text-neutral-500" aria-live="polite"></p>
             @error('bodyId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
 
@@ -132,7 +130,9 @@
 
         <div>
             <label for="initiative-body-en" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Konten Lengkap (EN)</label>
-            <textarea id="initiative-body-en" name="bodyEn" rows="8" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">{{ old('bodyEn', $initiative->translations->firstWhere('language', \App\Enums\Language::EN)?->description) }}</textarea>
+            <p class="mb-2 text-xs text-neutral-500">Teks panjang ditampilkan sebagai paragraf. Gunakan baris kosong untuk memisahkan bagian.</p>
+            <textarea id="initiative-body-en" name="bodyEn" rows="18" data-longform-counter="initiative-body-en-count" class="w-full resize-y rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm leading-7 focus:border-[#0D5C4D] focus:bg-white focus:outline-none">{{ old('bodyEn', $initiative->translations->firstWhere('language', \App\Enums\Language::EN)?->description) }}</textarea>
+            <p id="initiative-body-en-count" class="mt-1 text-right text-[11px] text-neutral-500" aria-live="polite"></p>
             @error('bodyEn')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
 

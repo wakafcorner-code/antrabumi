@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Enums\UserStatus;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,7 +18,38 @@ class LayoutNavigationTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('data-menu-target="public-mobile-navigation"', false)
-            ->assertSee('id="public-mobile-navigation"', false);
+            ->assertSee('id="public-mobile-navigation"', false)
+            ->assertSee('class="hidden items-center gap-1 lg:flex"', false)
+            ->assertSee('class="hidden basis-full border-t border-neutral-100 pb-5 pt-3 lg:hidden"', false)
+            ->assertSee('rel="icon" type="image/svg+xml"', false)
+            ->assertSee(asset('favicon.svg'), false);
+    }
+
+    public function test_footer_renders_recognizable_accessible_social_links(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('aria-label="Instagram ANTRABUMI"', false)
+            ->assertSee('aria-label="LinkedIn ANTRABUMI"', false)
+            ->assertSee('aria-label="WhatsApp ANTRABUMI"', false)
+            ->assertSee('focus-visible:outline-[#E5A823]', false)
+            ->assertSee('Ikuti &amp; hubungi kami', false)
+            ->assertSee('>Instagram</span>', false)
+            ->assertSee('>LinkedIn</span>', false)
+            ->assertSee('>WhatsApp</span>', false);
+    }
+
+    public function test_footer_social_settings_override_fallback_links(): void
+    {
+        SiteSetting::create([
+            'key' => 'instagram_url',
+            'value' => 'https://instagram.com/custom_antrabumi',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('href="https://instagram.com/custom_antrabumi"', false)
+            ->assertDontSee('href="https://instagram.com/antrabumi_org"', false);
     }
 
     public function test_admin_layout_renders_a_mobile_navigation_control(): void

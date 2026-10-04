@@ -46,7 +46,7 @@ class InitiativeController extends Controller
     public function create(): View
     {
         return view('admin.initiatives.create', [
-            'mediaItems' => Media::query()->latest('createdAt')->take(200)->get(),
+            'mediaItems' => Media::query()->where('type', \App\Enums\MediaType::IMAGE->value)->latest('createdAt')->take(200)->get(),
         ]);
     }
 
@@ -90,11 +90,20 @@ class InitiativeController extends Controller
             if (! empty($data['pdfMediaId'])) {
                 $initiative->media()->syncWithoutDetaching([$data['pdfMediaId'] => ['order' => 0]]);
             }
+            if (! empty($data['galleryMediaIds'])) {
+                $initiative->media()->syncWithoutDetaching(collect($data['galleryMediaIds'])->unique()->values()->mapWithKeys(
+                    fn (string $mediaId, int $order): array => [$mediaId => ['order' => $order + 1]]
+                )->all());
+            }
 
             return $initiative;
         });
 
-        $audit->record($request->user(), AuditAction::CREATE, 'Experience', $initiative->id, ['slug' => $initiative->slug, 'type' => $initiative->type]);
+        $audit->record($request->user(), AuditAction::CREATE, 'Experience', $initiative->id, [
+            'slug' => $initiative->slug,
+            'type' => $initiative->type,
+            'galleryImageCount' => count($data['galleryMediaIds'] ?? []),
+        ]);
 
         return redirect()->route('admin.initiatives.edit', $initiative)->with('success', 'Inisiatif berhasil dibuat.');
     }
@@ -102,11 +111,15 @@ class InitiativeController extends Controller
     public function edit(Experience $initiative): View
     {
         $initiative->load(['translations', 'coverMedia', 'media']);
+        $mediaItems = Media::query()->where('type', \App\Enums\MediaType::IMAGE->value)->latest('createdAt')->take(200)->get();
+        if ($initiative->coverMedia && ! $mediaItems->contains('id', $initiative->coverMedia->id)) {
+            $mediaItems->prepend($initiative->coverMedia);
+        }
 
         return view('admin.initiatives.edit', [
             'initiative' => $initiative,
             'translations' => $initiative->translations->keyBy(fn ($translation) => $translation->language->value),
-            'mediaItems' => Media::query()->latest('createdAt')->take(200)->get(),
+            'mediaItems' => $mediaItems,
         ]);
     }
 

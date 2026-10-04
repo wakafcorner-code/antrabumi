@@ -1,5 +1,35 @@
 import './bootstrap';
 
+const revealTargets = document.querySelectorAll(
+	'#main-content > section, #main-content article.group, #admin-main > section, #admin-main form > section, #admin-main [data-slide-item], footer > div > div',
+);
+
+if (revealTargets.length > 0) {
+	revealTargets.forEach((target, index) => {
+		target.dataset.reveal = '';
+		target.style.setProperty('--reveal-delay', `${Math.min(index % 6, 5) * 55}ms`);
+	});
+
+	if ('IntersectionObserver' in window) {
+		const revealObserver = new IntersectionObserver((entries, observer) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('is-visible');
+					observer.unobserve(entry.target);
+				}
+			});
+		}, { rootMargin: '0px 0px -40px 0px', threshold: 0.08 });
+
+		document.documentElement.classList.add('motion-ready');
+		revealTargets.forEach((target) => {
+			if (target.getClientRects().length > 0) revealObserver.observe(target);
+			else target.classList.add('is-visible');
+		});
+	} else {
+		revealTargets.forEach((target) => target.classList.add('is-visible'));
+	}
+}
+
 document.querySelectorAll('[data-menu-toggle]').forEach((toggle) => {
 	const panel = document.getElementById(toggle.dataset.menuTarget);
 	if (!panel) return;
@@ -325,4 +355,212 @@ document.querySelectorAll('[data-initiative-archive]').forEach((archive) => {
 	}));
 	update();
 	if (selected !== 'ALL') window.requestAnimationFrame(() => archive.scrollIntoView({ behavior: 'smooth' }));
+});
+
+const mediaUploadEndpoint = document.querySelector('meta[name="media-upload-url"]')?.content || '/api/media/upload';
+
+document.addEventListener('change', async (event) => {
+	const fileInput = event.target.closest('[data-media-image-upload]');
+	if (!fileInput) return;
+	const file = fileInput.files?.[0];
+	const field = fileInput.closest('[data-media-image-field]');
+	if (!file || !field) return;
+
+	const error = field.querySelector('[data-media-upload-error]');
+	const status = field.querySelector('[data-media-upload-status]');
+	const urlInput = field.querySelector('[data-media-url-input]');
+	const mediaInput = field.querySelector('[data-media-id-input]');
+	const preview = field.querySelector('[data-media-image-preview]');
+	const altInput = field.querySelector('[data-media-alt-input]');
+	const showMessage = (element, message) => {
+		if (!element) return;
+		element.textContent = message;
+		element.classList.remove('hidden');
+	};
+	if (error) {
+		error.textContent = '';
+		error.classList.add('hidden');
+	}
+	if (status) {
+		status.textContent = 'Mengunggah gambar...';
+		status.classList.remove('hidden');
+	}
+
+	if (file.size > 15 * 1024 * 1024) {
+		showMessage(error, 'Ukuran berkas melebihi batas maksimum 15MB.');
+		if (status) status.classList.add('hidden');
+		fileInput.value = '';
+		return;
+	}
+	if (!file.type.startsWith('image/')) {
+		showMessage(error, 'Pilih berkas gambar yang valid.');
+		if (status) status.classList.add('hidden');
+		fileInput.value = '';
+		return;
+	}
+
+	fileInput.disabled = true;
+	try {
+		const uploadData = new FormData();
+		uploadData.append('file', file);
+		if (altInput?.value) uploadData.append('altText', altInput.value);
+		const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+		const response = await fetch(mediaUploadEndpoint, {
+			method: 'POST',
+			headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+			body: uploadData,
+		});
+		const result = await response.json();
+		if (!response.ok || !result.success || result.data?.type !== 'IMAGE') {
+			throw new Error(result.error ?? 'Gagal mengunggah gambar.');
+		}
+
+		if (urlInput) {
+			urlInput.value = result.data.url;
+			urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+		if (mediaInput) {
+			const existingOption = Array.from(mediaInput.options).find((option) => option.value === result.data.id);
+			if (!existingOption) {
+				const option = new Option(result.data.filename, result.data.id, true, true);
+				option.dataset.imageUrl = result.data.url;
+				mediaInput.add(option);
+			}
+			mediaInput.value = result.data.id;
+			mediaInput.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		if (preview) {
+			preview.src = result.data.url;
+			preview.alt = altInput?.value || file.name;
+			preview.classList.remove('hidden');
+		}
+		showMessage(status, `${result.data.filename} berhasil diunggah. Klik "Simpan Konten Beranda" di bagian bawah untuk menerapkannya.`);
+	} catch (uploadError) {
+		showMessage(error, uploadError instanceof Error ? uploadError.message : 'Gagal mengunggah gambar.');
+		if (status) status.classList.add('hidden');
+	} finally {
+		fileInput.disabled = false;
+		fileInput.value = '';
+	}
+});
+
+document.addEventListener('input', (event) => {
+	const urlInput = event.target.closest('[data-media-url-input]');
+	if (!urlInput) return;
+	const field = urlInput.closest('[data-media-image-field]');
+	const preview = field?.querySelector('[data-media-image-preview]');
+	if (!preview) return;
+	preview.src = urlInput.value;
+	preview.classList.toggle('hidden', !urlInput.value);
+});
+
+document.addEventListener('change', (event) => {
+	const mediaInput = event.target.closest('[data-media-id-input]');
+	if (!mediaInput) return;
+	const field = mediaInput.closest('[data-media-image-field]');
+	const preview = field?.querySelector('[data-media-image-preview]');
+	const imageUrl = mediaInput.selectedOptions?.[0]?.dataset.imageUrl || '';
+	if (!preview) return;
+	preview.src = imageUrl;
+	preview.classList.toggle('hidden', !imageUrl);
+});
+
+document.querySelectorAll('[data-media-gallery-upload]').forEach((gallery) => {
+	const input = gallery.querySelector('[data-media-gallery-files]');
+	const ids = gallery.querySelector('[data-media-gallery-ids]');
+	const status = gallery.querySelector('[data-media-gallery-status]');
+	const error = gallery.querySelector('[data-media-gallery-error]');
+	const form = gallery.closest('form');
+	if (!input || !ids || !form) return;
+
+	input.addEventListener('change', async () => {
+		const files = Array.from(input.files ?? []);
+		if (files.length === 0) return;
+		error?.classList.add('hidden');
+		if (status) {
+			status.textContent = `Mengunggah ${files.length} gambar...`;
+			status.classList.remove('hidden');
+		}
+		gallery.dataset.uploading = 'true';
+		input.disabled = true;
+		const submitButtons = Array.from(form.querySelectorAll('button[type="submit"]'));
+		submitButtons.forEach((button) => { button.disabled = true; });
+
+		try {
+			const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+			for (const file of files) {
+				if (file.size > 15 * 1024 * 1024) throw new Error('Ukuran berkas melebihi batas maksimum 15MB.');
+				if (!file.type.startsWith('image/')) throw new Error('Pilih berkas gambar yang valid.');
+				const uploadData = new FormData();
+				uploadData.append('file', file);
+				const response = await fetch(mediaUploadEndpoint, {
+					method: 'POST',
+					headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
+					body: uploadData,
+				});
+				const result = await response.json();
+				if (!response.ok || !result.success || result.data?.type !== 'IMAGE') {
+					throw new Error(result.error ?? 'Gagal mengunggah gambar.');
+				}
+				const hidden = document.createElement('input');
+				hidden.type = 'hidden';
+				hidden.name = gallery.dataset.inputName || 'galleryMediaIds[]';
+				hidden.value = result.data.id;
+				ids.append(hidden);
+				const item = document.createElement('span');
+				item.className = 'rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800';
+				item.textContent = `${result.data.filename} siap ditambahkan`;
+				ids.append(item);
+			}
+			if (status) status.textContent = 'Semua gambar siap disimpan bersama konten.';
+		} catch (uploadError) {
+			if (error) {
+				error.textContent = uploadError instanceof Error ? uploadError.message : 'Gagal mengunggah gambar.';
+				error.classList.remove('hidden');
+			}
+			if (status) status.classList.add('hidden');
+		} finally {
+			gallery.dataset.uploading = 'false';
+			input.disabled = false;
+			input.value = '';
+			submitButtons.forEach((button) => { button.disabled = false; });
+		}
+	});
+
+	form.addEventListener('submit', (event) => {
+		if (gallery.dataset.uploading !== 'true') return;
+		event.preventDefault();
+		if (error) {
+			error.textContent = 'Tunggu sampai unggahan gambar selesai sebelum menyimpan.';
+			error.classList.remove('hidden');
+		}
+	});
+});
+
+document.querySelectorAll('[data-rich-editor]').forEach((editor) => {
+	const container = editor.closest('[data-rich-editor-container]');
+	const source = container?.querySelector('[data-rich-editor-source]');
+	const toolbar = container?.querySelector('[data-rich-editor-toolbar]');
+	if (!source || !toolbar) return;
+
+	const sync = () => { source.value = editor.innerHTML; };
+	editor.addEventListener('input', sync);
+	toolbar.addEventListener('click', (event) => {
+		const button = event.target.closest('[data-rich-command]');
+		if (!button) return;
+		event.preventDefault();
+		editor.focus();
+		document.execCommand(button.dataset.richCommand, false, button.dataset.richValue || null);
+		sync();
+	});
+	container.closest('form')?.addEventListener('submit', sync);
+});
+
+document.querySelectorAll('[data-longform-counter]').forEach((textarea) => {
+	const output = document.getElementById(textarea.dataset.longformCounter);
+	const update = () => {
+		if (output) output.textContent = `${textarea.value.length.toLocaleString()} karakter · ${textarea.value.trim() ? textarea.value.trim().split(/\s+/).length.toLocaleString() : '0'} kata`;
+	};
+	textarea.addEventListener('input', update);
+	update();
 });

@@ -8,28 +8,44 @@
 
 @section('content')
 <div class="bg-white">
-    <section class="border-b border-neutral-100 bg-[#F7F6F1] py-16 sm:py-20">
-        <div class="mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
+    <section class="relative isolate overflow-hidden border-b border-neutral-100 bg-gradient-to-br from-[#F7F6F1] via-white to-[#EAF3EF] py-16 sm:py-24 lg:py-28">
+        <div aria-hidden="true" class="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-[#0D5C4D]/10 blur-3xl"></div>
+        <div class="relative mx-auto grid w-full max-w-[1280px] items-center gap-10 px-5 md:px-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)] lg:gap-16 lg:px-10">
             <div class="max-w-3xl">
-                <p class="font-mono text-xs font-bold uppercase tracking-[0.22em] text-[#0D5C4D]">{{ $story['eyebrow'] }}</p>
-                <h1 class="mt-4 font-heading text-4xl font-bold tracking-tight text-neutral-950 sm:text-5xl">{{ $story['title'] }}</h1>
-                <p class="mt-5 max-w-2xl text-base leading-relaxed text-neutral-700 sm:text-lg">{{ $story['lead'] }}</p>
+                <p class="inline-flex items-center gap-2 rounded-full border border-[#0D5C4D]/15 bg-white/80 px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-[#0D5C4D] shadow-sm"><span class="h-1.5 w-1.5 rounded-full bg-[#D96B27]"></span>{{ $story['eyebrow'] }}</p>
+                <h1 class="mt-5 font-heading text-4xl font-bold leading-[1.1] tracking-tight text-neutral-950 sm:text-5xl lg:text-6xl">{{ $story['title'] }}</h1>
+                <p class="mt-6 max-w-2xl text-base leading-relaxed text-neutral-700 sm:text-lg">{{ $story['lead'] }}</p>
+                <a href="#perjalanan" class="mt-7 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#0D5C4D] px-5 text-sm font-semibold text-white shadow-md shadow-[#0D5C4D]/20 transition duration-300 hover:-translate-y-0.5 hover:bg-[#1A4B43] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0D5C4D]">{{ $isEnglish ? 'Explore our journey' : 'Jelajahi perjalanan kami' }} <span aria-hidden="true">↓</span></a>
+            </div>
+            <div class="relative mx-auto w-full max-w-md lg:max-w-none" aria-hidden="true">
+                <div class="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-[#0D5C4D]/15 via-transparent to-[#E5A823]/20 blur-xl"></div>
+                <div class="relative overflow-hidden rounded-[1.75rem] border border-white/80 bg-[#0B1E1A] p-7 text-white shadow-2xl shadow-[#0B1E1A]/15 sm:p-9">
+                    <div class="absolute -right-10 -top-12 h-40 w-40 rounded-full border border-white/10"></div>
+                    <div class="absolute -right-2 -top-4 h-24 w-24 rounded-full border border-white/10"></div>
+                    <img src="/images/illustrations/about-network.svg" alt="" aria-hidden="true" fetchpriority="high" class="relative z-10 -mx-4 -mt-4 mb-2 w-[calc(100%+2rem)] drop-shadow-xl sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)]">
+                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#E5A823]">ANTRABUMI</p>
+                    <p class="mt-6 font-heading text-3xl font-bold leading-tight sm:text-4xl">Knowledge.<br>Nature.<br>Communities.</p>
+                    <div class="mt-8 flex items-center gap-3 border-t border-white/15 pt-5 text-sm text-neutral-300"><span class="h-2 w-2 rounded-full bg-[#E5A823]"></span>{{ $isEnglish ? 'Connected for meaningful change' : 'Terhubung untuk perubahan bermakna' }}</div>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="border-b border-neutral-100 bg-white py-16 sm:py-20">
         <div class="mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
-            <div class="grid gap-6 md:grid-cols-3">
-                <article class="rounded-3xl border border-neutral-200 bg-neutral-50 p-6">
+            <div class="grid gap-5 md:grid-cols-3">
+                <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#0D5C4D]/30 hover:bg-white hover:shadow-xl">
+                    <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0D5C4D]/10 font-mono text-sm font-bold text-[#0D5C4D] transition group-hover:bg-[#0D5C4D] group-hover:text-white">01</span>
                     <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">KNOWLEDGE</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'Research, evidence, and field learning are combined to understand conditions more clearly.' : 'Riset, bukti, dan pembelajaran lapangan dipadukan untuk memahami kondisi secara lebih jelas.' }}</p>
                 </article>
-                <article class="rounded-3xl border border-neutral-200 bg-neutral-50 p-6">
+                <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#0D5C4D]/30 hover:bg-white hover:shadow-xl">
+                    <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#116958]/10 font-mono text-sm font-bold text-[#116958] transition group-hover:bg-[#116958] group-hover:text-white">02</span>
                     <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">NATURE</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'We work with ecological and environmental realities as the basis for grounded action.' : 'Kami bekerja dengan realitas ekologi dan lingkungan sebagai dasar untuk aksi yang berakar pada konteks.' }}</p>
                 </article>
-                <article class="rounded-3xl border border-neutral-200 bg-neutral-50 p-6">
+                <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#D96B27]/30 hover:bg-white hover:shadow-xl">
+                    <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#D96B27]/10 font-mono text-sm font-bold text-[#D96B27] transition group-hover:bg-[#D96B27] group-hover:text-white">03</span>
                     <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">COMMUNITIES</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'Listening to communities shapes the solutions and decisions that follow.' : 'Mendengarkan komunitas membentuk solusi dan keputusan yang berikutnya dibuat.' }}</p>
                 </article>
@@ -37,7 +53,7 @@
         </div>
     </section>
 
-    <section id="perjalanan" class="border-b border-neutral-100 bg-[#FAF9F5] py-16 sm:py-20">
+    <section id="perjalanan" class="scroll-mt-24 border-b border-neutral-100 bg-[#FAF9F5] py-16 sm:py-20">
         <div class="mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
             <div class="mb-10 max-w-2xl">
                 <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#D96B27]">{{ $isEnglish ? 'OUR JOURNEY' : 'PERJALANAN KAMI' }}</p>

@@ -170,7 +170,10 @@ class PublicHomepageDataTest extends TestCase
             ->get('/tentang')
             ->assertOk()
             ->assertSee('ANTRABUMI')
+            ->assertSee('Jelajahi perjalanan kami')
+            ->assertSee('hover:-translate-y-1')
             ->assertSee('Setiap kolaborasi dimulai')
+            ->assertSee('/images/illustrations/about-network.svg')
             ->assertSee('Sendi Kenia Savitri');
     }
 
@@ -182,9 +185,15 @@ class PublicHomepageDataTest extends TestCase
             ->withCookie('antrabumi_lang', 'EN')
             ->get('/kolaborasi')
             ->assertOk()
-            ->assertSee('Communities')
-            ->assertSee('Governments')
-            ->assertSee('Start Collaboration')
+            ->assertSee('Local &amp; Indigenous Communities', false)
+            ->assertSee('Project &amp; Research Collaboration', false)
+            ->assertSee('Join the ANTRABUMI Network')
+            ->assertSee('COLLABORATION AREAS')
+            ->assertSee('Co-create')
+            ->assertSee('id="formulir"', false)
+            ->assertSee('scroll-mt-24', false)
+            ->assertSee('Start a Project Discussion')
+            ->assertSee('/images/illustrations/collaboration.svg')
             ->assertSee('Published partner');
     }
 

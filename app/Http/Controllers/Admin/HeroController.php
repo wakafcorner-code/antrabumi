@@ -7,22 +7,29 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\HeroSettingsUpdateRequest;
 use App\Models\SiteSetting;
 use App\Services\AuditLogService;
+use App\Services\Media\MediaUrlNormalizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class HeroController extends Controller
 {
-    public function index(): View
+    public function index(MediaUrlNormalizer $mediaUrls): View
     {
         $slides = $this->settingArray('home_hero_slides', config('public_home.hero.slides', []));
+        foreach ($slides as &$slide) {
+            if (is_array($slide) && isset($slide['imageUrl'])) {
+                $slide['imageUrl'] = $mediaUrls->normalize($slide['imageUrl']);
+            }
+        }
+        unset($slide);
         $config = array_replace(
             config('public_home.hero.config', []),
             $this->settingArray('home_hero_slider_config', [])
         );
 
         return view('admin.hero.index', [
-            'slidesJson' => json_encode($slides, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
-            'configJson' => json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            'slides' => $slides,
+            'config' => $config,
         ]);
     }
 

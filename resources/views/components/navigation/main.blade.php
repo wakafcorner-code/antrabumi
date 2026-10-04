@@ -22,7 +22,7 @@
     ];
 @endphp
 
-<nav aria-label="{{ $isEnglish ? 'Main navigation' : 'Navigasi Utama' }}" class="hidden items-center gap-1 md:flex">
+<nav aria-label="{{ $isEnglish ? 'Main navigation' : 'Navigasi Utama' }}" class="hidden items-center gap-1 lg:flex">
     @foreach($navItems as $item)
         <div class="relative" data-nav-dropdown>
             <button type="button" aria-expanded="false" aria-haspopup="true" data-nav-trigger class="group flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100/80 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal">
@@ -50,7 +50,7 @@
     @endforeach
 </nav>
 
-<div id="public-mobile-navigation" data-menu-panel class="hidden basis-full border-t border-neutral-100 pb-5 pt-3 md:hidden">
+<div id="public-mobile-navigation" data-menu-panel class="hidden basis-full border-t border-neutral-100 pb-5 pt-3 lg:hidden">
     <nav aria-label="{{ $isEnglish ? 'Mobile main navigation' : 'Navigasi Mobile' }}">
         <ul class="flex flex-col gap-0.5">
             @foreach($navItems as $item)

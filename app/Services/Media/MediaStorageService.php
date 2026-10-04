@@ -16,7 +16,6 @@ class MediaStorageService
 
     public function store(UploadedFile $file, User $uploader, array $metadata = []): Media
     {
-        $disk = Storage::disk('public');
         $path = $file->store('uploads', 'public');
         if (! $path) {
             throw new \RuntimeException('Uploaded file could not be stored.');
@@ -39,14 +38,14 @@ class MediaStorageService
                 'width' => $dimensions[0] ?? null,
                 'height' => $dimensions[1] ?? null,
                 'storageKey' => $path,
-                'url' => $disk->url($path),
+                'url' => route('storage.media', ['path' => $path], false),
                 'altText' => $metadata['altText'] ?? null,
                 'caption' => $metadata['caption'] ?? null,
                 'attribution' => $metadata['attribution'] ?? null,
                 'uploadedById' => $uploader->id,
             ]));
         } catch (Throwable $exception) {
-            $disk->delete($path);
+            Storage::disk('public')->delete($path);
             throw $exception;
         }
     }
