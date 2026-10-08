@@ -197,3 +197,64 @@
         transform: none;
     }
 }
+
+@media (max-width: 639px) {
+    .initiative-page > section {
+        padding-block: 3.5rem;
+    }
+
+    .initiative-page > section:first-of-type {
+        padding-top: 4rem;
+    }
+
+    .initiative-page h1 {
+        font-size: clamp(2.25rem, 10vw, 3rem);
+        overflow-wrap: anywhere;
+    }
+
+    .initiative-page > section:nth-of-type(2) article {
+        aspect-ratio: 4 / 3;
+        min-height: 17.5rem;
+    }
+
+    .initiative-page > section:nth-of-type(2) article > div.relative {
+        padding: 1.25rem;
+    }
+
+    .initiative-page > section:nth-of-type(2) article p,
+    .initiative-page > section:nth-of-type(3) article p {
+        font-size: 0.875rem;
+    }
+
+    .initiative-page > section:nth-of-type(3) article {
+        padding: 1.25rem;
+    }
+
+    #karya-inisiatif .overflow-x-auto {
+        min-width: 0;
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+
+    #karya-inisiatif [data-initiative-card] {
+        min-width: 0;
+        padding: 1.25rem;
+    }
+
+    #karya-inisiatif [data-initiative-card] h3 {
+        overflow-wrap: anywhere;
+    }
+
+    #karya-inisiatif [data-initiative-card] p {
+        font-size: 0.875rem;
+    }
+
+    #karya-inisiatif [data-initiative-card] .rounded-2xl.border {
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+    }
+
+    .initiative-page > section:last-of-type h2 {
+        font-size: clamp(1.75rem, 8vw, 2.25rem);
+    }
+}

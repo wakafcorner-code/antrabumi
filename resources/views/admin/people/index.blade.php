@@ -30,6 +30,7 @@
             <table class="min-w-full divide-y divide-neutral-200 text-left text-sm">
                 <thead class="bg-neutral-50 text-neutral-600">
                     <tr>
+                        <th class="px-5 py-3 font-semibold">Foto</th>
                         <th class="px-5 py-3 font-semibold">Nama</th>
                         <th class="px-5 py-3 font-semibold">Peran</th>
                         <th class="px-5 py-3 font-semibold">Status</th>
@@ -39,6 +40,13 @@
                 <tbody class="divide-y divide-neutral-200">
                     @forelse($people as $person)
                         <tr>
+                            <td class="px-5 py-4">
+                                @if($person->image?->url)
+                                    <img src="{{ $person->image->url }}" alt="Foto {{ $person->translations->first()?->name ?? $person->slug }}" class="h-12 w-12 rounded-full border border-neutral-200 bg-neutral-100 object-cover">
+                                @else
+                                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-400" aria-label="Belum ada foto">—</span>
+                                @endif
+                            </td>
                             <td class="px-5 py-4">
                                 <div class="font-medium text-neutral-900">{{ $person->translations->first()?->name ?? $person->slug }}</div>
                             </td>
@@ -61,7 +69,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-10 text-center text-neutral-500">Belum ada profil tim.</td>
+                            <td colspan="5" class="px-5 py-10 text-center text-neutral-500">Belum ada profil tim.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -41,4 +41,12 @@ class PartnerRequest extends FormRequest
             'order' => ['sometimes', 'integer', 'min:0'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'logoMediaIdUrl.url' => 'Masukkan URL logo yang valid dan diawali http:// atau https://.',
+            'website.url' => 'Masukkan URL website yang valid dan diawali http:// atau https://.',
+        ];
+    }
 }

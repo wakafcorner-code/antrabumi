@@ -14,6 +14,9 @@
 
     <form method="POST" action="{{ route('admin.partners.store') }}" class="space-y-5 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         @csrf
+        @if($errors->any())
+            <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $errors->first() }}</div>
+        @endif
         <div class="grid gap-5 md:grid-cols-2">
             <div class="md:col-span-2">
                 <label for="name" class="mb-2 block text-sm font-medium text-neutral-700">Nama Mitra</label>
@@ -34,6 +37,7 @@
             <div class="md:col-span-2">
                 <label for="website" class="mb-2 block text-sm font-medium text-neutral-700">Website</label>
                 <input id="website" name="website" type="url" value="{{ old('website') }}" class="w-full rounded-xl border border-neutral-300 px-4 py-3 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                @error('website')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
             </div>
             @include('admin.partials.media-reference-picker', [
                 'fieldName' => 'logoMediaId',

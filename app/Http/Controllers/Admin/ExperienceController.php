@@ -12,6 +12,7 @@ use App\Http\Requests\ExperienceRequest;
 use App\Models\Experience;
 use App\Models\Media;
 use App\Services\AuditLogService;
+use App\Services\ExternalPdfReference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -162,16 +163,30 @@ class ExperienceController extends Controller
         return redirect()->route('admin.experiences.edit', $experience)->with('status', 'Status berhasil diperbarui.');
     }
 
-    public function storePdf(Request $request, Experience $experience, AuditLogService $audit): RedirectResponse
+    public function storePdf(Request $request, Experience $experience, AuditLogService $audit, ExternalPdfReference $externalPdf): RedirectResponse
     {
         $validated = $request->validate([
-            'mediaId' => ['required', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
+            'mediaId' => ['required_without:pdfUrl', 'nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
+            'pdfUrl' => ['required_without:mediaId', 'nullable', 'string', 'max:191', function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                if (! filled($value)) {
+                    return;
+                }
+                if (filled($request->input('mediaId'))) {
+                    $fail('Pilih unggah file PDF atau URL PDF, jangan keduanya.');
+                } elseif (! ExternalPdfReference::supports($value)) {
+                    $fail('Masukkan URL HTTPS menuju PDF atau file Google Drive yang dapat diakses publik.');
+                }
+            }],
         ]);
 
-        $experience->media()->syncWithoutDetaching([$validated['mediaId'] => ['order' => 0]]);
+        $mediaId = filled($validated['pdfUrl'] ?? null)
+            ? $externalPdf->resolve($validated['pdfUrl'], $request->user())
+            : ($validated['mediaId'] ?? null);
+
+        $experience->media()->syncWithoutDetaching([$mediaId => ['order' => 0]]);
         $audit->record($request->user(), AuditAction::UPDATE, 'Experience', $experience->id, [
             'action' => 'attach_pdf',
-            'mediaId' => $validated['mediaId'],
+            'mediaId' => $mediaId,
         ]);
 
         return $this->redirectToEditor($experience)->with('status', 'PDF berhasil dilampirkan.');

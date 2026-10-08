@@ -8,7 +8,7 @@
 <div class="space-y-3 rounded-xl border border-neutral-200 bg-neutral-50/50 p-4">
     <div>
         <h2 class="text-xs font-semibold uppercase tracking-wide text-neutral-800">Gambar Sampul / Cover</h2>
-        <p class="mt-1 text-xs text-neutral-500">Unggah gambar atau PDF hingga 15 MB.</p>
+        <p class="mt-1 text-xs text-neutral-500">Unggah gambar hingga 15 MB. Untuk PDF, gunakan bagian Dokumen / Laporan PDF.</p>
     </div>
     <div id="knowledge-cover-preview" class="{{ $selectedCoverUrl ? 'flex' : 'hidden' }} items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white p-3">
         <a id="knowledge-cover-link" href="{{ $selectedCoverUrl ?? '#' }}" target="_blank" rel="noopener noreferrer" class="min-w-0 truncate text-sm font-medium text-neutral-800 underline">
@@ -18,7 +18,7 @@
     </div>
     <div>
         <label for="knowledge-cover-file" class="mb-1 block text-xs font-medium text-neutral-700">Pilih berkas</label>
-        <input id="knowledge-cover-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,.pdf" class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm">
+        <input id="knowledge-cover-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm">
     </div>
     <p id="knowledge-cover-error" class="hidden text-xs text-red-700" role="alert"></p>
 </div>

@@ -12,6 +12,7 @@ use App\Models\Knowledge;
 use App\Models\KnowledgeDownload;
 use App\Models\Media;
 use App\Services\AuditLogService;
+use App\Services\ExternalPdfReference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class KnowledgeController extends Controller
             ->when($search !== '', function ($query) use ($search): void {
                 $query->whereHas('translations', fn ($translationQuery) => $translationQuery->where('title', 'like', '%'.$search.'%'));
             })
-            ->with(['translations', 'coverMedia'])
+            ->with(['translations', 'coverMedia', 'downloads.media'])
             ->orderByDesc('publishedAt')
             ->orderByDesc('createdAt')
             ->paginate(20)
@@ -50,11 +51,15 @@ class KnowledgeController extends Controller
         ]);
     }
 
-    public function store(KnowledgeRequest $request, AuditLogService $audit): RedirectResponse
+    public function store(KnowledgeRequest $request, AuditLogService $audit, ExternalPdfReference $externalPdf): RedirectResponse
     {
         $data = $request->validated();
 
-        $knowledge = DB::transaction(function () use ($data, $request): Knowledge {
+        $knowledge = DB::transaction(function () use ($data, $request, $externalPdf): Knowledge {
+            $pdfMediaId = filled($data['pdfUrl'] ?? null)
+                ? $externalPdf->resolve($data['pdfUrl'], $request->user())
+                : ($data['pdfMediaId'] ?? null);
+
             $knowledge = Knowledge::create([
                 'slug' => $data['slug'],
                 'type' => $data['type'],
@@ -84,10 +89,10 @@ class KnowledgeController extends Controller
                 ]);
             }
 
-            if (! empty($data['pdfMediaId'])) {
+            if (! empty($pdfMediaId)) {
                 KnowledgeDownload::create([
                     'knowledgeId' => $knowledge->id,
-                    'mediaId' => $data['pdfMediaId'],
+                    'mediaId' => $pdfMediaId,
                     'label' => filled($data['pdfLabel'] ?? null) ? trim($data['pdfLabel']) : null,
                     'order' => 0,
                 ]);
@@ -126,11 +131,16 @@ class KnowledgeController extends Controller
         ]);
     }
 
-    public function update(KnowledgeRequest $request, Knowledge $knowledge, AuditLogService $audit): RedirectResponse
+    public function update(KnowledgeRequest $request, Knowledge $knowledge, AuditLogService $audit, ExternalPdfReference $externalPdf): RedirectResponse
     {
         $data = $request->validated();
 
-        DB::transaction(function () use ($data, $knowledge, $request): void {
+        $pdfMediaId = null;
+        DB::transaction(function () use ($data, $knowledge, $request, $externalPdf, &$pdfMediaId): void {
+            $pdfMediaId = filled($data['pdfUrl'] ?? null)
+                ? $externalPdf->resolve($data['pdfUrl'], $request->user())
+                : ($data['pdfMediaId'] ?? null);
+
             $knowledge->update([
                 'slug' => $data['slug'],
                 'type' => $data['type'],
@@ -163,10 +173,10 @@ class KnowledgeController extends Controller
                 );
             }
 
-            if (! empty($data['pdfMediaId'])) {
+            if (! empty($pdfMediaId)) {
                 KnowledgeDownload::create([
                     'knowledgeId' => $knowledge->id,
-                    'mediaId' => $data['pdfMediaId'],
+                    'mediaId' => $pdfMediaId,
                     'label' => filled($data['pdfLabel'] ?? null) ? trim($data['pdfLabel']) : null,
                     'order' => 0,
                 ]);
@@ -174,10 +184,10 @@ class KnowledgeController extends Controller
         });
 
         $audit->record($request->user(), AuditAction::UPDATE, 'Knowledge', $knowledge->id, ['slug' => $knowledge->slug]);
-        if (! empty($data['pdfMediaId'])) {
+        if (! empty($pdfMediaId)) {
             $audit->record($request->user(), AuditAction::UPDATE, 'Knowledge', $knowledge->id, [
                 'action' => 'attach_pdf',
-                'mediaId' => $data['pdfMediaId'],
+                'mediaId' => $pdfMediaId,
             ]);
         }
 

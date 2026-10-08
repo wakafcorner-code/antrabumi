@@ -18,9 +18,17 @@ class SettingsUpdateRequest extends FormRequest
 
         $rules = [];
         foreach (array_keys($input) as $key) {
-            $rules[$key] = ['string', 'max:5000'];
+            $rules[$key] = ['nullable', 'string', 'max:5000'];
         }
 
         return $rules;
+    }
+
+    public function messages(): array
+    {
+        return [
+            'string' => 'Kolom :attribute harus berupa teks.',
+            'max' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
+        ];
     }
 }

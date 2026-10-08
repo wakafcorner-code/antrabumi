@@ -76,6 +76,7 @@ class PublicExperienceData
                 'clientName' => $experience->clientName,
                 'featured' => $experience->featured,
                 'pdfUrl' => $pdf?->url,
+                'pdfPreviewUrl' => $pdf?->url ? ExternalPdfReference::previewUrl($pdf->url) : null,
                 'pdfLabel' => $pdf ? ($pdf->originalName ?: $title.' (Brief & Case Study)') : null,
             ];
         })->all();
@@ -222,7 +223,12 @@ class PublicExperienceData
             'cover' => $cover,
             'metrics' => $metrics,
             'galleryImages' => $galleryImages,
-            'pdf' => $pdf ? ['url' => $pdf->url, 'filename' => $pdf->filename, 'originalName' => $pdf->originalName] : null,
+            'pdf' => $pdf ? [
+                'url' => $pdf->url,
+                'previewUrl' => ExternalPdfReference::previewUrl($pdf->url),
+                'filename' => $pdf->filename,
+                'originalName' => $pdf->originalName,
+            ] : null,
             'otherExperiences' => $otherExperiences,
             'metaTitle' => $metaTitle,
             'metaDescription' => $metaDescription,

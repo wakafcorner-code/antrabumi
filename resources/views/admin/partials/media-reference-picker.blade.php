@@ -38,6 +38,7 @@
         const previewImage = preview.querySelector('img');
         const filename = document.getElementById(`${fieldName}-filename`);
         const errorOutput = document.getElementById(`${fieldName}-error`);
+        const uploadEndpoint = document.querySelector('meta[name="media-upload-url"]')?.content || '/api/media/upload';
         const showPreview = (url, name) => {
             previewImage.src = url;
             filename.textContent = name || url;
@@ -60,7 +61,7 @@
             uploadData.append('file', file);
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
             try {
-                const response = await fetch(@json(route('api.media.upload')), {
+                const response = await fetch(uploadEndpoint, {
                     method: 'POST',
                     headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
                     body: uploadData,

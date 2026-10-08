@@ -14,6 +14,7 @@
 
     <form action="{{ route('admin.initiatives.store') }}" method="POST" class="space-y-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         @csrf
+        <p class="rounded-xl border border-[#0D5C4D]/15 bg-[#0D5C4D]/5 px-4 py-3 text-sm leading-relaxed text-neutral-700">Mulai dengan judul dan konten Bahasa Indonesia. Terjemahan Inggris opsional. Gambar sampul, galeri, dan PDF bisa ditambahkan di bawah sebelum menyimpan.</p>
         <div class="grid gap-5 md:grid-cols-2">
             <div>
                 <label for="initiative-title-id" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Judul (ID) *</label>
@@ -37,6 +38,7 @@
                         <option value="{{ $value }}" {{ old('status') === $value ? 'selected' : '' }}>{{ $value }}</option>
                     @endforeach
                 </select>
+                <p class="mt-1 text-xs text-neutral-500">Pilih PUBLISHED agar inisiatif langsung tampil di situs. DRAFT hanya tersimpan di admin.</p>
                 @error('status')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
             </div>
             <div>
@@ -81,6 +83,9 @@
             @error('bodyId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
 
+        <details @if(old('titleEn') || old('excerptEn') || old('bodyEn')) open @endif class="group rounded-xl border border-neutral-200 p-4">
+            <summary class="cursor-pointer list-none font-semibold text-neutral-800 marker:hidden">Tambahkan terjemahan Bahasa Inggris (opsional)<span class="float-right text-neutral-400 transition group-open:rotate-180">⌄</span></summary>
+            <div class="mt-4 space-y-5">
         <div>
             <label for="initiative-title-en" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Judul (EN)</label>
             <input id="initiative-title-en" name="titleEn" value="{{ old('titleEn') }}" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
@@ -100,6 +105,8 @@
             <p id="initiative-body-en-count" class="mt-1 text-right text-[11px] text-neutral-500" aria-live="polite"></p>
             @error('bodyEn')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
+            </div>
+        </details>
 
         @include('admin.initiatives.partials.pdf-upload')
         @include('admin.partials.media-gallery-upload')

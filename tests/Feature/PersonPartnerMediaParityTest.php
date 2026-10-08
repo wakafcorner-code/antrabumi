@@ -49,6 +49,32 @@ class PersonPartnerMediaParityTest extends TestCase
             ->assertSee('id="imageId-file"', false);
     }
 
+    public function test_person_can_be_created_with_a_photo_uploaded_from_the_admin_form(): void
+    {
+        Storage::fake('public');
+        $editor = $this->user(Role::EDITOR, 'person-upload-photo@example.test');
+
+        $upload = $this->actingAs($editor)->postJson(route('api.media.upload'), [
+            'file' => UploadedFile::fake()->image('team-photo.jpg', 640, 480),
+        ])->assertOk();
+
+        $mediaId = $upload->json('data.id');
+        $mediaUrl = $upload->json('data.url');
+        $this->assertStringStartsWith('/media-file/', $mediaUrl);
+
+        $this->post(route('admin.people.store'), [
+            'slug' => 'person-upload-photo',
+            'nameId' => 'Uploaded Photo Person',
+            'imageId' => $mediaId,
+            'imageIdUrl' => $mediaUrl,
+        ])->assertRedirect(route('admin.people.index'))
+            ->assertSessionHasNoErrors();
+
+        $person = Person::where('slug', 'person-upload-photo')->firstOrFail();
+        $this->assertSame($mediaId, $person->imageId);
+        Storage::disk('public')->assertExists('uploads/'.$upload->json('data.filename'));
+    }
+
     public function test_person_create_generates_slug_when_form_leaves_it_blank(): void
     {
         $editor = $this->user(Role::EDITOR, 'person-slug-fallback@example.test');

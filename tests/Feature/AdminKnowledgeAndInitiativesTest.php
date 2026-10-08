@@ -83,6 +83,10 @@ class AdminKnowledgeAndInitiativesTest extends TestCase
             ->assertSee('name="excerptEn"', false)
             ->assertSee('name="bodyEn"', false)
             ->assertSee('name="featured"', false)
+            ->assertSee('Menunggu unggahan...', false)
+            ->assertSee('Mengunggah PDF...', false)
+            ->assertSee(route('api.media.upload', [], false), false)
+            ->assertSee('id="knowledge-pdf-upload-progress"', false)
             ->assertDontSee('name="contentId"', false);
 
         $this->get(route('admin.knowledge.edit', $knowledge))
@@ -405,6 +409,44 @@ class AdminKnowledgeAndInitiativesTest extends TestCase
             ->assertSee('knowledge-cover.jpg');
     }
 
+    public function test_cover_media_must_be_an_image_for_knowledge_and_initiatives(): void
+    {
+        $editor = User::create([
+            'name' => 'Cover Type Editor',
+            'email' => 'cover-type-editor@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+        $pdf = Media::create([
+            'type' => MediaType::DOCUMENT,
+            'filename' => 'cover-report.pdf',
+            'originalName' => 'cover-report.pdf',
+            'mimeType' => 'application/pdf',
+            'size' => 128,
+            'storageKey' => 'uploads/cover-report.pdf',
+            'url' => '/media-file/uploads/cover-report.pdf',
+            'uploadedById' => $editor->id,
+        ]);
+
+        $this->actingAs($editor)
+            ->post(route('admin.knowledge.store'), [
+                'slug' => 'knowledge-pdf-cover',
+                'type' => KnowledgeType::ARTICLE->value,
+                'titleId' => 'Knowledge PDF cover',
+                'coverMediaId' => $pdf->id,
+            ])
+            ->assertSessionHasErrors('coverMediaId');
+        $this->assertDatabaseMissing('Knowledge', ['slug' => 'knowledge-pdf-cover']);
+
+        $this->post(route('admin.initiatives.store'), [
+            'slug' => 'initiative-pdf-cover',
+            'type' => 'INITIATIVE',
+            'titleId' => 'Initiative PDF cover',
+            'coverMediaId' => $pdf->id,
+        ])->assertSessionHasErrors('coverMediaId');
+        $this->assertDatabaseMissing('Experience', ['slug' => 'initiative-pdf-cover']);
+    }
+
     public function test_editor_can_create_initiatives(): void
     {
         $editor = User::create([
@@ -512,6 +554,12 @@ class AdminKnowledgeAndInitiativesTest extends TestCase
         $this->actingAs($editor)
             ->get(route('admin.initiatives.create'))
             ->assertOk()
+            ->assertSee('id="initiative-pdf-file"', false)
+            ->assertSee('Menunggu unggahan...', false)
+            ->assertSee(route('api.media.upload', [], false), false)
+            ->assertSee('id="initiative-pdf-upload-progress"', false)
+            ->assertSee('PDF maks. 15 MB. Setelah memilih file', false)
+            ->assertSee('data-media-gallery-upload', false)
             ->assertSee('name="excerptEn"', false)
             ->assertSee('name="bodyEn"', false);
 
@@ -999,6 +1047,100 @@ class AdminKnowledgeAndInitiativesTest extends TestCase
         $download = KnowledgeDownload::query()->where('knowledgeId', $knowledge->id)->firstOrFail();
         $this->assertSame($mediaId, $download->mediaId);
         $this->assertSame('Supporting report', $download->label);
+
+        $this->get(route('admin.knowledge.edit', $knowledge))
+            ->assertOk()
+            ->assertSee('Supporting report');
+        $this->get(route('admin.knowledge.index'))
+            ->assertOk()
+            ->assertSee('Supporting report');
+    }
+
+    public function test_editor_can_attach_external_pdf_urls_to_knowledge_and_initiatives(): void
+    {
+        $editor = User::create([
+            'name' => 'External PDF Editor',
+            'email' => 'external-pdf-editor@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+
+        $driveUrl = 'https://drive.google.com/file/d/AbCd_123-file/view';
+        $this->actingAs($editor)
+            ->post(route('admin.knowledge.store'), [
+                'slug' => 'knowledge-external-pdf',
+                'type' => KnowledgeType::ARTICLE->value,
+                'status' => ContentStatus::DRAFT->value,
+                'titleId' => 'Knowledge with external PDF',
+                'pdfUrl' => $driveUrl,
+                'pdfLabel' => 'Drive report',
+            ])
+            ->assertRedirect(route('admin.knowledge.index'));
+
+        $knowledge = Knowledge::where('slug', 'knowledge-external-pdf')->firstOrFail();
+        $knowledgeDownload = KnowledgeDownload::where('knowledgeId', $knowledge->id)->firstOrFail();
+        $driveMedia = Media::findOrFail($knowledgeDownload->mediaId);
+        $this->assertSame($driveUrl, $driveMedia->url);
+        $this->assertSame(MediaType::DOCUMENT, $driveMedia->type);
+        $this->assertSame('application/pdf', $driveMedia->mimeType);
+        $this->assertSame('Drive report', $knowledgeDownload->label);
+
+        $initiativeUrl = 'https://reports.example.org/initiative.pdf?version=2';
+        $this->post(route('admin.initiatives.store'), [
+            'slug' => 'initiative-external-pdf',
+            'type' => 'INITIATIVE',
+            'status' => ContentStatus::DRAFT->value,
+            'titleId' => 'Initiative with external PDF',
+            'pdfUrl' => $initiativeUrl,
+        ])->assertRedirect();
+
+        $initiative = Experience::where('slug', 'initiative-external-pdf')->firstOrFail();
+        $initiativeMedia = Media::where('url', $initiativeUrl)->firstOrFail();
+        $this->assertDatabaseHas('ExperienceMedia', [
+            'experienceId' => $initiative->id,
+            'mediaId' => $initiativeMedia->id,
+            'order' => 0,
+        ]);
+
+        $editorExperience = Experience::create([
+            'slug' => 'initiative-pdf-url-editor',
+            'type' => 'INITIATIVE',
+            'status' => ContentStatus::DRAFT,
+            'createdById' => $editor->id,
+            'updatedById' => $editor->id,
+        ]);
+        $this->post(route('admin.experiences.media.pdf.store', $editorExperience), [
+            'pdfUrl' => 'https://drive.google.com/open?id=OtherDriveFile99',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('ExperienceMedia', [
+            'experienceId' => $editorExperience->id,
+            'mediaId' => Media::where('url', 'https://drive.google.com/open?id=OtherDriveFile99')->value('id'),
+            'order' => 0,
+        ]);
+    }
+
+    public function test_external_pdf_url_validation_rejects_http_and_non_pdf_links(): void
+    {
+        $editor = User::create([
+            'name' => 'External PDF Validation Editor',
+            'email' => 'external-pdf-validation@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+
+        $this->actingAs($editor)
+            ->from(route('admin.knowledge.create'))
+            ->post(route('admin.knowledge.store'), [
+                'slug' => 'invalid-external-pdf',
+                'type' => KnowledgeType::ARTICLE->value,
+                'titleId' => 'Invalid external PDF',
+                'pdfUrl' => 'http://reports.example.org/report.pdf',
+            ])
+            ->assertRedirect(route('admin.knowledge.create'))
+            ->assertSessionHasErrors('pdfUrl');
+
+        $this->assertDatabaseMissing('Knowledge', ['slug' => 'invalid-external-pdf']);
     }
 
     public function test_knowledge_rejects_non_pdf_attachments_and_invalid_pdf_uploads(): void

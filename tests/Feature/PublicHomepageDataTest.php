@@ -117,6 +117,15 @@ class PublicHomepageDataTest extends TestCase
             ->assertDontSee('homepage-draft-knowledge');
     }
 
+    public function test_default_homepage_diagram_asset_exists_and_is_rendered(): void
+    {
+        $this->assertFileExists(public_path('images/home/pillars-diagram.svg'));
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('/images/home/pillars-diagram.svg', false);
+    }
+
     public function test_language_preference_updates_cookie_without_open_redirect(): void
     {
         $response = $this->from('/')->post(route('language.update'), [
@@ -158,12 +167,34 @@ class PublicHomepageDataTest extends TestCase
             'createdById' => $user->id,
             'updatedById' => $user->id,
         ]);
+        $personImage = Media::create([
+            'type' => MediaType::IMAGE,
+            'filename' => 'sendi-profile.jpg',
+            'originalName' => 'sendi-profile.jpg',
+            'mimeType' => 'image/jpeg',
+            'size' => 128,
+            'storageKey' => 'uploads/sendi-profile.jpg',
+            'url' => '/media-file/uploads/sendi-profile.jpg',
+            'uploadedById' => $user->id,
+        ]);
+        $person->update(['imageId' => $personImage->id]);
         $person->translations()->create([
             'language' => \App\Enums\Language::ID,
             'name' => 'Sendi Kenia Savitri',
             'degree' => 'M.Si.',
             'role' => 'Research & Assessment',
             'biography' => 'Bekerja di bidang riset dan pengembangan.',
+        ]);
+        $personWithoutImage = \App\Models\Person::create([
+            'slug' => 'person-without-photo',
+            'status' => ContentStatus::PUBLISHED,
+            'order' => 2,
+            'createdById' => $user->id,
+            'updatedById' => $user->id,
+        ]);
+        $personWithoutImage->translations()->create([
+            'language' => \App\Enums\Language::ID,
+            'name' => 'Person Without Photo',
         ]);
 
         $this->withCookie('antrabumi_lang', 'ID')
@@ -172,9 +203,14 @@ class PublicHomepageDataTest extends TestCase
             ->assertSee('ANTRABUMI')
             ->assertSee('Jelajahi perjalanan kami')
             ->assertSee('hover:-translate-y-1')
+            ->assertSee('aspect-[4/5]', false)
+            ->assertSee('object-[center_20%]', false)
             ->assertSee('Setiap kolaborasi dimulai')
             ->assertSee('/images/illustrations/about-network.svg')
-            ->assertSee('Sendi Kenia Savitri');
+            ->assertSee('Sendi Kenia Savitri')
+            ->assertSee('src="/media-file/uploads/sendi-profile.jpg"', false)
+            ->assertSee('data-person-photo-placeholder', false)
+            ->assertDontSee('/images/default-person.jpg', false);
     }
 
     public function test_collaboration_page_renders_audience_cta_and_partner_directory(): void

@@ -115,6 +115,7 @@ class ExperienceMediaLifecycleTest extends TestCase
             ->get(route('admin.experiences.edit', $experience))
             ->assertOk()
             ->assertSee('id="experience-pdf-file"', false)
+            ->assertSee(route('api.media.upload', [], false), false)
             ->assertSee('id="experience-gallery-files"', false);
     }
 

@@ -9,6 +9,7 @@ use App\Http\Requests\ExperienceRequest;
 use App\Models\Experience;
 use App\Models\Media;
 use App\Services\AuditLogService;
+use App\Services\ExternalPdfReference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,12 +51,16 @@ class InitiativeController extends Controller
         ]);
     }
 
-    public function store(ExperienceRequest $request, AuditLogService $audit): RedirectResponse
+    public function store(ExperienceRequest $request, AuditLogService $audit, ExternalPdfReference $externalPdf): RedirectResponse
     {
         $data = $request->validated();
         $data['type'] ??= 'INITIATIVE';
 
-        $initiative = DB::transaction(function () use ($data, $request): Experience {
+        $initiative = DB::transaction(function () use ($data, $request, $externalPdf): Experience {
+            $pdfMediaId = filled($data['pdfUrl'] ?? null)
+                ? $externalPdf->resolve($data['pdfUrl'], $request->user())
+                : ($data['pdfMediaId'] ?? null);
+
             $initiative = Experience::create([
                 'slug' => $data['slug'],
                 'type' => $data['type'],
@@ -87,8 +92,8 @@ class InitiativeController extends Controller
                 ]);
             }
 
-            if (! empty($data['pdfMediaId'])) {
-                $initiative->media()->syncWithoutDetaching([$data['pdfMediaId'] => ['order' => 0]]);
+            if (! empty($pdfMediaId)) {
+                $initiative->media()->syncWithoutDetaching([$pdfMediaId => ['order' => 0]]);
             }
             if (! empty($data['galleryMediaIds'])) {
                 $initiative->media()->syncWithoutDetaching(collect($data['galleryMediaIds'])->unique()->values()->mapWithKeys(

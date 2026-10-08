@@ -14,6 +14,7 @@
 
     <form action="{{ route('admin.knowledge.store') }}" method="POST" class="space-y-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         @csrf
+        <p class="rounded-xl border border-[#0D5C4D]/15 bg-[#0D5C4D]/5 px-4 py-3 text-sm leading-relaxed text-neutral-700">Mulai dengan judul dan konten Bahasa Indonesia. Terjemahan Inggris opsional. Gambar sampul, galeri, dan PDF bisa ditambahkan di bawah sebelum menyimpan.</p>
 
         <div class="grid gap-5 md:grid-cols-2">
             <div>
@@ -72,6 +73,9 @@
             ])
         </div>
 
+        <details @if(old('titleEn') || old('excerptEn') || old('bodyEn')) open @endif class="group rounded-xl border border-neutral-200 p-4">
+            <summary class="cursor-pointer list-none font-semibold text-neutral-800 marker:hidden">Tambahkan terjemahan Bahasa Inggris (opsional)<span class="float-right text-neutral-400 transition group-open:rotate-180">⌄</span></summary>
+            <div class="mt-4 space-y-5">
         <div>
             <label for="knowledge-title-en" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Judul (EN)</label>
             <input id="knowledge-title-en" name="titleEn" value="{{ old('titleEn') }}" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
@@ -93,6 +97,8 @@
                 'errorKey' => 'contentEn',
             ])
         </div>
+            </div>
+        </details>
 
         @include('admin.knowledge.partials.cover-media', [
             'coverMediaId' => null,

@@ -110,8 +110,15 @@
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($people as $person)
                     <a href="{{ url('/tentang/tim/'.$person['slug']) }}" class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                        <div class="overflow-hidden rounded-2xl bg-neutral-200">
-                            <img src="{{ $person['imageUrl'] ?? '/images/default-person.jpg' }}" alt="{{ $person['name'] }}" class="h-64 w-full object-cover transition group-hover:scale-[1.02]">
+                        <div class="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-200">
+                            @if(filled($person['imageUrl']))
+                                <img src="{{ $person['imageUrl'] }}" alt="{{ $person['imageAlt'] ?? $person['name'] }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-[1.03]">
+                                <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0B1E1A]/20 to-transparent"></div>
+                            @else
+                                <div data-person-photo-placeholder role="img" aria-label="{{ $isEnglish ? 'Photo unavailable for '.$person['name'] : 'Foto belum tersedia untuk '.$person['name'] }}" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0D5C4D]/10 via-[#F7F6F1] to-[#E5A823]/20">
+                                    <span aria-hidden="true" class="flex h-24 w-24 items-center justify-center rounded-full border border-[#0D5C4D]/15 bg-white/80 font-heading text-4xl font-bold text-[#0D5C4D] shadow-sm">{{ mb_substr($person['name'], 0, 1) }}</span>
+                                </div>
+                            @endif
                         </div>
                         <div class="mt-5">
                             <h3 class="font-heading text-xl font-bold text-neutral-950">{{ $person['name'] }}</h3>

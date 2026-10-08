@@ -32,6 +32,7 @@
                     <th class="px-5 py-3 font-semibold">Judul</th>
                     <th class="px-5 py-3 font-semibold">Tipe</th>
                     <th class="px-5 py-3 font-semibold">Penulis</th>
+                    <th class="px-5 py-3 font-semibold">PDF</th>
                     <th class="px-5 py-3 font-semibold">Status</th>
                     <th class="px-5 py-3 font-semibold text-right">Aksi</th>
                 </tr>
@@ -45,6 +46,15 @@
                         </td>
                         <td class="px-5 py-4 text-neutral-600">{{ $item->type->value ?? $item->type }}</td>
                         <td class="px-5 py-4 text-neutral-600">{{ $item->authorName ?? '-' }}</td>
+                        <td class="px-5 py-4">
+                            @if($item->downloads->isNotEmpty())
+                                <a href="{{ $item->downloads->first()->media->url }}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-[#0D5C4D] underline">
+                                    {{ $item->downloads->first()->label ?: 'Lihat PDF' }}
+                                </a>
+                            @else
+                                <span class="text-neutral-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-5 py-4">
                             <span class="inline-flex rounded-full {{ $item->status === \App\Enums\ContentStatus::PUBLISHED ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }} px-2.5 py-1 text-xs font-semibold">
                                 {{ $item->status->value ?? $item->status }}
@@ -63,7 +73,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-neutral-500">Belum ada konten pengetahuan.</td>
+                        <td colspan="6" class="px-5 py-10 text-center text-neutral-500">Belum ada konten pengetahuan.</td>
                     </tr>
                 @endforelse
             </tbody>

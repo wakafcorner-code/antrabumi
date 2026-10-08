@@ -12,6 +12,8 @@ This subproject is the Laravel migration target. Keep Next.js as the reference u
 
 Keep the project root outside the web root and set the domain document root to `laravel-app/public`. See [FINAL_MIGRATION_REPORT.md](../FINAL_MIGRATION_REPORT.md) for environment variables, storage fallback, cache commands, and deployment gates.
 
+`public/.user.ini` sets PHP upload limits to support the CMS's 15 MB media limit. Confirm these values are permitted by the hosting provider; PHP may take several minutes to reload per-directory settings.
+
 ## Local Validation
 
 ```sh

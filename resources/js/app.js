@@ -245,6 +245,26 @@ document.querySelectorAll('[data-image-slider]').forEach((slider) => {
 });
 
 const pdfModal = document.querySelector('[data-pdf-modal]');
+const getPdfPreviewUrl = (value) => {
+	try {
+		const url = new URL(value, window.location.href);
+		if (!['drive.google.com', 'docs.google.com'].includes(url.hostname.toLowerCase())) return value;
+
+		const fileMatch = url.pathname.match(/\/file\/d\/([A-Za-z0-9_-]+)(?:\/|$)/);
+		const queryId = ['/open', '/uc'].includes(url.pathname.replace(/\/+$/, ''))
+			? url.searchParams.get('id')
+			: null;
+		const id = fileMatch?.[1] || queryId;
+		return id ? `https://drive.google.com/file/d/${id}/preview` : value;
+	} catch {
+		return value;
+	}
+};
+
+document.querySelectorAll('iframe[src*="drive.google.com"], iframe[src*="docs.google.com"]').forEach((frame) => {
+	frame.src = getPdfPreviewUrl(frame.src);
+});
+
 if (pdfModal instanceof HTMLDialogElement) {
 	const frame = pdfModal.querySelector('[data-pdf-modal-frame]');
 	const title = pdfModal.querySelector('[data-pdf-modal-title]');
@@ -252,7 +272,8 @@ if (pdfModal instanceof HTMLDialogElement) {
 	const links = pdfModal.querySelectorAll('[data-pdf-modal-open], [data-pdf-modal-download], [data-pdf-modal-direct]');
 	document.querySelectorAll('[data-pdf-open]').forEach((button) => button.addEventListener('click', () => {
 		const url = button.dataset.pdfUrl || '';
-		if (frame) frame.src = `${url}#toolbar=1&navpanes=0`;
+		const previewUrl = getPdfPreviewUrl(url);
+		if (frame) frame.src = previewUrl === url ? `${url}#toolbar=1&navpanes=0` : previewUrl;
 		if (title) title.textContent = button.dataset.pdfTitle || 'PDF';
 		if (category) category.textContent = button.dataset.pdfCategory || '';
 		links.forEach((link) => { link.href = url; });
@@ -377,6 +398,16 @@ document.addEventListener('change', async (event) => {
 		element.textContent = message;
 		element.classList.remove('hidden');
 	};
+	const form = field.closest('form');
+	if (form && field.dataset.mediaSubmitGuard !== 'true') {
+		field.dataset.mediaSubmitGuard = 'true';
+		form.addEventListener('submit', (submitEvent) => {
+			if (field.dataset.mediaUploadPending !== 'true') return;
+			submitEvent.preventDefault();
+			field.dataset.submitAfterMediaUpload = 'true';
+			showMessage(status, 'Unggahan sedang diproses. Form akan disimpan setelah selesai.');
+		});
+	}
 	if (error) {
 		error.textContent = '';
 		error.classList.add('hidden');
@@ -400,6 +431,8 @@ document.addEventListener('change', async (event) => {
 	}
 
 	fileInput.disabled = true;
+	field.dataset.mediaUploadPending = 'true';
+	let uploadSucceeded = false;
 	try {
 		const uploadData = new FormData();
 		uploadData.append('file', file);
@@ -434,13 +467,20 @@ document.addEventListener('change', async (event) => {
 			preview.alt = altInput?.value || file.name;
 			preview.classList.remove('hidden');
 		}
-		showMessage(status, `${result.data.filename} berhasil diunggah. Klik "Simpan Konten Beranda" di bagian bawah untuk menerapkannya.`);
+		showMessage(status, `${result.data.filename} berhasil diunggah. Simpan formulir untuk menerapkannya.`);
+		uploadSucceeded = true;
 	} catch (uploadError) {
 		showMessage(error, uploadError instanceof Error ? uploadError.message : 'Gagal mengunggah gambar.');
 		if (status) status.classList.add('hidden');
+		delete field.dataset.submitAfterMediaUpload;
 	} finally {
 		fileInput.disabled = false;
 		fileInput.value = '';
+		delete field.dataset.mediaUploadPending;
+		if (uploadSucceeded && field.dataset.submitAfterMediaUpload === 'true') {
+			delete field.dataset.submitAfterMediaUpload;
+			form?.requestSubmit();
+		}
 	}
 });
 
@@ -477,6 +517,7 @@ document.querySelectorAll('[data-media-gallery-upload]').forEach((gallery) => {
 		const files = Array.from(input.files ?? []);
 		if (files.length === 0) return;
 		error?.classList.add('hidden');
+		delete gallery.dataset.submitAfterUpload;
 		if (status) {
 			status.textContent = `Mengunggah ${files.length} gambar...`;
 			status.classList.remove('hidden');
@@ -513,7 +554,9 @@ document.querySelectorAll('[data-media-gallery-upload]').forEach((gallery) => {
 				ids.append(item);
 			}
 			if (status) status.textContent = 'Semua gambar siap disimpan bersama konten.';
+			gallery.dataset.uploadFailed = 'false';
 		} catch (uploadError) {
+			gallery.dataset.uploadFailed = 'true';
 			if (error) {
 				error.textContent = uploadError instanceof Error ? uploadError.message : 'Gagal mengunggah gambar.';
 				error.classList.remove('hidden');
@@ -524,14 +567,25 @@ document.querySelectorAll('[data-media-gallery-upload]').forEach((gallery) => {
 			input.disabled = false;
 			input.value = '';
 			submitButtons.forEach((button) => { button.disabled = false; });
+			if (gallery.dataset.submitAfterUpload === 'true') {
+				delete gallery.dataset.submitAfterUpload;
+				if (gallery.dataset.uploadFailed !== 'true') form.requestSubmit();
+				else {
+					if (error) {
+						error.textContent = 'Unggahan belum selesai. Periksa pesan di atas sebelum menyimpan.';
+						error.classList.remove('hidden');
+					}
+				}
+			}
 		}
 	});
 
 	form.addEventListener('submit', (event) => {
 		if (gallery.dataset.uploading !== 'true') return;
 		event.preventDefault();
+		gallery.dataset.submitAfterUpload = 'true';
 		if (error) {
-			error.textContent = 'Tunggu sampai unggahan gambar selesai sebelum menyimpan.';
+			error.textContent = 'Unggahan sedang diproses. Form akan disimpan setelah selesai.';
 			error.classList.remove('hidden');
 		}
 	});

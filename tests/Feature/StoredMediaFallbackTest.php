@@ -51,6 +51,35 @@ class StoredMediaFallbackTest extends TestCase
         $this->get('/media-file/uploads/not-registered.png')->assertNotFound();
     }
 
+    public function test_registered_pdf_is_served_inline_for_browser_preview(): void
+    {
+        Storage::fake('public');
+        $user = User::create([
+            'name' => 'Editor',
+            'email' => 'pdf-editor@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+        $pdfBytes = "%PDF-1.7\nPDF preview";
+        Storage::disk('public')->put('uploads/report.pdf', $pdfBytes);
+        Media::create([
+            'type' => MediaType::DOCUMENT,
+            'filename' => 'report.pdf',
+            'originalName' => 'report.pdf',
+            'mimeType' => 'application/pdf',
+            'size' => strlen($pdfBytes),
+            'storageKey' => 'uploads/report.pdf',
+            'uploadedById' => $user->id,
+        ]);
+
+        $this->get('/media-file/uploads/report.pdf')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf')
+            ->assertHeader('Content-Disposition', 'inline; filename=report.pdf')
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertStreamedContent($pdfBytes);
+    }
+
     public function test_legacy_svg_media_is_never_served_inline(): void
     {
         Storage::fake('public');

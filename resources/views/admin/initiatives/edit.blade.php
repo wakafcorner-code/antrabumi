@@ -55,6 +55,7 @@
     <form action="{{ route('admin.initiatives.update', $initiative) }}" method="POST" class="space-y-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         @csrf
         @method('PUT')
+        <p class="rounded-xl border border-[#0D5C4D]/15 bg-[#0D5C4D]/5 px-4 py-3 text-sm leading-relaxed text-neutral-700">Perbarui konten Bahasa Indonesia di bagian utama. Terjemahan Inggris opsional. Kelola PDF dan galeri gambar setelah formulir ini.</p>
         <div class="grid gap-5 md:grid-cols-2">
             <div>
                 <label for="initiative-title-id" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Judul (ID) *</label>
@@ -116,6 +117,9 @@
             @error('bodyId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
 
+        <details @if(old('titleEn') || old('excerptEn') || old('bodyEn') || $initiative->translations->firstWhere('language', \App\Enums\Language::EN)) open @endif class="group rounded-xl border border-neutral-200 p-4">
+            <summary class="cursor-pointer list-none font-semibold text-neutral-800 marker:hidden">Terjemahan Bahasa Inggris (opsional)<span class="float-right text-neutral-400 transition group-open:rotate-180">⌄</span></summary>
+            <div class="mt-4 space-y-5">
         <div>
             <label for="initiative-title-en" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Judul (EN)</label>
             <input id="initiative-title-en" name="titleEn" value="{{ old('titleEn', $initiative->translations->firstWhere('language', \App\Enums\Language::EN)?->title) }}" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
@@ -135,6 +139,8 @@
             <p id="initiative-body-en-count" class="mt-1 text-right text-[11px] text-neutral-500" aria-live="polite"></p>
             @error('bodyEn')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
         </div>
+            </div>
+        </details>
 
         <div class="flex justify-end gap-3 pt-4">
             <a href="{{ route('admin.initiatives.index') }}" class="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700">Batal</a>

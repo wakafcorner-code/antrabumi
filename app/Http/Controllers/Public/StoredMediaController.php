@@ -42,7 +42,7 @@ class StoredMediaController extends Controller
 
         $stream = $disk->readStream($storageKey);
         abort_unless(is_resource($stream), 404);
-        $inlineTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        $inlineTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
         $disposition = in_array($media->mimeType, $inlineTypes, true) ? 'inline' : 'attachment';
         $headers = [
             'Content-Type' => $media->mimeType,

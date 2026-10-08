@@ -52,6 +52,7 @@ class PublicKnowledgePagesTest extends TestCase
         $gallery = $this->media($user, 'gallery.jpg', '/uploads/gallery.jpg', MediaType::IMAGE, 'image/jpeg');
         $pdfLater = $this->media($user, 'later.pdf', '/uploads/later.pdf', MediaType::DOCUMENT, 'application/pdf');
         $pdfFirst = $this->media($user, 'first.pdf', '/uploads/first.pdf', MediaType::DOCUMENT, 'application/pdf');
+        $pdfFirst->update(['url' => 'https://drive.google.com/file/d/DriveReport123/view?usp=sharing']);
         $knowledge->update(['coverMediaId' => $cover->id]);
         $knowledge->gallery()->attach($gallery->id, ['order' => 1]);
         KnowledgeDownload::create(['knowledgeId' => $knowledge->id, 'mediaId' => $pdfLater->id, 'label' => 'Later PDF', 'order' => 2]);
@@ -64,7 +65,8 @@ class PublicKnowledgePagesTest extends TestCase
             ->assertSee('property="og:image" content="/uploads/cover.jpg"', false)
             ->assertSee('Indonesian excerpt')
             ->assertSee('Indonesian body')
-            ->assertSee('/uploads/first.pdf', false)
+            ->assertSee('https://drive.google.com/file/d/DriveReport123/preview#toolbar=0', false)
+            ->assertSee('https://drive.google.com/file/d/DriveReport123/view?usp=sharing', false)
             ->assertSee('/uploads/gallery.jpg', false)
             ->assertSee('first.pdf')
             ->assertDontSee('/uploads/later.pdf', false);

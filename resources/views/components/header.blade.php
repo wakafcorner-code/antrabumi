@@ -8,7 +8,7 @@
     <div class="mx-auto flex min-h-16 max-w-[1280px] flex-wrap items-center justify-between px-5 md:px-7 lg:min-h-[68px] lg:px-10">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-teal">
             @if($logoUrl)
-                <img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="h-8 w-auto max-w-[160px] object-contain sm:h-9 sm:max-w-[200px]">
+                <img src="{{ $logoUrl }}" alt="{{ $siteName }}" class="h-16 w-auto max-w-[240px] object-contain sm:h-20 sm:max-w-[300px] md:max-w-[360px]">
             @else
                 <span class="font-heading text-lg font-bold tracking-tight text-neutral-950 sm:text-xl">{{ $siteName }}</span>
             @endif

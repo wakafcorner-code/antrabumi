@@ -25,9 +25,18 @@ class PersonRequest extends FormRequest
         return [
             'slug' => ['required', 'string', 'min:2', 'max:100', 'regex:/^[a-z0-9-]+$/', Rule::unique('Person', 'slug')->ignore($this->route('person'), 'id')],
             'imageId' => ['nullable', 'string', 'exists:Media,id'],
-            'imageIdUrl' => ['nullable', 'string', 'max:191', 'url', function (string $attribute, mixed $value, \Closure $fail): void {
-                if (! in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true)) {
-                    $fail('URL foto harus menggunakan HTTP atau HTTPS.');
+            'imageIdUrl' => ['nullable', 'string', 'max:191', function (string $attribute, mixed $value, \Closure $fail): void {
+                $scheme = strtolower((string) parse_url($value, PHP_URL_SCHEME));
+                $path = parse_url($value, PHP_URL_PATH);
+                $isExternalUrl = in_array($scheme, ['http', 'https'], true)
+                    && filter_var($value, FILTER_VALIDATE_URL) !== false;
+                $isLocalMediaUrl = is_string($path)
+                    && $path === $value
+                    && (str_starts_with($path, '/media-file/') || str_starts_with($path, '/uploads/'))
+                    && ! str_contains(rawurldecode($path), '..');
+
+                if (! $isExternalUrl && ! $isLocalMediaUrl) {
+                    $fail('URL foto harus berupa URL HTTP/HTTPS atau path media yang valid.');
                 }
             }],
             'order' => ['sometimes', 'integer', 'min:0'],

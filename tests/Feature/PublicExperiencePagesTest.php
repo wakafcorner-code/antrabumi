@@ -78,6 +78,7 @@ class PublicExperiencePagesTest extends TestCase
     {
         $this->get('/inisiatif')
             ->assertOk()
+            ->assertSee('initiative-page', false)
             ->assertSee('EMPAT PILAR KERJA')
             ->assertSee('KONTRIBUSI KAMI')
             ->assertSee('Belum ada inisiatif yang terdaftar dalam kategori ini.')

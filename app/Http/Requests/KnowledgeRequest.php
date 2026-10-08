@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\ContentStatus;
 use App\Enums\KnowledgeType;
 use App\Enums\MediaType;
+use App\Services\ExternalPdfReference;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -51,8 +52,18 @@ class KnowledgeRequest extends FormRequest
             'featured' => ['sometimes', 'boolean'],
             'authorName' => ['nullable', 'string', 'max:150'],
             'publicationDate' => ['nullable', 'date'],
-            'coverMediaId' => ['nullable', 'string', 'exists:Media,id'],
+            'coverMediaId' => ['nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::IMAGE->value)],
             'pdfMediaId' => ['sometimes', 'nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
+            'pdfUrl' => ['nullable', 'string', 'max:191', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! filled($value)) {
+                    return;
+                }
+                if (filled($this->input('pdfMediaId'))) {
+                    $fail('Pilih unggah file PDF atau URL PDF, jangan keduanya.');
+                } elseif (! ExternalPdfReference::supports($value)) {
+                    $fail('Masukkan URL HTTPS menuju PDF atau file Google Drive yang dapat diakses publik.');
+                }
+            }],
             'pdfLabel' => ['nullable', 'string', 'max:191'],
             'galleryMediaIds' => ['sometimes', 'array'],
             'galleryMediaIds.*' => ['required', 'string', Rule::exists('Media', 'id')->where('type', MediaType::IMAGE->value)],

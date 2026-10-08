@@ -69,6 +69,7 @@ class PublicKnowledgeData
                 'id' => $download->id,
                 'label' => $download->label,
                 'url' => $download->media->url,
+                'previewUrl' => ExternalPdfReference::previewUrl($download->media->url),
                 'filename' => $download->media->filename,
                 'originalName' => $download->media->originalName,
             ])
@@ -130,6 +131,7 @@ class PublicKnowledgeData
                 'id' => $download->id,
                 'label' => $download->label ?: ($download->media->originalName ?: $download->media->filename),
                 'url' => $download->media->url,
+                'previewUrl' => ExternalPdfReference::previewUrl($download->media->url),
                 'filename' => $download->media->filename,
                 'size' => (int) ($download->media->size ?? 0),
             ])

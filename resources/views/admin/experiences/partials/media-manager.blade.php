@@ -28,6 +28,13 @@
             <input id="experience-pdf-file" type="file" accept="application/pdf,.pdf" class="min-w-0 flex-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm">
             <button type="submit" class="rounded-md bg-neutral-900 px-4 py-2 text-xs font-semibold text-white">Lampirkan PDF</button>
         </div>
+        <div>
+            <label for="experience-pdf-url" class="mb-1 block text-xs font-medium text-neutral-700">Atau URL PDF / Google Drive</label>
+            <input id="experience-pdf-url" name="pdfUrl" type="url" maxlength="191" value="{{ old('pdfUrl') }}" placeholder="https://drive.google.com/file/d/... atau https://contoh.org/dokumen.pdf" class="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm">
+            <p class="mt-1 text-xs text-neutral-500">Pastikan akses Google Drive diatur ke “Siapa saja yang memiliki link”.</p>
+            @error('pdfUrl')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
+            @error('mediaId')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
+        </div>
         <p id="experience-pdf-upload-error" class="hidden text-xs text-red-700" role="alert"></p>
     </form>
 </section>
@@ -65,6 +72,7 @@
         const pdfForm = document.getElementById('experience-pdf-upload-form');
         const pdfInput = document.getElementById('experience-pdf-file');
         const pdfMediaId = document.getElementById('experience-pdf-media-id');
+        const pdfUrlInput = document.getElementById('experience-pdf-url');
         const pdfError = document.getElementById('experience-pdf-upload-error');
         const pdfButton = pdfForm.querySelector('button[type="submit"]');
         let allowPdfSubmit = false;
@@ -74,6 +82,8 @@
             if (allowPdfSubmit || !file) return;
 
             event.preventDefault();
+            pdfUrlInput.value = '';
+            pdfMediaId.value = '';
             pdfError.textContent = '';
             pdfError.classList.add('hidden');
             if (file.size > 15 * 1024 * 1024 || (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))) {
@@ -83,10 +93,12 @@
             }
 
             pdfButton.disabled = true;
+            pdfInput.disabled = true;
+            pdfUrlInput.disabled = true;
             try {
                 const uploadData = new FormData();
                 uploadData.append('file', file);
-                const uploadResponse = await fetch(@json(route('api.media.upload')), {
+                const uploadResponse = await fetch(@json(route('api.media.upload', [], false)), {
                     method: 'POST',
                     headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
                     body: uploadData,
@@ -103,7 +115,15 @@
                 pdfError.textContent = error instanceof Error ? error.message : 'Gagal mengunggah PDF.';
                 pdfError.classList.remove('hidden');
                 pdfButton.disabled = false;
+                pdfInput.disabled = false;
+                pdfUrlInput.disabled = false;
             }
+        });
+
+        pdfUrlInput.addEventListener('input', () => {
+            if (!pdfUrlInput.value) return;
+            pdfMediaId.value = '';
+            pdfInput.value = '';
         });
 
         const galleryInput = document.getElementById('experience-gallery-files');
@@ -120,7 +140,7 @@
                     if (file.size > 15 * 1024 * 1024) throw new Error('Ukuran berkas melebihi batas maksimum 15MB.');
                     const uploadData = new FormData();
                     uploadData.append('file', file);
-                    const uploadResponse = await fetch(@json(route('api.media.upload')), {
+                    const uploadResponse = await fetch(@json(route('api.media.upload', [], false)), {
                         method: 'POST',
                         headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken },
                         body: uploadData,
