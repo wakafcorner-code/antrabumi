@@ -27,6 +27,19 @@ class HomeContentController extends Controller
         foreach (['whyUs.imageUrl', 'about.diagramUrl'] as $path) {
             data_set($content, $path, $mediaUrls->normalize(data_get($content, $path)));
         }
+        foreach (data_get($content, 'pillars', []) as $index => $pillar) {
+            if (! is_array($pillar)) {
+                continue;
+            }
+
+            $key = $pillar['key'] ?? null;
+            $defaultImage = is_string($key) ? config('public_home.pillar_images.'.$key) : null;
+            data_set(
+                $content,
+                "pillars.$index.imageUrl",
+                $mediaUrls->normalize($pillar['imageUrl'] ?? $defaultImage),
+            );
+        }
 
         return view('admin.beranda.index', [
             'content' => $content,

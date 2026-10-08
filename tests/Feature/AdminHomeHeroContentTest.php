@@ -67,6 +67,36 @@ class AdminHomeHeroContentTest extends TestCase
             ->assertSee('value="PUT"', false);
     }
 
+    public function test_home_content_can_update_public_pillar_card_images(): void
+    {
+        $editor = User::create([
+            'name' => 'Pillar Image Editor',
+            'email' => 'pillar-image-editor@example.test',
+            'passwordHash' => Hash::make('secret-password'),
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+        $pillars = config('public_home.content.pillars');
+        $pillars[0]['imageUrl'] = '/media-file/uploads/custom-knowledge-pillar.jpg';
+
+        $this->actingAs($editor)
+            ->get(route('admin.home-content.index'))
+            ->assertOk()
+            ->assertSee('name="content[pillars][0][imageUrl]"', false)
+            ->assertSee('/images/inisiatif/riset-pengetahuan.jpg', false)
+            ->assertSee('name="content[pillars][1][imageUrl]"', false);
+
+        $this->actingAs($editor)
+            ->put(route('admin.home-content.update'), ['content' => ['pillars' => $pillars]])
+            ->assertRedirect(route('admin.home-content.index'))
+            ->assertSessionHasNoErrors();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('src="/media-file/uploads/custom-knowledge-pillar.jpg"', false)
+            ->assertSee('src="/images/inisiatif/konservasi-alam.jpg"', false);
+    }
+
     public function test_hero_rejects_invalid_json_and_slider_config(): void
     {
         $editor = User::create([

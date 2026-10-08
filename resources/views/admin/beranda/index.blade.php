@@ -65,7 +65,7 @@
     $repeaters = [
         'pillars' => [
             'title' => 'Pilar Utama',
-            'fields' => ['id' => 'Nomor', 'key' => 'Kunci gambar (KNOWLEDGE/NATURE/COMMUNITIES)', 'label' => 'Nama (ID)', 'labelEn' => 'Nama (EN)', 'description' => 'Deskripsi (ID)', 'descriptionEn' => 'Deskripsi (EN)'],
+            'fields' => ['id' => 'Nomor', 'key' => 'Kunci gambar (KNOWLEDGE/NATURE/COMMUNITIES)', 'label' => 'Nama (ID)', 'labelEn' => 'Nama (EN)', 'description' => 'Deskripsi (ID)', 'descriptionEn' => 'Deskripsi (EN)', 'imageUrl' => 'Foto kartu pilar'],
             'multiline' => ['description', 'descriptionEn'],
         ],
         'growth.timeline' => [
@@ -145,6 +145,7 @@
                                     'value' => data_get($item, $key),
                                     'multiline' => in_array($key, $group['multiline'], true),
                                     'type' => $key === 'year' ? 'number' : 'text',
+                                    'imageUpload' => $path === 'pillars' && $key === 'imageUrl',
                                 ])
                             @endforeach
                         </div>

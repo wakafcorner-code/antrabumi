@@ -60,6 +60,17 @@ class PublicSiteData
         foreach (['whyUs.imageUrl', 'about.diagramUrl'] as $path) {
             data_set($homeContent, $path, $mediaUrls->normalize(data_get($homeContent, $path)));
         }
+        $pillarImages = config('public_home.pillar_images');
+        foreach ($homeContent['pillars'] as $pillar) {
+            if (! is_array($pillar) || ! isset($pillar['key'], $pillar['imageUrl'])) {
+                continue;
+            }
+
+            $imageUrl = $mediaUrls->normalize($pillar['imageUrl']);
+            if (is_string($imageUrl) && $imageUrl !== '') {
+                $pillarImages[$pillar['key']] = $imageUrl;
+            }
+        }
 
         $heroDefaults = config('public_home.hero');
         $heroSlides = $this->decodeArray($settings['home_hero_slides'] ?? null);
@@ -120,7 +131,7 @@ class PublicSiteData
             'heroConfig' => is_array($heroConfig) ? array_replace($heroDefaults['config'], $heroConfig) : $heroDefaults['config'],
             'contributions' => config('public_home.contributions.'.$language),
             'expertise' => config('public_home.expertise'),
-            'pillarImages' => config('public_home.pillar_images'),
+            'pillarImages' => $pillarImages,
             'fallbackExperienceImages' => config('public_home.fallback_experience_images'),
             'experiences' => $experiences,
             'latestKnowledge' => $latestKnowledge,
