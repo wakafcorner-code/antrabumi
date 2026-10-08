@@ -9,7 +9,10 @@ use Illuminate\Support\Collection;
 
 class PublicKnowledgeData
 {
-    public function __construct(private readonly RichTextSanitizer $sanitizer) {}
+    public function __construct(
+        private readonly RichTextSanitizer $sanitizer,
+        private readonly PublicPageImages $pageImages,
+    ) {}
 
     public function listing(string $language, ?string $category = null, ?string $type = null): array
     {
@@ -26,6 +29,12 @@ class PublicKnowledgeData
 
         return [
             'items' => $items,
+            'pageImages' => $this->pageImages->resolve('knowledge_page_images', [
+                'field_story' => '/images/pengetahuan/cerita-lapangan.jpg',
+                'assessment' => '/images/pengetahuan/laporan-assessment.jpg',
+                'policy_brief' => '/images/pengetahuan/policy-brief.jpg',
+                'toolkit' => '/images/pengetahuan/toolkit-community.jpg',
+            ]),
             'language' => $language,
             'isEnglish' => $language === 'EN',
             'initialType' => $this->initialType($category, $type),

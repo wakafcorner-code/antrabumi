@@ -10,6 +10,8 @@ use Throwable;
 
 class PublicExperienceData
 {
+    public function __construct(private readonly PublicPageImages $pageImages) {}
+
     public function experienceListing(string $language): array
     {
         $language = $language === 'EN' ? 'EN' : 'ID';
@@ -93,7 +95,7 @@ class PublicExperienceData
             'isEnglish' => $language === 'EN',
             'items' => $items,
             'initialCategory' => $initialCategory,
-            'initiativeAreas' => config('public_experiences.initiative_areas'),
+            'initiativeAreas' => $this->initiativeAreas(),
             'contributions' => config('public_experiences.contributions'),
         ];
     }
@@ -278,5 +280,26 @@ class PublicExperienceData
             || $media->type->value === 'DOCUMENT'
             || str_ends_with(strtolower($media->filename), '.pdf')
             || str_ends_with(strtolower((string) $media->url), '.pdf');
+    }
+
+    private function initiativeAreas(): array
+    {
+        $areas = config('public_experiences.initiative_areas');
+        $images = $this->pageImages->resolve(
+            'initiative_area_images',
+            collect($areas)->mapWithKeys(fn (array $area, int $index): array => [
+                ['nature', 'community', 'research', 'climate'][$index] => $area['image'],
+            ])->all(),
+        );
+
+        foreach ($areas as $index => &$area) {
+            $key = ['nature', 'community', 'research', 'climate'][$index] ?? null;
+            if ($key !== null) {
+                $area['image'] = $images[$key] ?? $area['image'];
+            }
+        }
+        unset($area);
+
+        return $areas;
     }
 }

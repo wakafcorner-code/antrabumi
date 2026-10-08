@@ -9,7 +9,10 @@
             <p class="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">Inisiatif</p>
             <h1 class="mt-2 font-heading text-3xl font-bold text-neutral-950">Daftar Inisiatif &amp; Pengalaman</h1>
         </div>
-        <a href="{{ route('admin.initiatives.create') }}" class="inline-flex h-11 items-center rounded-xl bg-[#0D5C4D] px-5 text-sm font-semibold text-white">+ Tambah Inisiatif</a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.initiatives.images') }}" class="inline-flex h-11 items-center rounded-xl border border-neutral-300 bg-white px-5 text-sm font-semibold text-neutral-700">Kelola Foto Area</a>
+            <a href="{{ route('admin.initiatives.create') }}" class="inline-flex h-11 items-center rounded-xl bg-[#0D5C4D] px-5 text-sm font-semibold text-white">+ Tambah Inisiatif</a>
+        </div>
     </div>
 
     <div class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">

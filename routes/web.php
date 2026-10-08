@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\InitiativeController;
 use App\Http\Controllers\Admin\KnowledgeController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\PageImageController;
 use App\Http\Controllers\Admin\PersonController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -55,6 +56,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::middleware('role:EDITOR|ADMIN|SUPER_ADMIN')->prefix('admin')->name('admin.')->group(function (): void {
+        Route::get('/initiatives/images', [PageImageController::class, 'initiatives'])->name('initiatives.images');
+        Route::post('/initiatives/images', [PageImageController::class, 'updateInitiatives'])->name('initiatives.images.update');
         Route::get('/initiatives/new', [InitiativeController::class, 'create'])->name('initiatives.new');
         Route::resource('initiatives', InitiativeController::class)->except(['show', 'destroy']);
         Route::patch('/initiatives/{initiative}/status', [InitiativeController::class, 'updateStatus'])->name('initiatives.status');
@@ -67,6 +70,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         Route::post('/experiences/{experience}/media/gallery', [ExperienceController::class, 'storeGalleryImage'])->name('experiences.media.gallery.store');
         Route::delete('/experiences/{experience}/media/gallery/{media}', [ExperienceController::class, 'destroyGalleryImage'])->name('experiences.media.gallery.destroy');
         Route::get('/knowledge/new', [KnowledgeController::class, 'create'])->name('knowledge.new');
+        Route::get('/knowledge/images', [PageImageController::class, 'knowledge'])->name('knowledge.images');
+        Route::post('/knowledge/images', [PageImageController::class, 'updateKnowledge'])->name('knowledge.images.update');
         Route::resource('knowledge', KnowledgeController::class)->except(['show', 'destroy']);
         Route::patch('/knowledge/{knowledge}/status', [KnowledgeController::class, 'updateStatus'])->name('knowledge.status');
         Route::delete('/knowledge/{knowledge}/downloads/{download}', [KnowledgeController::class, 'destroyDownload'])->name('knowledge.downloads.destroy');
