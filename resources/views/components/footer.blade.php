@@ -34,8 +34,18 @@
     $facebookUrl = $siteSettings['facebook_url'] ?? null;
     $contactEmail = $siteSettings['contact_email'] ?? 'hello@antrabumi.org';
     $contactPhone = $siteSettings['contact_phone'] ?? '+62-823-3038-7505';
-    $contactAddress = $siteSettings['contact_address'] ?? 'TRIGHA Creative Hub, Sudirman St, 08, Belitung';
-    $tagline = $siteSettings['site_tagline'] ?? 'Connecting Knowledge, Nature, & Communities.';
+    $defaultAddressEn = 'TRIGHA Creative Hub, Sudirman St, 08, Belitung';
+    $defaultAddressId = 'TRIGHA Creative Hub, Jl. Sudirman No. 08, Belitung';
+    $configuredAddress = $siteSettings['contact_address'] ?? null;
+    $contactAddress = $configuredAddress === null || (!$isEnglish && $configuredAddress === $defaultAddressEn)
+        ? ($isEnglish ? $defaultAddressEn : $defaultAddressId)
+        : $configuredAddress;
+    $defaultTaglineEn = 'Connecting Knowledge, Nature, & Communities.';
+    $defaultTaglineId = 'Menghubungkan Pengetahuan, Alam, & Komunitas.';
+    $configuredTagline = $siteSettings['site_tagline'] ?? null;
+    $tagline = $configuredTagline === null || (!$isEnglish && $configuredTagline === $defaultTaglineEn)
+        ? ($isEnglish ? $defaultTaglineEn : $defaultTaglineId)
+        : $configuredTagline;
 @endphp
 
 <footer role="contentinfo" class="border-t border-[#0D5C4D]/30 bg-[#0B1E1A] pb-8 pt-12 text-neutral-400 sm:pb-10 sm:pt-16">

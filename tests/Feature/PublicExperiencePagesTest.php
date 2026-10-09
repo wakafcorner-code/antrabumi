@@ -54,6 +54,18 @@ class PublicExperiencePagesTest extends TestCase
             ->assertSee('Pengalaman Terdokumentasi');
     }
 
+    public function test_experience_fallback_listing_is_localized_in_english(): void
+    {
+        $this->disableCookieEncryption()
+            ->withCookie('antrabumi_lang', 'EN')
+            ->get('/pengalaman')
+            ->assertOk()
+            ->assertSee('<title>Experiences — ANTRABUMI</title>', false)
+            ->assertSee('Village Ecotourism Management Planning')
+            ->assertSee('Field Experiences')
+            ->assertDontSee('Perencanaan Pengelolaan Ekowisata Desa');
+    }
+
     public function test_initiatives_include_all_published_experience_types_and_map_query_filter(): void
     {
         $user = $this->editor();
@@ -83,6 +95,13 @@ class PublicExperiencePagesTest extends TestCase
             ->assertSee('KONTRIBUSI KAMI')
             ->assertSee('Belum ada inisiatif yang terdaftar dalam kategori ini.')
             ->assertDontSee('data-initiative-card', false);
+
+        $this->disableCookieEncryption()
+            ->withCookie('antrabumi_lang', 'EN')
+            ->get('/inisiatif')
+            ->assertOk()
+            ->assertSee('title="PDF preview"', false)
+            ->assertDontSee('title="Pratinjau PDF"', false);
     }
 
     public function test_detail_aliases_metadata_metrics_and_legacy_media_urls_are_preserved(): void
@@ -106,7 +125,7 @@ class PublicExperiencePagesTest extends TestCase
 
         $this->disableCookieEncryption()->withCookie('antrabumi_lang', 'EN')->get('/experience/assessment-training-community-development')
             ->assertOk()
-            ->assertSee('<title>Assessment Training EN — Pengalaman ANTRABUMI</title>', false)
+            ->assertSee('<title>Assessment Training EN — Experiences ANTRABUMI</title>', false)
             ->assertSee('English method')
             ->assertSee('English impact')
             ->assertSee('12')

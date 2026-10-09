@@ -38,8 +38,26 @@ class PublicExperienceData
             // The source public page uses its source-supported list when a query fails.
         }
 
+        $fallbackExperiences = config('public_experiences.listing_fallback');
+        if ($language === 'EN') {
+            foreach ($fallbackExperiences as &$item) {
+                $detail = config('public_experiences.detail_fallback.'.$item['slug']);
+                if ($detail) {
+                    $item['title'] = $detail['titleEn'];
+                    $item['excerpt'] = $detail['overviewEn'];
+                    $item['category'] = $this->localizeCategory($detail['category'] ?? $item['category'], $language);
+                }
+            }
+            unset($item);
+        } else {
+            foreach ($fallbackExperiences as &$item) {
+                $item['category'] = $this->localizeCategory($item['category'] ?? null, $language);
+            }
+            unset($item);
+        }
+
         return [
-            'experiences' => config('public_experiences.listing_fallback'),
+            'experiences' => $fallbackExperiences,
             'language' => $language,
             'isEnglish' => $language === 'EN',
             'isFallback' => true,
@@ -72,7 +90,12 @@ class PublicExperienceData
                 'title' => $title,
                 'excerpt' => null,
                 'year' => $experience->year,
-                'category' => $experience->category ?: ($isCampaign ? 'Kampanye / Campaign' : 'Proyek / Project'),
+                'category' => $this->localizeCategory(
+                    $experience->category ?: ($isCampaign
+                        ? ($language === 'EN' ? 'Campaign' : 'Kampanye')
+                        : ($language === 'EN' ? 'Project' : 'Proyek')),
+                    $language
+                ),
                 'categoryType' => $isCampaign ? 'CAMPAIGN' : 'PROJECT',
                 'location' => $experience->location,
                 'clientName' => $experience->clientName,
@@ -172,7 +195,6 @@ class PublicExperienceData
         $languageTranslation = $this->translation($translationData, $language);
         $idTranslation = $this->translation($translationData, 'ID');
         $translation = $languageTranslation ?? $idTranslation ?? ($translationData[0] ?? null);
-        $requestedBody = $languageTranslation['description'] ?? null;
         $pdf = $gallery->first(fn (Media $media): bool => $this->isPdf($media));
         $galleryImages = $gallery
             ->filter(static fn (Media $media): bool => $media->type->value === 'IMAGE' && (bool) $media->url)
@@ -181,9 +203,13 @@ class PublicExperienceData
             ->all();
         $translatedCategory = $categoryTranslations->first(static fn ($item): bool => $item->language->value === $language)?->title
             ?? $categoryTranslations->first(static fn ($item): bool => $item->language->value === 'ID')?->title;
-        $category = $kind === 'experience'
-            ? ($translatedCategory ?? $fallback['category'] ?? ($language === 'EN' ? 'Experience' : 'Pengalaman'))
-            : ($fallback['category'] ?? null);
+        $rawCategory = $experience?->category ?: ($fallback['category'] ?? null);
+        $category = $this->localizeCategory(
+            $translatedCategory ?: $rawCategory ?: ($language === 'EN'
+                ? ($kind === 'initiative' ? 'Initiative' : 'Experience')
+                : ($kind === 'initiative' ? 'Inisiatif' : 'Pengalaman')),
+            $language
+        );
 
         $otherExperiences = [];
         if ($kind === 'experience') {
@@ -194,17 +220,35 @@ class PublicExperienceData
                 $otherExperiences[] = [
                     'slug' => $otherSlug,
                     'title' => $language === 'EN' ? $details['titleEn'] : $details['titleId'],
-                    'category' => $details['category'],
+                    'category' => $this->localizeCategory($details['category'], $language),
                     'year' => $details['year'],
                     'excerpt' => $language === 'EN' ? $details['overviewEn'] : $details['overviewId'],
                 ];
             }
         }
 
-        $title = $translation['title'] ?? $slug;
-        $excerpt = $translation['excerpt'] ?? null;
-        $metaTitle = $kind === 'initiative' ? $title.' — Inisiatif ANTRABUMI' : $title.' — Pengalaman ANTRABUMI';
-        $metaDescription = $excerpt ?: ($kind === 'initiative' ? 'Inisiatif dan pengalaman lapangan ANTRABUMI.' : 'Pengalaman dan inisiatif lapangan ANTRABUMI.');
+        $title = filled($languageTranslation['title'] ?? null)
+            ? $languageTranslation['title']
+            : ($idTranslation['title'] ?? $translation['title'] ?? $slug);
+        $excerpt = filled($languageTranslation['excerpt'] ?? null)
+            ? $languageTranslation['excerpt']
+            : ($idTranslation['excerpt'] ?? $translation['excerpt'] ?? null);
+        $methodology = filled($languageTranslation['methodology'] ?? null)
+            ? $languageTranslation['methodology']
+            : ($idTranslation['methodology'] ?? $translation['methodology'] ?? null);
+        $impact = filled($languageTranslation['impact'] ?? null)
+            ? $languageTranslation['impact']
+            : ($idTranslation['impact'] ?? $translation['impact'] ?? null);
+        $description = filled($languageTranslation['description'] ?? null)
+            ? $languageTranslation['description']
+            : ($idTranslation['description'] ?? null);
+        $pageType = $language === 'EN'
+            ? ($kind === 'initiative' ? 'Initiatives' : 'Experiences')
+            : ($kind === 'initiative' ? 'Inisiatif' : 'Pengalaman');
+        $metaTitle = $title.' — '.$pageType.' ANTRABUMI';
+        $metaDescription = $excerpt ?: ($language === 'EN'
+            ? ($kind === 'initiative' ? 'ANTRABUMI initiatives and field experiences.' : 'ANTRABUMI field experiences and initiatives.')
+            : ($kind === 'initiative' ? 'Inisiatif dan pengalaman lapangan ANTRABUMI.' : 'Pengalaman dan inisiatif lapangan ANTRABUMI.'));
 
         return [
             'experience' => $experience,
@@ -215,9 +259,9 @@ class PublicExperienceData
             'kind' => $kind,
             'title' => $title,
             'excerpt' => $excerpt,
-            'description' => $requestedBody,
-            'methodology' => $translation['methodology'] ?? null,
-            'impact' => $translation['impact'] ?? null,
+            'description' => $description,
+            'methodology' => $methodology,
+            'impact' => $impact,
             'year' => $year,
             'category' => $category,
             'location' => $location,
@@ -280,6 +324,28 @@ class PublicExperienceData
             || $media->type->value === 'DOCUMENT'
             || str_ends_with(strtolower($media->filename), '.pdf')
             || str_ends_with(strtolower((string) $media->url), '.pdf');
+    }
+
+    private function localizeCategory(?string $category, string $language): ?string
+    {
+        if ($category === null || $category === '') {
+            return null;
+        }
+
+        $labels = [
+            'Community Development' => ['ID' => 'Pengembangan Masyarakat', 'EN' => 'Community Development'],
+            'Research & Assessment' => ['ID' => 'Riset & Asesmen', 'EN' => 'Research & Assessment'],
+            'Research, Assessment & Knowledge' => ['ID' => 'Riset, Asesmen & Pengetahuan', 'EN' => 'Research, Assessment & Knowledge'],
+            'Conservation, Climate & Sustainability' => ['ID' => 'Konservasi, Iklim & Keberlanjutan', 'EN' => 'Conservation, Climate & Sustainability'],
+            'Konservasi & Lanskap' => ['ID' => 'Konservasi & Lanskap', 'EN' => 'Conservation & Landscape'],
+            'Kelautan & Pesisir' => ['ID' => 'Kelautan & Pesisir', 'EN' => 'Marine & Coastal'],
+            'Campaign' => ['ID' => 'Kampanye', 'EN' => 'Campaign'],
+            'Kampanye' => ['ID' => 'Kampanye', 'EN' => 'Campaign'],
+            'Project' => ['ID' => 'Proyek', 'EN' => 'Project'],
+            'Proyek' => ['ID' => 'Proyek', 'EN' => 'Project'],
+        ];
+
+        return $labels[$category][$language] ?? $category;
     }
 
     private function initiativeAreas(): array

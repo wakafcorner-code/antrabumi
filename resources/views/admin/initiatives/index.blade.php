@@ -18,6 +18,11 @@
     <div class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
         <form method="GET" action="{{ route('admin.initiatives.index') }}" class="flex flex-col gap-3 md:flex-row md:items-center">
             <input type="text" name="search" value="{{ $search }}" placeholder="Cari judul, lokasi, atau mitra" class="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none md:max-w-md">
+            <select name="type" aria-label="Tipe konten" class="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                <option value="" {{ $type === null || $type === '' ? 'selected' : '' }}>Semua tipe</option>
+                <option value="INITIATIVE" {{ $type === 'INITIATIVE' ? 'selected' : '' }}>Inisiatif</option>
+                <option value="EXPERIENCE" {{ $type === 'EXPERIENCE' ? 'selected' : '' }}>Pengalaman / Kampanye</option>
+            </select>
             <select name="status" class="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
                 <option value="">Semua status</option>
                 @foreach(['DRAFT','REVIEW','PUBLISHED','ARCHIVED'] as $state)
@@ -56,7 +61,7 @@
                         <td class="px-5 py-4">
                             <div class="flex justify-end gap-2">
                                 <a href="{{ route('admin.initiatives.edit', $item) }}" class="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-semibold text-neutral-700">Edit</a>
-                                <form method="POST" action="{{ route('admin.initiatives.destroy', $item) }}" onsubmit="return confirm('Hapus inisiatif ini?')">
+                                <form method="POST" action="{{ route('admin.initiatives.destroy', $item) }}" onsubmit="return confirm('Hapus konten ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600">Hapus</button>

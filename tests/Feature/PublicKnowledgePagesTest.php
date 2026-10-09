@@ -35,11 +35,22 @@ class PublicKnowledgePagesTest extends TestCase
             ->withCookie('antrabumi_lang', 'EN')
             ->get('/pengetahuan?kategori=riset')
             ->assertOk()
-            ->assertSee('<title>Pengetahuan — ANTRABUMI</title>', false)
+            ->assertSee('<title>Knowledge — ANTRABUMI</title>', false)
+            ->assertSee('aria-label="Knowledge categories"', false)
+            ->assertSee('Research, Assessment & Knowledge')
             ->assertSee('data-initial-type="RESEARCH_PUBLICATION"', false)
             ->assertSee('data-type="RESEARCH_PUBLICATION"', false)
             ->assertSee('Research Report')
+            ->assertSee('title="PDF preview"', false)
+            ->assertDontSee('title="Pratinjau PDF"', false)
             ->assertDontSee('draft-report');
+
+        $this->withCookie('antrabumi_lang', 'ID')
+            ->get('/pengetahuan')
+            ->assertOk()
+            ->assertSee('title="Pratinjau PDF"', false)
+            ->assertSee('Pembaca & Pratinjau Dokumen')
+            ->assertDontSee('title="PDF preview"', false);
     }
 
     public function test_detail_renders_fallback_translation_media_order_and_metadata(): void
@@ -58,13 +69,15 @@ class PublicKnowledgePagesTest extends TestCase
         KnowledgeDownload::create(['knowledgeId' => $knowledge->id, 'mediaId' => $pdfLater->id, 'label' => 'Later PDF', 'order' => 2]);
         KnowledgeDownload::create(['knowledgeId' => $knowledge->id, 'mediaId' => $pdfFirst->id, 'label' => 'First PDF', 'order' => 1]);
 
-        $this->withCookie('antrabumi_lang', 'EN')
+        $this->disableCookieEncryption()
+            ->withCookie('antrabumi_lang', 'EN')
             ->get('/pengetahuan/published-assessment')
             ->assertOk()
-            ->assertSee('<title>Assessment title — Pengetahuan ANTRABUMI</title>', false)
-            ->assertSee('property="og:image" content="/uploads/cover.jpg"', false)
-            ->assertSee('Indonesian excerpt')
-            ->assertSee('Indonesian body')
+            ->assertSee('<title>Assessment title — Knowledge ANTRABUMI</title>', false)
+            ->assertSee('property="og:image" content="https://antrabumi.org/uploads/cover.jpg"', false)
+            ->assertSee('English excerpt')
+            ->assertSee('English body')
+            ->assertDontSee('Indonesian body')
             ->assertSee('https://drive.google.com/file/d/DriveReport123/preview#toolbar=0', false)
             ->assertSee('https://drive.google.com/file/d/DriveReport123/view?usp=sharing', false)
             ->assertSee('/uploads/gallery.jpg', false)

@@ -91,7 +91,7 @@ class PublicSiteData
             ->orderByDesc('createdAt')
             ->take(4)
             ->get()
-            ->map(fn (Experience $experience): array => $this->experienceCard($experience))
+            ->map(fn (Experience $experience): array => $this->experienceCard($experience, $language))
             ->all();
 
         $latestKnowledge = Knowledge::query()
@@ -130,7 +130,7 @@ class PublicSiteData
             'heroSlides' => is_array($heroSlides) && $heroSlides !== [] ? $heroSlides : $heroDefaults['slides'],
             'heroConfig' => is_array($heroConfig) ? array_replace($heroDefaults['config'], $heroConfig) : $heroDefaults['config'],
             'contributions' => config('public_home.contributions.'.$language),
-            'expertise' => config('public_home.expertise'),
+            'expertise' => config('public_home.expertise.'.$language),
             'pillarImages' => $pillarImages,
             'fallbackExperienceImages' => config('public_home.fallback_experience_images'),
             'experiences' => $experiences,
@@ -149,8 +149,9 @@ class PublicSiteData
             ->orderBy('order')
             ->orderByDesc('createdAt')
             ->get()
-            ->map(function (Person $person): array {
-                $translation = $person->translations->first(fn ($item): bool => $item->language->value === 'ID')
+            ->map(function (Person $person) use ($language): array {
+                $translation = $person->translations->first(fn ($item): bool => $item->language->value === $language)
+                    ?? $person->translations->first(fn ($item): bool => $item->language->value === 'ID')
                     ?? $person->translations->first();
 
                 return [
@@ -186,11 +187,11 @@ class PublicSiteData
                 ['year' => '2026', 'label' => $language === 'EN' ? 'A New Chapter' : 'Bab Baru', 'description' => $language === 'EN' ? 'A fresh chapter shaped by learning and partnership.' : 'Bab baru yang dibangun dari pembelajaran dan kemitraan.'],
             ],
             'framework' => [
-                ['step' => '01', 'title' => 'LISTEN', 'desc' => $language === 'EN' ? 'Understand context, voices, and local realities before acting.' : 'Memahami konteks, suara, dan realitas lokal sebelum bertindak.'],
-                ['step' => '02', 'title' => 'CONNECT', 'desc' => $language === 'EN' ? 'Build relationships across communities, institutions, and sectors.' : 'Membina hubungan lintas komunitas, lembaga, dan sektor.'],
-                ['step' => '03', 'title' => 'CO-CREATE', 'desc' => $language === 'EN' ? 'Develop shared direction with those affected by the issue.' : 'Menyusun arah bersama dengan mereka yang terdampak.'],
-                ['step' => '04', 'title' => 'ACT', 'desc' => $language === 'EN' ? 'Translate understanding into practical and contextual action.' : 'Menerjemahkan pemahaman menjadi aksi yang praktis dan kontekstual.'],
-                ['step' => '05', 'title' => 'LEARN', 'desc' => $language === 'EN' ? 'Reflect, adapt, and improve with evidence from field experience.' : 'Merefleksikan, menyesuaikan, dan meningkatkan dampak berdasarkan pembelajaran.'],
+                ['step' => '01', 'title' => $language === 'EN' ? 'LISTEN' : 'DENGARKAN', 'desc' => $language === 'EN' ? 'Understand context, voices, and local realities before acting.' : 'Memahami konteks, suara, dan realitas lokal sebelum bertindak.'],
+                ['step' => '02', 'title' => $language === 'EN' ? 'CONNECT' : 'HUBUNGKAN', 'desc' => $language === 'EN' ? 'Build relationships across communities, institutions, and sectors.' : 'Membina hubungan lintas komunitas, lembaga, dan sektor.'],
+                ['step' => '03', 'title' => $language === 'EN' ? 'CO-CREATE' : 'RANCANG BERSAMA', 'desc' => $language === 'EN' ? 'Develop shared direction with those affected by the issue.' : 'Menyusun arah bersama dengan mereka yang terdampak.'],
+                ['step' => '04', 'title' => $language === 'EN' ? 'ACT' : 'BERTINDAK', 'desc' => $language === 'EN' ? 'Translate understanding into practical and contextual action.' : 'Menerjemahkan pemahaman menjadi aksi yang praktis dan kontekstual.'],
+                ['step' => '05', 'title' => $language === 'EN' ? 'LEARN' : 'BELAJAR', 'desc' => $language === 'EN' ? 'Reflect, adapt, and improve with evidence from field experience.' : 'Merefleksikan, menyesuaikan, dan meningkatkan dampak berdasarkan pembelajaran.'],
             ],
             'gedsi' => [
                 'title' => $language === 'EN' ? 'GEDSI in practice' : 'GEDSI dalam praktik',
@@ -286,7 +287,7 @@ class PublicSiteData
         return is_array($decoded) ? $decoded : null;
     }
 
-    private function experienceCard(Experience $experience): array
+    private function experienceCard(Experience $experience, string $language): array
     {
         $translations = $experience->translations;
         $gallery = $experience->media;
@@ -303,7 +304,7 @@ class PublicSiteData
             'type' => $experience->type,
             'status' => $experience->status->value,
             'year' => $experience->year,
-            'category' => $experience->category,
+            'category' => $this->localizeExperienceCategory($experience->category, $language),
             'clientName' => $experience->clientName,
             'location' => $experience->location,
             'featured' => $experience->featured,
@@ -314,6 +315,23 @@ class PublicSiteData
             'coverMediaUrl' => $experience->coverMedia?->url,
             'coverMediaAlt' => $experience->coverMedia?->altText,
         ];
+    }
+
+    private function localizeExperienceCategory(?string $category, string $language): ?string
+    {
+        if ($category === null || $category === '') {
+            return null;
+        }
+
+        $labels = [
+            'Community Development' => ['ID' => 'Pengembangan Masyarakat', 'EN' => 'Community Development'],
+            'Research & Assessment' => ['ID' => 'Riset & Asesmen', 'EN' => 'Research & Assessment'],
+            'Conservation, Climate & Sustainability' => ['ID' => 'Konservasi, Iklim & Keberlanjutan', 'EN' => 'Conservation, Climate & Sustainability'],
+            'Konservasi & Lanskap' => ['ID' => 'Konservasi & Lanskap', 'EN' => 'Conservation & Landscape'],
+            'Kelautan & Pesisir' => ['ID' => 'Kelautan & Pesisir', 'EN' => 'Marine & Coastal'],
+        ];
+
+        return $labels[$category][$language] ?? $category;
     }
 
     private function knowledgeCard(Knowledge $knowledge): array

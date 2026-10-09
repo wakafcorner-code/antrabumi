@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Inisiatif — CMS ANTRABUMI')
+@section('title', 'Edit '.($initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye').' — CMS ANTRABUMI')
 
 @section('content')
 <div class="mx-auto max-w-4xl space-y-6">
     <div class="flex items-center justify-between gap-4">
         <div>
-            <p class="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">Inisiatif</p>
-            <h1 class="mt-2 font-heading text-3xl font-bold text-neutral-950">Edit Inisiatif</h1>
+            <p class="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">{{ $initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye' }}</p>
+            <h1 class="mt-2 font-heading text-3xl font-bold text-neutral-950">Edit {{ $initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye' }}</h1>
         </div>
         <a href="{{ route('admin.initiatives.index') }}" class="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline">Kembali ke daftar</a>
     </div>

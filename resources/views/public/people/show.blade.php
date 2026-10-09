@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
 @section('title', $person['name'].' — ANTRABUMI')
-@section('description', $person['biography'] ?? 'ANTRABUMI team profile.')
+@section('description', $person['biography'] ?? ($isEnglish ? 'ANTRABUMI team profile.' : 'Profil tim ANTRABUMI.'))
 @section('canonical', url('/tentang/tim/'.$person['slug']))
 @section('og_title', $person['name'])
-@section('og_description', $person['role'] ?? 'ANTRABUMI team profile.')
+@section('og_description', $person['role'] ?? ($isEnglish ? 'ANTRABUMI team profile.' : 'Profil tim ANTRABUMI.'))
 
 @section('content')
 <div class="bg-white">
     <section class="border-b border-neutral-100 bg-[#F7F6F1] py-16 sm:py-20">
         <div class="mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
-            <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-neutral-500">
+            <nav aria-label="{{ $isEnglish ? 'Breadcrumb' : 'Navigasi jejak' }}" class="flex items-center gap-2 text-xs text-neutral-500">
                 <a href="/" class="hover:text-neutral-900">{{ $isEnglish ? 'Home' : 'Beranda' }}</a>
                 <span>/</span>
                 <a href="/tentang" class="hover:text-neutral-900">{{ $isEnglish ? 'About' : 'Tentang' }}</a>

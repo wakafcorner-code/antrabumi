@@ -55,6 +55,56 @@ class ExperienceCrudTest extends TestCase
             ->assertSee('Simpan Perubahan');
     }
 
+    public function test_initiative_admin_list_includes_experiences_and_can_edit_them(): void
+    {
+        $editor = $this->user(Role::EDITOR, 'mixed-content-editor@example.test');
+        $initiative = Experience::create([
+            'slug' => 'community-initiative',
+            'type' => 'INITIATIVE',
+            'createdById' => $editor->id,
+            'updatedById' => $editor->id,
+        ]);
+        $initiative->translations()->create(['language' => 'ID', 'title' => 'Inisiatif Komunitas']);
+
+        $campaign = Experience::create([
+            'slug' => 'field-campaign',
+            'type' => 'EXPERIENCE',
+            'category' => 'Campaign',
+            'createdById' => $editor->id,
+            'updatedById' => $editor->id,
+        ]);
+        $campaign->translations()->create(['language' => 'ID', 'title' => 'Kampanye Lapangan']);
+
+        $this->actingAs($editor)
+            ->get(route('admin.initiatives.index'))
+            ->assertOk()
+            ->assertSee('Inisiatif Komunitas')
+            ->assertSee('Kampanye Lapangan')
+            ->assertSee(route('admin.initiatives.edit', $campaign), false);
+
+        $this->get(route('admin.initiatives.index', ['type' => 'EXPERIENCE']))
+            ->assertOk()
+            ->assertSee('Kampanye Lapangan')
+            ->assertDontSee('Inisiatif Komunitas');
+
+        $this->get(route('admin.initiatives.edit', $campaign))
+            ->assertOk()
+            ->assertSee('Kampanye Lapangan')
+            ->assertSee('Edit Pengalaman / Kampanye')
+            ->assertSee('value="EXPERIENCE" selected', false);
+
+        $this->put(route('admin.initiatives.update', $campaign), [
+            'slug' => 'field-campaign',
+            'type' => 'EXPERIENCE',
+            'titleId' => 'Kampanye Lapangan Diperbarui',
+        ])->assertRedirect(route('admin.initiatives.edit', $campaign));
+
+        $this->assertSame(
+            'Kampanye Lapangan Diperbarui',
+            $campaign->translations()->where('language', 'ID')->value('title')
+        );
+    }
+
     public function test_invalid_experience_data_returns_field_validation_errors(): void
     {
         $editor = $this->user(Role::EDITOR, 'editor@example.test');

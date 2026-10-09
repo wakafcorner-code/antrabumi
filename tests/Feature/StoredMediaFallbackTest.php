@@ -117,6 +117,7 @@ class StoredMediaFallbackTest extends TestCase
 
         $this->assertStringContainsString('Disallow: /admin/', $robots);
         $this->assertStringContainsString('Disallow: /api/', $robots);
+        $this->assertStringContainsString('Sitemap: https://antrabumi.org/sitemap.xml', $robots);
         $this->get(route('robots'))->assertOk()->assertSee('Disallow: /admin/', false);
     }
 }

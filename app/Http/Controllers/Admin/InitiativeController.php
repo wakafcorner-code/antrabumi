@@ -23,7 +23,7 @@ class InitiativeController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $status = $request->query('status');
-        $type = $request->query('type', 'INITIATIVE');
+        $type = $request->query('type');
 
         $initiatives = Experience::query()
             ->when($type !== null && $type !== '', fn ($query) => $query->where('type', $type))
@@ -171,7 +171,9 @@ class InitiativeController extends Controller
 
         $audit->record($request->user(), AuditAction::UPDATE, 'Experience', $initiative->id, ['slug' => $initiative->slug]);
 
-        return redirect()->route('admin.initiatives.edit', $initiative)->with('success', 'Inisiatif berhasil diperbarui.');
+        $contentLabel = $initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / kampanye';
+
+        return redirect()->route('admin.initiatives.edit', $initiative)->with('success', $contentLabel.' berhasil diperbarui.');
     }
 
     public function destroy(Experience $initiative, AuditLogService $audit): RedirectResponse
@@ -204,6 +206,8 @@ class InitiativeController extends Controller
 
         $audit->record($request->user(), $action, 'Experience', $initiative->id, ['status' => $status->value]);
 
-        return redirect()->route('admin.initiatives.edit', $initiative)->with('success', 'Status inisiatif berhasil diperbarui.');
+        $contentLabel = $initiative->type === 'INITIATIVE' ? 'inisiatif' : 'pengalaman / kampanye';
+
+        return redirect()->route('admin.initiatives.edit', $initiative)->with('success', 'Status '.$contentLabel.' berhasil diperbarui.');
     }
 }

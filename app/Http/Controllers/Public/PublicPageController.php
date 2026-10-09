@@ -6,6 +6,7 @@ use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Experience;
 use App\Models\Knowledge;
+use App\Models\Person;
 use App\Services\PublicExperienceData;
 use App\Services\PublicKnowledgeData;
 use App\Services\PublicSiteData;
@@ -131,14 +132,30 @@ class PublicPageController extends Controller
     public function sitemap(): Response
     {
         $urls = [url('/'), url('/tentang'), url('/inisiatif'), url('/pengalaman'), url('/pengetahuan'), url('/kolaborasi')];
+        $publishedExperienceSlugs = Experience::where('status', ContentStatus::PUBLISHED->value)->pluck('slug')->all();
+        $initiativeSlugs = array_unique(array_merge(
+            $publishedExperienceSlugs,
+            array_keys(config('public_experiences.initiative_fallback', [])),
+        ));
+        $experienceSlugs = array_unique(array_merge(
+            $publishedExperienceSlugs,
+            array_keys(config('public_experiences.detail_fallback', [])),
+        ));
 
-        foreach (Experience::where('status', ContentStatus::PUBLISHED->value)->pluck('slug') as $slug) {
+        foreach ($initiativeSlugs as $slug) {
             $urls[] = url('/inisiatif/'.$slug);
+        }
+
+        foreach ($experienceSlugs as $slug) {
             $urls[] = url('/pengalaman/'.$slug);
         }
 
         foreach (Knowledge::where('status', ContentStatus::PUBLISHED->value)->pluck('slug') as $slug) {
             $urls[] = url('/pengetahuan/'.$slug);
+        }
+
+        foreach (Person::where('status', ContentStatus::PUBLISHED->value)->pluck('slug') as $slug) {
+            $urls[] = url('/tentang/tim/'.$slug);
         }
 
         $entries = collect($urls)->unique()->map(fn (string $location) => '<url><loc>'.e($location).'</loc></url>')->implode('');

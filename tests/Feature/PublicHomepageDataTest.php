@@ -62,7 +62,7 @@ class PublicHomepageDataTest extends TestCase
 
         $this->assertTrue($data['isEnglish']);
         $this->assertSame('Custom homepage CTA', $data['homeContent']['cta']['title']);
-        $this->assertSame('Connecting Knowledge, Nature, & Communities.', $data['heroSlides'][0]['title']);
+        $this->assertSame('Menghubungkan Pengetahuan, Alam, & Komunitas.', $data['heroSlides'][0]['title']);
         $this->assertSame(['experience-newer', 'experience-older'], array_column($data['experiences'], 'slug'));
         $this->assertSame('Newer English', $data['experiences'][0]['titleEn']);
         $this->assertSame(['knowledge-newer', 'knowledge-older'], array_column($data['latestKnowledge'], 'slug'));
@@ -73,6 +73,18 @@ class PublicHomepageDataTest extends TestCase
         $this->assertSame('Newer knowledge EN', $englishTranslation['title']);
         $this->assertSame(['First Partner', 'Second Partner'], array_column($data['partners'], 'name'));
         $this->assertCount(6, $data['contributions']);
+        $this->assertSame('Community Development', $data['expertise'][0]);
+    }
+
+    public function test_homepage_handles_language_grouped_expertise_config(): void
+    {
+        $data = app(PublicSiteData::class)->homepage('EN');
+        $data['expertise'] = config('public_home.expertise');
+
+        $html = view('public.home', $data)->render();
+
+        $this->assertStringContainsString('Community Development', $html);
+        $this->assertStringNotContainsString('Array', $html);
     }
 
     public function test_homepage_renders_public_content_metadata_and_unchanged_legacy_media_url(): void
@@ -103,18 +115,51 @@ class PublicHomepageDataTest extends TestCase
         $this->knowledgeTranslation($knowledge, 'Published knowledge title EN', Language::EN);
         $this->knowledge($user, 'homepage-draft-knowledge', '2026-03-01', ContentStatus::DRAFT);
         Partner::create(['name' => 'Published partner', 'slug' => 'homepage-public-partner', 'status' => ContentStatus::PUBLISHED, 'order' => 1]);
+        SiteSetting::create([
+            'key' => 'site_tagline',
+            'value' => 'Connecting Knowledge, Nature, & Communities.',
+        ]);
+        SiteSetting::create([
+            'key' => 'contact_address',
+            'value' => 'TRIGHA Creative Hub, Sudirman St, 08, Belitung',
+        ]);
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('<title>ANTRABUMI — Connecting Knowledge, Nature, &amp; Communities</title>', false)
-            ->assertSee('Connecting Knowledge, Nature, & Communities.')
+            ->assertSee('<title>ANTRABUMI — Menghubungkan Pengetahuan, Alam, &amp; Komunitas</title>', false)
+            ->assertSee('Menghubungkan Pengetahuan, Alam, & Komunitas.')
             ->assertSee('Published experience title')
             ->assertSee('Published knowledge title')
             ->assertSee('Published partner')
+            ->assertSee('Lewati ke konten utama')
+            ->assertSee('DENGARKAN')
+            ->assertSee('Pengembangan Masyarakat')
+            ->assertSee('Program & Strategi')
+            ->assertSee('Kemitraan & Kolaborasi')
+            ->assertSee('Jl. Sudirman No. 08')
+            ->assertDontSee('Community Development')
+            ->assertDontSee('Connecting Knowledge, Nature, & Communities.')
             ->assertSee('/uploads/homepage-cover.jpg', false)
             ->assertDontSee('@if', false)
             ->assertDontSee('@foreach', false)
             ->assertDontSee('homepage-draft-knowledge');
+
+        $this->disableCookieEncryption()
+            ->withCookie('antrabumi_lang', 'EN')
+            ->get('/')
+            ->assertOk()
+            ->assertSee('Published experience title EN')
+            ->assertSee('Published knowledge title EN')
+            ->assertSee('Research & Publication')
+            ->assertSee('Independent Organization')
+            ->assertSee('Skip to main content')
+            ->assertSee('Every collaboration begins with understanding context, not offering solutions.')
+            ->assertSee('Gender Equality — Equal participation for women and men')
+            ->assertSee('Community Development')
+            ->assertSee('Connecting Knowledge, Nature, & Communities.')
+            ->assertDontSee('Setiap kolaborasi berawal dari memahami konteks')
+            ->assertDontSee('Gender Equality — Pelibatan setara perempuan')
+            ->assertDontSee('Organisasi Independen');
     }
 
     public function test_default_homepage_diagram_asset_exists_and_is_rendered(): void
@@ -185,6 +230,13 @@ class PublicHomepageDataTest extends TestCase
             'role' => 'Research & Assessment',
             'biography' => 'Bekerja di bidang riset dan pengembangan.',
         ]);
+        $person->translations()->create([
+            'language' => \App\Enums\Language::EN,
+            'name' => 'Sendi Kenia Savitri EN',
+            'degree' => 'M.Sc.',
+            'role' => 'Research & Assessment Lead',
+            'biography' => 'Works in research and development.',
+        ]);
         $personWithoutImage = \App\Models\Person::create([
             'slug' => 'person-without-photo',
             'status' => ContentStatus::PUBLISHED,
@@ -206,11 +258,48 @@ class PublicHomepageDataTest extends TestCase
             ->assertSee('aspect-[4/5]', false)
             ->assertSee('object-[center_20%]', false)
             ->assertSee('Setiap kolaborasi dimulai')
+            ->assertSee('DENGARKAN')
+            ->assertDontSee('01 LISTEN')
             ->assertSee('/images/illustrations/about-network.svg')
             ->assertSee('Sendi Kenia Savitri')
             ->assertSee('src="/media-file/uploads/sendi-profile.jpg"', false)
             ->assertSee('data-person-photo-placeholder', false)
             ->assertDontSee('/images/default-person.jpg', false);
+
+    }
+
+    public function test_about_page_uses_english_person_translation_when_selected(): void
+    {
+        $user = User::create([
+            'name' => 'English Team Editor',
+            'email' => 'about-english-editor@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+        $person = \App\Models\Person::create([
+            'slug' => 'english-profile',
+            'status' => ContentStatus::PUBLISHED,
+            'order' => 1,
+            'createdById' => $user->id,
+            'updatedById' => $user->id,
+        ]);
+        $person->translations()->create([
+            'language' => \App\Enums\Language::ID,
+            'name' => 'Nama Indonesia',
+            'biography' => 'Biografi Bahasa Indonesia.',
+        ]);
+        $person->translations()->create([
+            'language' => \App\Enums\Language::EN,
+            'name' => 'English Name',
+            'biography' => 'English biography.',
+        ]);
+
+        $this->disableCookieEncryption()
+            ->withCookie('antrabumi_lang', 'EN')
+            ->get('/tentang')
+            ->assertOk()
+            ->assertSee('English Name')
+            ->assertDontSee('Nama Indonesia');
     }
 
     public function test_collaboration_page_renders_audience_cta_and_partner_directory(): void
@@ -231,6 +320,18 @@ class PublicHomepageDataTest extends TestCase
             ->assertSee('Start a Project Discussion')
             ->assertSee('/images/illustrations/collaboration.svg')
             ->assertSee('Published partner');
+    }
+
+    public function test_collaboration_page_localizes_indonesian_area_and_step_labels(): void
+    {
+        $this->get('/kolaborasi')
+            ->assertOk()
+            ->assertSee('Pelibatan Masyarakat')
+            ->assertSee('Solusi Berbasis Alam')
+            ->assertSee('Ciptakan Bersama')
+            ->assertDontSee('Community Engagement')
+            ->assertDontSee('Nature-based Solutions')
+            ->assertDontSee('Co-create');
     }
 
     public function test_collaboration_form_persists_message_and_shows_success_banner(): void

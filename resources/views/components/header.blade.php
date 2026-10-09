@@ -17,7 +17,7 @@
         @include('components.navigation.main')
 
         <div class="hidden items-center gap-3 lg:flex">
-            <form method="POST" action="{{ route('language.update') }}" class="flex items-center rounded-full border border-neutral-200 bg-neutral-50 p-0.5" aria-label="Pilih bahasa">
+            <form method="POST" action="{{ route('language.update') }}" class="flex items-center rounded-full border border-neutral-200 bg-neutral-50 p-0.5" aria-label="{{ $isEnglish ? 'Choose language' : 'Pilih bahasa' }}">
                 @csrf
                 <input type="hidden" name="return_to" value="{{ $returnTo }}">
                 <button name="language" value="ID" type="submit" aria-pressed="{{ !$isEnglish ? 'true' : 'false' }}" class="rounded-full px-3 py-1 text-xs font-semibold transition {{ !$isEnglish ? 'bg-neutral-900 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-800' }}">ID</button>

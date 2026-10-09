@@ -287,11 +287,12 @@ if (pdfModal instanceof HTMLDialogElement) {
 document.querySelectorAll('[data-share-copy], [data-share-instagram]').forEach((button) => button.addEventListener('click', async () => {
 	const url = button.dataset.shareUrl || window.location.href;
 	const feedback = button.closest('section')?.querySelector('[data-share-feedback]');
+	const isEnglish = document.documentElement.lang === 'en';
 	try {
 		await navigator.clipboard.writeText(url);
-		if (feedback) feedback.textContent = 'Link tersalin';
+		if (feedback) feedback.textContent = isEnglish ? 'Link copied' : 'Link tersalin';
 	} catch {
-		if (feedback) feedback.textContent = 'Salin link dari alamat browser';
+		if (feedback) feedback.textContent = isEnglish ? 'Copy the link from your browser address bar' : 'Salin link dari alamat browser';
 	}
 	if (button.hasAttribute('data-share-instagram')) window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
 	window.setTimeout(() => { if (feedback) feedback.textContent = ''; }, 2200);

@@ -60,14 +60,15 @@ class PublicKnowledgeData
         }
 
         $translations = $knowledge->translations;
-        $languageTranslation = $this->translationWithTitle($translations, $language);
-        $idTranslation = $this->translationWithTitle($translations, 'ID');
+        $languageTranslation = $translations->first(static fn (KnowledgeTranslation $translation): bool => $translation->language->value === $language);
+        $idTranslation = $translations->first(static fn (KnowledgeTranslation $translation): bool => $translation->language->value === 'ID');
+        $titleTranslation = $this->translationWithTitle($translations, $language)
+            ?? $this->translationWithTitle($translations, 'ID');
         $firstTranslation = $translations->first();
-        $displayTranslation = $languageTranslation ?? $idTranslation ?? $firstTranslation;
         $languageContent = $languageTranslation?->content;
         $content = $languageContent && $languageContent !== '<p></p>'
             ? $languageContent
-            : ($idTranslation?->content ?? $displayTranslation?->content);
+            : ($idTranslation?->content ?? $firstTranslation?->content);
         $metadataTranslation = $this->translationWithTitle($translations, $language)
             ?? $this->translationWithTitle($translations, 'ID')
             ?? $firstTranslation;
@@ -107,8 +108,10 @@ class PublicKnowledgeData
             'item' => $knowledge,
             'language' => $language,
             'isEnglish' => $language === 'EN',
-            'title' => $displayTranslation?->title ?? $knowledge->slug,
-            'excerpt' => $displayTranslation?->excerpt,
+            'title' => $titleTranslation?->title ?? $knowledge->slug,
+            'excerpt' => filled($languageTranslation?->excerpt)
+                ? $languageTranslation->excerpt
+                : ($idTranslation?->excerpt ?? $firstTranslation?->excerpt),
             'content' => $this->sanitizer->sanitize($content),
             'typeLabel' => $typeLabels[$type] ?? $type,
             'displayDate' => $date,
@@ -118,7 +121,7 @@ class PublicKnowledgeData
             'cover' => $cover,
             'hasVisuals' => $cover !== null || $gallery->isNotEmpty(),
             'metaTitle' => $metadataTranslation?->title
-                ? $metadataTranslation->title.' — Pengetahuan ANTRABUMI'
+                ? $metadataTranslation->title.' — '.($language === 'EN' ? 'Knowledge' : 'Pengetahuan').' ANTRABUMI'
                 : $knowledge->slug.' — ANTRABUMI',
             'metaDescription' => $metadataTranslation?->excerpt,
             'metaImage' => $knowledge->coverMedia?->url,

@@ -24,7 +24,7 @@
                     <div class="absolute -right-2 -top-4 h-24 w-24 rounded-full border border-white/10"></div>
                     <img src="/images/illustrations/about-network.svg" alt="" aria-hidden="true" fetchpriority="high" class="relative z-10 -mx-4 -mt-4 mb-2 w-[calc(100%+2rem)] drop-shadow-xl sm:-mx-5 sm:-mt-5 sm:w-[calc(100%+2.5rem)]">
                     <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#E5A823]">ANTRABUMI</p>
-                    <p class="mt-6 font-heading text-3xl font-bold leading-tight sm:text-4xl">Knowledge.<br>Nature.<br>Communities.</p>
+                    <p class="mt-6 font-heading text-3xl font-bold leading-tight sm:text-4xl">{{ $isEnglish ? "Knowledge.\nNature.\nCommunities." : "Pengetahuan.\nAlam.\nKomunitas." }}</p>
                     <div class="mt-8 flex items-center gap-3 border-t border-white/15 pt-5 text-sm text-neutral-300"><span class="h-2 w-2 rounded-full bg-[#E5A823]"></span>{{ $isEnglish ? 'Connected for meaningful change' : 'Terhubung untuk perubahan bermakna' }}</div>
                 </div>
             </div>
@@ -36,17 +36,17 @@
             <div class="grid gap-5 md:grid-cols-3">
                 <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#0D5C4D]/30 hover:bg-white hover:shadow-xl">
                     <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0D5C4D]/10 font-mono text-sm font-bold text-[#0D5C4D] transition group-hover:bg-[#0D5C4D] group-hover:text-white">01</span>
-                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">KNOWLEDGE</p>
+                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">{{ $isEnglish ? 'KNOWLEDGE' : 'PENGETAHUAN' }}</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'Research, evidence, and field learning are combined to understand conditions more clearly.' : 'Riset, bukti, dan pembelajaran lapangan dipadukan untuk memahami kondisi secara lebih jelas.' }}</p>
                 </article>
                 <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#0D5C4D]/30 hover:bg-white hover:shadow-xl">
                     <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#116958]/10 font-mono text-sm font-bold text-[#116958] transition group-hover:bg-[#116958] group-hover:text-white">02</span>
-                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">NATURE</p>
+                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">{{ $isEnglish ? 'NATURE' : 'ALAM' }}</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'We work with ecological and environmental realities as the basis for grounded action.' : 'Kami bekerja dengan realitas ekologi dan lingkungan sebagai dasar untuk aksi yang berakar pada konteks.' }}</p>
                 </article>
                 <article class="group rounded-3xl border border-neutral-200 bg-neutral-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[#D96B27]/30 hover:bg-white hover:shadow-xl">
                     <span class="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#D96B27]/10 font-mono text-sm font-bold text-[#D96B27] transition group-hover:bg-[#D96B27] group-hover:text-white">03</span>
-                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">COMMUNITIES</p>
+                    <p class="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0D5C4D]">{{ $isEnglish ? 'COMMUNITIES' : 'KOMUNITAS' }}</p>
                     <p class="mt-4 text-sm leading-relaxed text-neutral-600">{{ $isEnglish ? 'Listening to communities shapes the solutions and decisions that follow.' : 'Mendengarkan komunitas membentuk solusi dan keputusan yang berikutnya dibuat.' }}</p>
                 </article>
             </div>

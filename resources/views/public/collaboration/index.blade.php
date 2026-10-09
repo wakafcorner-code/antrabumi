@@ -59,12 +59,12 @@
         ['title' => 'Capacity Strengthening', 'description' => 'Capacity building rooted in real needs and practice.'],
         ['title' => 'Knowledge & Storytelling', 'description' => 'Turning knowledge and experience into stories people can understand and use.'],
     ] : [
-        ['title' => 'ESG & Sustainability', 'description' => 'Strategi, assessment, dan pendekatan keberlanjutan yang terhubung dengan konteks.'],
-        ['title' => 'Community Engagement', 'description' => 'Pendekatan partisipatif untuk memahami dan bekerja bersama masyarakat.'],
-        ['title' => 'Nature-based Solutions', 'description' => 'Pendekatan yang menghubungkan ekosistem, ketahanan, dan kebutuhan manusia.'],
-        ['title' => 'Research Partnership', 'description' => 'Riset, assessment, data, dan penerjemahan pengetahuan untuk keputusan.'],
-        ['title' => 'Capacity Strengthening', 'description' => 'Penguatan kapasitas yang berangkat dari kebutuhan nyata dan praktik.'],
-        ['title' => 'Knowledge & Storytelling', 'description' => 'Membawa pengetahuan dan pengalaman menjadi cerita yang dapat dipahami dan digunakan.'],
+        ['title' => 'ESG & Keberlanjutan', 'description' => 'Strategi, asesmen, dan pendekatan keberlanjutan yang terhubung dengan konteks.'],
+        ['title' => 'Pelibatan Masyarakat', 'description' => 'Pendekatan partisipatif untuk memahami dan bekerja bersama masyarakat.'],
+        ['title' => 'Solusi Berbasis Alam', 'description' => 'Pendekatan yang menghubungkan ekosistem, ketahanan, dan kebutuhan manusia.'],
+        ['title' => 'Kemitraan Riset', 'description' => 'Riset, asesmen, data, dan penerjemahan pengetahuan untuk pengambilan keputusan.'],
+        ['title' => 'Penguatan Kapasitas', 'description' => 'Penguatan kapasitas yang berangkat dari kebutuhan nyata dan praktik.'],
+        ['title' => 'Pengetahuan & Penceritaan', 'description' => 'Membawa pengetahuan dan pengalaman menjadi cerita yang dapat dipahami dan digunakan.'],
     ];
     $workingSteps = $isEnglish ? [
         ['title' => 'Listen', 'description' => 'Understand the context, needs, and voices of everyone involved.'],
@@ -73,11 +73,11 @@
         ['title' => 'Act', 'description' => 'Turn shared commitments into practical steps and learning.'],
         ['title' => 'Learn', 'description' => 'Use experience to improve approaches and build shared learning.'],
     ] : [
-        ['title' => 'Listen', 'description' => 'Memahami konteks, kebutuhan, dan suara dari pihak-pihak yang terlibat.'],
-        ['title' => 'Connect', 'description' => 'Mempertemukan perspektif, pengetahuan, kapasitas, dan jejaring yang relevan.'],
-        ['title' => 'Co-create', 'description' => 'Merancang pendekatan dan solusi bersama, bukan dari satu sisi saja.'],
-        ['title' => 'Act', 'description' => 'Menerjemahkan kesepakatan menjadi langkah nyata dan dapat dipelajari.'],
-        ['title' => 'Learn', 'description' => 'Menggunakan pengalaman untuk memperbaiki pendekatan dan membangun pembelajaran.'],
+        ['title' => 'Dengarkan', 'description' => 'Memahami konteks, kebutuhan, dan suara dari pihak-pihak yang terlibat.'],
+        ['title' => 'Hubungkan', 'description' => 'Mempertemukan perspektif, pengetahuan, kapasitas, dan jejaring yang relevan.'],
+        ['title' => 'Ciptakan Bersama', 'description' => 'Merancang pendekatan dan solusi bersama, bukan dari satu sisi saja.'],
+        ['title' => 'Bertindak', 'description' => 'Menerjemahkan kesepakatan menjadi langkah nyata dan dapat dipelajari.'],
+        ['title' => 'Belajar', 'description' => 'Menggunakan pengalaman untuk memperbaiki pendekatan dan membangun pembelajaran.'],
     ];
     $networkSectors = $isEnglish ? [
         ['icon' => '👥', 'title' => 'Local & Indigenous Communities', 'description' => 'Building contextual solutions from local wisdom, field practice, and active participation.'],
