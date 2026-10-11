@@ -38,7 +38,7 @@
             <thead class="bg-neutral-50 text-neutral-600">
                 <tr>
                     <th class="px-5 py-3 font-semibold">Judul</th>
-                    <th class="px-5 py-3 font-semibold">Tipe</th>
+                    <th class="px-5 py-3 font-semibold">Kategori</th>
                     <th class="px-5 py-3 font-semibold">Lokasi</th>
                     <th class="px-5 py-3 font-semibold">Status</th>
                     <th class="px-5 py-3 font-semibold text-right">Aksi</th>
@@ -51,7 +51,7 @@
                             <div class="font-medium text-neutral-900">{{ $item->translations->first()?->title ?? $item->slug }}</div>
                             <div class="mt-1 font-mono text-[11px] text-neutral-500">{{ $item->year }}</div>
                         </td>
-                        <td class="px-5 py-4 text-neutral-600">{{ $item->type }}</td>
+                        <td class="px-5 py-4 text-neutral-600">{{ $item->initiativeCategoryLabel() }}</td>
                         <td class="px-5 py-4 text-neutral-600">{{ $item->location ?? '-' }}</td>
                         <td class="px-5 py-4">
                             <span class="inline-flex rounded-full {{ $item->status === \App\Enums\ContentStatus::PUBLISHED ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }} px-2.5 py-1 text-xs font-semibold">

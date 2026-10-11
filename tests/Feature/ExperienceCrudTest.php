@@ -80,6 +80,8 @@ class ExperienceCrudTest extends TestCase
             ->assertOk()
             ->assertSee('Inisiatif Komunitas')
             ->assertSee('Kampanye Lapangan')
+            ->assertSee('>Kampanye</td>', false)
+            ->assertDontSee('>EXPERIENCE</td>', false)
             ->assertSee(route('admin.initiatives.edit', $campaign), false);
 
         $this->get(route('admin.initiatives.index', ['type' => 'EXPERIENCE']))
@@ -90,15 +92,18 @@ class ExperienceCrudTest extends TestCase
         $this->get(route('admin.initiatives.edit', $campaign))
             ->assertOk()
             ->assertSee('Kampanye Lapangan')
-            ->assertSee('Edit Pengalaman / Kampanye')
-            ->assertSee('value="EXPERIENCE" selected', false);
+            ->assertSee('Edit Kampanye')
+            ->assertSee('value="EXPERIENCE" selected', false)
+            ->assertSee('<option value="Campaign" selected>Kampanye</option>', false);
 
         $this->put(route('admin.initiatives.update', $campaign), [
             'slug' => 'field-campaign',
             'type' => 'EXPERIENCE',
+            'category' => 'Campaign',
             'titleId' => 'Kampanye Lapangan Diperbarui',
         ])->assertRedirect(route('admin.initiatives.edit', $campaign));
 
+        $this->assertSame('Campaign', $campaign->refresh()->category);
         $this->assertSame(
             'Kampanye Lapangan Diperbarui',
             $campaign->translations()->where('language', 'ID')->value('title')

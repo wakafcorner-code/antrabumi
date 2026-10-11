@@ -43,7 +43,7 @@
         </div>
     </section>
 
-    @if($hasVisuals || $downloadable)
+    @if($cover || $gallery->isNotEmpty() || $downloadable)
         <section class="relative overflow-hidden border-b border-neutral-100 bg-[#F4F5F0] py-10 sm:py-16">
             <div class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-[#0D5C4D]/5 blur-3xl"></div>
             <div class="relative z-10 mx-auto w-full max-w-[1280px] px-5 md:px-7 lg:px-10">
@@ -56,6 +56,19 @@
                         <div class="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_14px_35px_-20px_rgba(15,47,39,0.35)]"><div class="flex items-center justify-between border-b border-neutral-100 px-4 py-3 sm:px-5"><div><span class="font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-400">02 / PDF</span><p class="mt-0.5 max-w-[220px] truncate text-xs font-semibold text-neutral-800">{{ $downloadable['label'] ?: ($downloadable['originalName'] ?: ($isEnglish ? 'PDF document' : 'Dokumen PDF')) }}</p></div><span class="rounded-md bg-red-50 px-2 py-1 font-mono text-[10px] font-bold text-red-600">PDF</span></div><iframe src="{{ $downloadable['previewUrl'] }}#toolbar=0&amp;view=FitH" title="{{ $downloadable['label'] ?: ($downloadable['originalName'] ?: ($isEnglish ? 'PDF preview' : 'Pratinjau PDF')) }}" class="h-[500px] w-full bg-neutral-100"></iframe><div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 p-4 sm:p-5"><p class="min-w-0 truncate text-[11px] font-medium text-neutral-500">{{ $downloadable['filename'] }}</p><a href="{{ $downloadable['url'] }}" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-lg bg-[#0D5C4D] px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#116958]">{{ $isEnglish ? 'Open / Download' : 'Buka / Unduh' }}</a></div></div>
                     @endif
                 </div>
+            </div>
+        </section>
+    @endif
+
+    @if($youtubeEmbedUrl || $video)
+        <section class="border-b border-neutral-100 bg-white py-10 sm:py-16">
+            <div class="mx-auto w-full max-w-4xl px-5 md:px-7 lg:px-10">
+                <h2 class="mb-4 font-heading text-xl font-bold text-neutral-950">{{ $isEnglish ? 'Video' : 'Video' }}</h2>
+                @if($youtubeEmbedUrl)
+                    <div class="aspect-video overflow-hidden rounded-2xl bg-black shadow-lg"><iframe src="{{ $youtubeEmbedUrl }}" title="{{ $title }} — YouTube" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="h-full w-full"></iframe></div>
+                @elseif($video)
+                    <video controls preload="metadata" class="aspect-video w-full rounded-2xl bg-black shadow-lg"><source src="{{ $video['url'] }}" type="video/mp4">{{ $isEnglish ? 'Your browser does not support video playback.' : 'Browser Anda tidak mendukung pemutaran video.' }}</video>
+                @endif
             </div>
         </section>
     @endif

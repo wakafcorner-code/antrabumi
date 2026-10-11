@@ -53,6 +53,37 @@ class MediaUploadTest extends TestCase
         Storage::disk('public')->assertExists($media->storageKey);
     }
 
+    public function test_editor_can_upload_a_valid_mp4_video(): void
+    {
+        Storage::fake('public');
+        $editor = $this->user(Role::EDITOR);
+        $mp4 = "\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00mp42isom";
+
+        $response = $this->actingAs($editor)->postJson(route('api.media.upload'), [
+            'file' => UploadedFile::fake()->createWithContent('field-video.mp4', $mp4),
+        ]);
+
+        $this->assertSame(200, $response->getStatusCode(), $response->getContent());
+        $response->assertJsonPath('data.type', MediaType::VIDEO->value);
+        $media = Media::findOrFail($response->json('data.id'));
+        $this->assertSame('video/mp4', $media->mimeType);
+        $this->assertNull($media->width);
+        Storage::disk('public')->assertExists($media->storageKey);
+    }
+
+    public function test_upload_rejects_mp4_extension_without_mp4_signature(): void
+    {
+        Storage::fake('public');
+        $editor = $this->user(Role::EDITOR);
+
+        $this->actingAs($editor)->postJson(route('api.media.upload'), [
+            'file' => UploadedFile::fake()->createWithContent('fake-video.mp4', 'not an MP4 file'),
+        ])->assertBadRequest()->assertJsonPath('success', false);
+
+        $this->assertSame(0, Media::count());
+        $this->assertSame([], Storage::disk('public')->allFiles());
+    }
+
     public function test_svg_gallery_upload_is_rejected_without_storing_raw_content(): void
     {
         Storage::fake('public');

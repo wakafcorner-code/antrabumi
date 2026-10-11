@@ -42,23 +42,86 @@ class StoredMediaController extends Controller
 
         $stream = $disk->readStream($storageKey);
         abort_unless(is_resource($stream), 404);
-        $inlineTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+        $isVideo = $media->mimeType === 'video/mp4' && $media->type === \App\Enums\MediaType::VIDEO;
+        $range = $isVideo ? request()->header('Range') : null;
+        $size = (int) $media->size;
+        $start = 0;
+        $end = max(0, $size - 1);
+        $status = 200;
+        $headers = [];
+
+        if ($range !== null) {
+            if (preg_match('/^bytes=(\d*)-(\d*)$/', trim($range), $matches) !== 1 || $size < 1) {
+                fclose($stream);
+
+                return response('', 416, ['Content-Range' => 'bytes */'.$size, 'Accept-Ranges' => 'bytes']);
+            }
+
+            if ($matches[1] === '') {
+                $suffixLength = (int) $matches[2];
+                if ($suffixLength < 1) {
+                    fclose($stream);
+
+                    return response('', 416, ['Content-Range' => 'bytes */'.$size, 'Accept-Ranges' => 'bytes']);
+                }
+                $start = max(0, $size - $suffixLength);
+            } else {
+                $start = (int) $matches[1];
+                $end = $matches[2] === '' ? $size - 1 : min((int) $matches[2], $size - 1);
+            }
+
+            if ($start >= $size || $start > $end) {
+                fclose($stream);
+
+                return response('', 416, ['Content-Range' => 'bytes */'.$size, 'Accept-Ranges' => 'bytes']);
+            }
+
+            $status = 206;
+            $headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
+            $headers['Content-Length'] = (string) ($end - $start + 1);
+        }
+
+        $inlineTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'video/mp4'];
         $disposition = in_array($media->mimeType, $inlineTypes, true) ? 'inline' : 'attachment';
-        $headers = [
+        $headers += [
             'Content-Type' => $media->mimeType,
-            'Content-Length' => (string) $media->size,
+            'Content-Length' => (string) ($status === 206 ? ($end - $start + 1) : $size),
             'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $media->filename),
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'public, max-age=86400',
         ];
+        if ($isVideo) {
+            $headers['Accept-Ranges'] = 'bytes';
+        }
 
         if ($media->mimeType === 'image/svg+xml') {
             $headers['Content-Security-Policy'] = 'sandbox';
         }
 
-        return response()->stream(function () use ($stream): void {
-            fpassthru($stream);
+        return response()->stream(function () use ($stream, $start, $end, $status): void {
+            if ($status === 206) {
+                $remainingSkip = $start;
+                while ($remainingSkip > 0 && ! feof($stream)) {
+                    $skipped = fread($stream, min($remainingSkip, 1024 * 1024));
+                    if ($skipped === false || $skipped === '') {
+                        break;
+                    }
+                    $remainingSkip -= strlen($skipped);
+                }
+
+                $remainingBytes = $end - $start + 1;
+                while ($remainingBytes > 0 && ! feof($stream)) {
+                    $chunk = fread($stream, min($remainingBytes, 1024 * 1024));
+                    if ($chunk === false || $chunk === '') {
+                        break;
+                    }
+                    echo $chunk;
+                    $remainingBytes -= strlen($chunk);
+                }
+            } else {
+                fpassthru($stream);
+            }
             fclose($stream);
-        }, 200, $headers);
+        }, $status, $headers);
     }
 }

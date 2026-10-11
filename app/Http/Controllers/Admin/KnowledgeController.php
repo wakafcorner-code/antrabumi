@@ -69,6 +69,7 @@ class KnowledgeController extends Controller
                 'authorName' => $data['authorName'] ?? null,
                 'publicationDate' => $data['publicationDate'] ?? null,
                 'coverMediaId' => $data['coverMediaId'] ?? null,
+                'youtubeUrl' => $data['youtubeUrl'] ?? null,
                 'createdById' => $request->user()->id,
                 'updatedById' => $request->user()->id,
             ]);
@@ -101,6 +102,9 @@ class KnowledgeController extends Controller
                 $knowledge->gallery()->syncWithoutDetaching(collect($data['galleryMediaIds'])->unique()->values()->mapWithKeys(
                     fn (string $mediaId, int $order): array => [$mediaId => ['order' => $order]]
                 )->all());
+            }
+            if (! empty($data['videoMediaId'])) {
+                $knowledge->gallery()->syncWithoutDetaching([$data['videoMediaId'] => ['order' => 1000]]);
             }
 
             return $knowledge;
@@ -150,8 +154,20 @@ class KnowledgeController extends Controller
                 'authorName' => $data['authorName'] ?? null,
                 'publicationDate' => $data['publicationDate'] ?? null,
                 'coverMediaId' => $data['coverMediaId'] ?? null,
+                'youtubeUrl' => $data['youtubeUrl'] ?? null,
                 'updatedById' => $request->user()->id,
             ]);
+
+            $attachedVideoIds = $knowledge->gallery()
+                ->where('Media.type', MediaType::VIDEO->value)
+                ->pluck('Media.id');
+            $videosToDetach = $attachedVideoIds->reject(fn (string $id): bool => $id === ($data['videoMediaId'] ?? null));
+            if ($videosToDetach->isNotEmpty()) {
+                $knowledge->gallery()->detach($videosToDetach->all());
+            }
+            if (! empty($data['videoMediaId'])) {
+                $knowledge->gallery()->syncWithoutDetaching([$data['videoMediaId'] => ['order' => 1000]]);
+            }
 
             $knowledge->translations()->updateOrCreate(
                 ['language' => Language::ID],

@@ -78,6 +78,7 @@ class PublicExperiencePagesTest extends TestCase
             ->assertOk()
             ->assertSee('data-initial-category="CAMPAIGN"', false)
             ->assertSee('data-initiative-card data-category="CAMPAIGN"', false)
+            ->assertSee('data-initiative-card data-category="PROJECT"', false)
             ->assertSee('Field Campaign')
             ->assertSee('Field Project');
 
@@ -132,6 +133,29 @@ class PublicExperiencePagesTest extends TestCase
             ->assertSee('/uploads/cover.jpg', false)
             ->assertSee('/uploads/brief.pdf', false)
             ->assertSee('Other Experiences');
+    }
+
+    public function test_initiative_detail_renders_youtube_and_uploaded_mp4_video(): void
+    {
+        $user = $this->editor();
+        $youtubeInitiative = $this->experience($user, 'initiative-with-youtube', 'INITIATIVE', ContentStatus::PUBLISHED, 2026, false);
+        $this->translation($youtubeInitiative, Language::ID, 'Initiative with YouTube', null, 'Initiative overview');
+        $youtubeInitiative->update(['youtubeUrl' => 'https://youtu.be/abcdefghijk']);
+
+        $this->get('/inisiatif/initiative-with-youtube')
+            ->assertOk()
+            ->assertSee('https://www.youtube-nocookie.com/embed/abcdefghijk', false)
+            ->assertSee('title="Initiative with YouTube — YouTube"', false);
+
+        $uploadedInitiative = $this->experience($user, 'initiative-with-video', 'INITIATIVE', ContentStatus::PUBLISHED, 2026, false);
+        $this->translation($uploadedInitiative, Language::ID, 'Initiative with MP4', null, 'Video overview');
+        $video = $this->media($user, 'field-video.mp4', '/media-file/uploads/field-video.mp4', MediaType::VIDEO, 'video/mp4');
+        $uploadedInitiative->media()->attach($video->id, ['order' => 1000]);
+
+        $this->get('/inisiatif/initiative-with-video')
+            ->assertOk()
+            ->assertSee('<video controls', false)
+            ->assertSee('<source src="/media-file/uploads/field-video.mp4" type="video/mp4">', false);
     }
 
     public function test_known_source_fallback_detail_and_unknown_detail_status(): void

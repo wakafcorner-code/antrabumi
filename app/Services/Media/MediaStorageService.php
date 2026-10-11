@@ -22,7 +22,18 @@ class MediaStorageService
         }
 
         $mimeType = $file->getMimeType() ?: 'application/octet-stream';
-        $type = $mimeType === 'application/pdf' ? MediaType::DOCUMENT : MediaType::IMAGE;
+        $mp4Header = file_get_contents($file->getRealPath(), false, null, 0, 12);
+        if (strtolower($file->getClientOriginalExtension()) === 'mp4'
+            && is_string($mp4Header)
+            && strlen($mp4Header) === 12
+            && substr($mp4Header, 4, 4) === 'ftyp') {
+            $mimeType = 'video/mp4';
+        }
+        $type = match ($mimeType) {
+            'application/pdf' => MediaType::DOCUMENT,
+            'video/mp4' => MediaType::VIDEO,
+            default => MediaType::IMAGE,
+        };
         $dimensions = $type === MediaType::IMAGE ? @getimagesize($file->getRealPath()) : false;
         $originalName = str_replace(['/', chr(92)], '_', $file->getClientOriginalName());
         $originalName = preg_replace('/[\x00-\x1F\x7F]/u', '', $originalName) ?? 'upload';

@@ -75,6 +75,117 @@ class AdminContentMediaEditorTest extends TestCase
         );
     }
 
+    public function test_editor_can_save_youtube_video_links_for_initiatives_and_knowledge(): void
+    {
+        $editor = $this->editor('content-youtube-editor@example.test');
+
+        $this->actingAs($editor)
+            ->get(route('admin.initiatives.create'))
+            ->assertOk()
+            ->assertSee('id="initiative-video-youtube-url"', false)
+            ->assertSee('id="initiative-video-file"', false);
+        $this->post(route('admin.initiatives.store'), [
+            'slug' => 'initiative-youtube-video',
+            'type' => 'INITIATIVE',
+            'status' => ContentStatus::DRAFT->value,
+            'titleId' => 'Initiative YouTube video',
+            'youtubeUrl' => 'https://youtu.be/abcdefghijk',
+        ])->assertRedirect();
+        $initiative = Experience::where('slug', 'initiative-youtube-video')->firstOrFail();
+        $this->assertSame('https://youtu.be/abcdefghijk', $initiative->youtubeUrl);
+
+        $this->get(route('admin.knowledge.create'))
+            ->assertOk()
+            ->assertSee('id="knowledge-video-youtube-url"', false)
+            ->assertSee('id="knowledge-video-file"', false);
+        $this->post(route('admin.knowledge.store'), [
+            'slug' => 'knowledge-youtube-video',
+            'type' => KnowledgeType::ARTICLE->value,
+            'status' => ContentStatus::DRAFT->value,
+            'titleId' => 'Knowledge YouTube video',
+            'youtubeUrl' => 'https://www.youtube.com/watch?v=abcdefghijk',
+        ])->assertRedirect(route('admin.knowledge.index'));
+        $knowledge = Knowledge::where('slug', 'knowledge-youtube-video')->firstOrFail();
+        $this->assertSame('https://www.youtube.com/watch?v=abcdefghijk', $knowledge->youtubeUrl);
+    }
+
+    public function test_editor_can_attach_and_replace_uploaded_videos_on_initiatives_and_knowledge(): void
+    {
+        $editor = $this->editor('content-uploaded-video-editor@example.test');
+        $firstVideo = $this->video($editor, 'first-video.mp4');
+        $secondVideo = $this->video($editor, 'second-video.mp4');
+
+        $this->actingAs($editor)->post(route('admin.initiatives.store'), [
+            'slug' => 'initiative-with-uploaded-video',
+            'type' => 'INITIATIVE',
+            'status' => ContentStatus::DRAFT->value,
+            'titleId' => 'Initiative with uploaded video',
+            'videoMediaId' => $firstVideo->id,
+        ])->assertRedirect();
+        $initiative = Experience::where('slug', 'initiative-with-uploaded-video')->firstOrFail();
+        $this->assertDatabaseHas('ExperienceMedia', ['experienceId' => $initiative->id, 'mediaId' => $firstVideo->id]);
+        $this->get(route('admin.initiatives.edit', $initiative))
+            ->assertOk()
+            ->assertSee('value="'.$firstVideo->id.'"', false);
+
+        $this->put(route('admin.initiatives.update', $initiative), [
+            'slug' => $initiative->slug,
+            'type' => 'INITIATIVE',
+            'titleId' => 'Initiative video replaced',
+            'videoMediaId' => $secondVideo->id,
+        ])->assertRedirect(route('admin.initiatives.edit', $initiative));
+        $this->assertDatabaseMissing('ExperienceMedia', ['experienceId' => $initiative->id, 'mediaId' => $firstVideo->id]);
+        $this->assertDatabaseHas('ExperienceMedia', ['experienceId' => $initiative->id, 'mediaId' => $secondVideo->id]);
+
+        $this->post(route('admin.knowledge.store'), [
+            'slug' => 'knowledge-with-uploaded-video',
+            'type' => KnowledgeType::ARTICLE->value,
+            'status' => ContentStatus::DRAFT->value,
+            'titleId' => 'Knowledge with uploaded video',
+            'videoMediaId' => $firstVideo->id,
+        ])->assertRedirect(route('admin.knowledge.index'));
+        $knowledge = Knowledge::where('slug', 'knowledge-with-uploaded-video')->firstOrFail();
+        $this->assertDatabaseHas('KnowledgeMedia', ['knowledgeId' => $knowledge->id, 'mediaId' => $firstVideo->id]);
+
+        $this->put(route('admin.knowledge.update', $knowledge), [
+            'slug' => $knowledge->slug,
+            'type' => KnowledgeType::ARTICLE->value,
+            'titleId' => 'Knowledge video replaced',
+            'videoMediaId' => $secondVideo->id,
+        ])->assertRedirect(route('admin.knowledge.edit', $knowledge));
+        $this->assertDatabaseMissing('KnowledgeMedia', ['knowledgeId' => $knowledge->id, 'mediaId' => $firstVideo->id]);
+        $this->assertDatabaseHas('KnowledgeMedia', ['knowledgeId' => $knowledge->id, 'mediaId' => $secondVideo->id]);
+    }
+
+    public function test_invalid_youtube_urls_are_rejected_for_initiatives_and_knowledge(): void
+    {
+        $editor = $this->editor('invalid-youtube-editor@example.test');
+
+        $this->actingAs($editor)
+            ->from(route('admin.initiatives.create'))
+            ->post(route('admin.initiatives.store'), [
+                'slug' => 'initiative-invalid-youtube',
+                'type' => 'INITIATIVE',
+                'titleId' => 'Invalid YouTube URL',
+                'youtubeUrl' => 'https://example.com/watch?v=abcdefghijk',
+            ])
+            ->assertRedirect(route('admin.initiatives.create'))
+            ->assertSessionHasErrors('youtubeUrl');
+
+        $this->from(route('admin.knowledge.create'))
+            ->post(route('admin.knowledge.store'), [
+                'slug' => 'knowledge-invalid-youtube',
+                'type' => KnowledgeType::ARTICLE->value,
+                'titleId' => 'Invalid YouTube URL',
+                'youtubeUrl' => 'javascript:alert(1)',
+            ])
+            ->assertRedirect(route('admin.knowledge.create'))
+            ->assertSessionHasErrors('youtubeUrl');
+
+        $this->assertDatabaseMissing('Experience', ['slug' => 'initiative-invalid-youtube']);
+        $this->assertDatabaseMissing('Knowledge', ['slug' => 'knowledge-invalid-youtube']);
+    }
+
     public function test_gallery_upload_validation_only_accepts_image_media(): void
     {
         $editor = $this->editor('invalid-gallery-media@example.test');
@@ -176,6 +287,20 @@ class AdminContentMediaEditorTest extends TestCase
             'size' => 100,
             'storageKey' => 'uploads/'.$filename,
             'url' => '/storage/uploads/'.$filename,
+            'uploadedById' => $editor->id,
+        ]);
+    }
+
+    private function video(User $editor, string $filename): Media
+    {
+        return Media::create([
+            'type' => MediaType::VIDEO,
+            'filename' => $filename,
+            'originalName' => $filename,
+            'mimeType' => 'video/mp4',
+            'size' => 1024,
+            'storageKey' => 'uploads/'.$filename,
+            'url' => '/media-file/uploads/'.$filename,
             'uploadedById' => $editor->id,
         ]);
     }

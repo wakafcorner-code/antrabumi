@@ -69,6 +69,7 @@ class InitiativeController extends Controller
                 'year' => $data['year'] ?? null,
                 'category' => $data['category'] ?? null,
                 'clientName' => $data['client'] ?? $data['clientName'] ?? null,
+                'youtubeUrl' => $data['youtubeUrl'] ?? null,
                 'location' => $data['location'] ?? null,
                 'featured' => $data['featured'] ?? false,
                 'coverMediaId' => $data['coverMediaId'] ?? null,
@@ -99,6 +100,9 @@ class InitiativeController extends Controller
                 $initiative->media()->syncWithoutDetaching(collect($data['galleryMediaIds'])->unique()->values()->mapWithKeys(
                     fn (string $mediaId, int $order): array => [$mediaId => ['order' => $order + 1]]
                 )->all());
+            }
+            if (! empty($data['videoMediaId'])) {
+                $initiative->media()->syncWithoutDetaching([$data['videoMediaId'] => ['order' => 1000]]);
             }
 
             return $initiative;
@@ -142,11 +146,23 @@ class InitiativeController extends Controller
                 'year' => $data['year'] ?? null,
                 'category' => $data['category'] ?? null,
                 'clientName' => $data['client'] ?? $data['clientName'] ?? null,
+                'youtubeUrl' => $data['youtubeUrl'] ?? null,
                 'location' => $data['location'] ?? null,
                 'featured' => $data['featured'] ?? false,
                 'coverMediaId' => $data['coverMediaId'] ?? null,
                 'updatedById' => $request->user()->id,
             ]);
+
+            $attachedVideoIds = $initiative->media()
+                ->where('Media.type', \App\Enums\MediaType::VIDEO->value)
+                ->pluck('Media.id');
+            $videosToDetach = $attachedVideoIds->reject(fn (string $id): bool => $id === ($data['videoMediaId'] ?? null));
+            if ($videosToDetach->isNotEmpty()) {
+                $initiative->media()->detach($videosToDetach->all());
+            }
+            if (! empty($data['videoMediaId'])) {
+                $initiative->media()->syncWithoutDetaching([$data['videoMediaId'] => ['order' => 1000]]);
+            }
 
             $initiative->translations()->updateOrCreate(
                 ['language' => \App\Enums\Language::ID],

@@ -86,13 +86,20 @@ class PublicKnowledgeData
             ->values();
         $gallery = $knowledge->gallery
             ->sortBy(static fn ($media): int => (int) ($media->pivot->order ?? 0))
-            ->filter(static fn ($media): bool => (bool) $media->url)
+            ->filter(static fn ($media): bool => $media->type === \App\Enums\MediaType::IMAGE && (bool) $media->url)
             ->map(static fn ($media): array => [
                 'id' => $media->id,
                 'url' => $media->url,
                 'alt' => $media->originalName,
             ])
             ->values();
+        $videoMedia = $knowledge->gallery->first(
+            static fn ($media): bool => $media->type === \App\Enums\MediaType::VIDEO && $media->mimeType === 'video/mp4'
+        );
+        $video = $videoMedia && $videoMedia->url ? [
+            'url' => $videoMedia->url,
+            'filename' => $videoMedia->originalName ?: $videoMedia->filename,
+        ] : null;
         $cover = $knowledge->coverMedia?->url ? [
             'url' => $knowledge->coverMedia->url,
             'altText' => $knowledge->coverMedia->altText,
@@ -119,6 +126,8 @@ class PublicKnowledgeData
             'downloads' => $downloads,
             'gallery' => $gallery,
             'cover' => $cover,
+            'video' => $video,
+            'youtubeEmbedUrl' => YoutubeVideoUrl::embedUrl($knowledge->youtubeUrl),
             'hasVisuals' => $cover !== null || $gallery->isNotEmpty(),
             'metaTitle' => $metadataTranslation?->title
                 ? $metadataTranslation->title.' — '.($language === 'EN' ? 'Knowledge' : 'Pengetahuan').' ANTRABUMI'

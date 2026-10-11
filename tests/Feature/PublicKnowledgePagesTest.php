@@ -94,6 +94,33 @@ class PublicKnowledgePagesTest extends TestCase
         $this->get('/pengetahuan/no-such-slug')->assertNotFound();
     }
 
+    public function test_knowledge_detail_renders_youtube_video(): void
+    {
+        $user = $this->editor();
+        $youtubeKnowledge = $this->knowledge($user, 'knowledge-youtube-video', KnowledgeType::ARTICLE, ContentStatus::PUBLISHED, '2026-01-01');
+        $this->translation($youtubeKnowledge, Language::ID, 'Knowledge with YouTube', 'Excerpt', '<p>Body</p>');
+        $youtubeKnowledge->update(['youtubeUrl' => 'https://www.youtube.com/watch?v=abcdefghijk']);
+
+        $this->get('/pengetahuan/knowledge-youtube-video')
+            ->assertOk()
+            ->assertSee('https://www.youtube-nocookie.com/embed/abcdefghijk', false)
+            ->assertSee('title="Knowledge with YouTube — YouTube"', false);
+    }
+
+    public function test_knowledge_detail_renders_uploaded_mp4_video(): void
+    {
+        $user = $this->editor();
+        $uploadedKnowledge = $this->knowledge($user, 'knowledge-mp4-video', KnowledgeType::ARTICLE, ContentStatus::PUBLISHED, '2026-01-02');
+        $this->translation($uploadedKnowledge, Language::ID, 'Knowledge with MP4', 'Excerpt', '<p>Body</p>');
+        $video = $this->media($user, 'field-video.mp4', '/media-file/uploads/field-video.mp4', MediaType::VIDEO, 'video/mp4');
+        $uploadedKnowledge->gallery()->attach($video->id, ['order' => 1000]);
+
+        $this->get('/pengetahuan/knowledge-mp4-video')
+            ->assertOk()
+            ->assertSee('<video controls', false)
+            ->assertSee('<source src="/media-file/uploads/field-video.mp4" type="video/mp4">', false);
+    }
+
     private function editor(): User
     {
         return User::create([

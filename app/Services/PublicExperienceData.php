@@ -75,13 +75,13 @@ class PublicExperienceData
             ->take(40)
             ->get();
 
-        $items = $experiences->values()->map(function (Experience $experience, int $index) use ($language): array {
+        $items = $experiences->map(function (Experience $experience) use ($language): array {
             $translations = $experience->translations;
             $idTranslation = $translations->first(static fn (ExperienceTranslation $translation): bool => $translation->language->value === 'ID');
             $enTranslation = $translations->first(static fn (ExperienceTranslation $translation): bool => $translation->language->value === 'EN');
             $title = ($language === 'EN' ? $enTranslation?->title : $idTranslation?->title) ?: ($idTranslation?->title ?: $experience->slug);
             $rawCategory = strtolower((string) $experience->category);
-            $isCampaign = str_contains($rawCategory, 'campaign') || str_contains($rawCategory, 'kampanye') || $index % 2 === 1;
+            $isCampaign = str_contains($rawCategory, 'campaign') || str_contains($rawCategory, 'kampanye');
             $pdf = $experience->media->first(fn (Media $media): bool => $this->isPdf($media));
 
             return [
@@ -90,12 +90,9 @@ class PublicExperienceData
                 'title' => $title,
                 'excerpt' => null,
                 'year' => $experience->year,
-                'category' => $this->localizeCategory(
-                    $experience->category ?: ($isCampaign
-                        ? ($language === 'EN' ? 'Campaign' : 'Kampanye')
-                        : ($language === 'EN' ? 'Project' : 'Proyek')),
-                    $language
-                ),
+                'category' => $isCampaign
+                    ? ($language === 'EN' ? 'Campaign' : 'Kampanye')
+                    : ($language === 'EN' ? 'Project' : 'Proyek'),
                 'categoryType' => $isCampaign ? 'CAMPAIGN' : 'PROJECT',
                 'location' => $experience->location,
                 'clientName' => $experience->clientName,
@@ -196,6 +193,7 @@ class PublicExperienceData
         $idTranslation = $this->translation($translationData, 'ID');
         $translation = $languageTranslation ?? $idTranslation ?? ($translationData[0] ?? null);
         $pdf = $gallery->first(fn (Media $media): bool => $this->isPdf($media));
+        $video = $gallery->first(fn (Media $media): bool => $media->type === \App\Enums\MediaType::VIDEO && $media->mimeType === 'video/mp4');
         $galleryImages = $gallery
             ->filter(static fn (Media $media): bool => $media->type->value === 'IMAGE' && (bool) $media->url)
             ->map(static fn (Media $media): array => ['id' => $media->id, 'url' => $media->url, 'alt' => $media->originalName])
@@ -269,6 +267,8 @@ class PublicExperienceData
             'cover' => $cover,
             'metrics' => $metrics,
             'galleryImages' => $galleryImages,
+            'video' => $video && $video->url ? ['url' => $video->url, 'filename' => $video->originalName ?: $video->filename] : null,
+            'youtubeEmbedUrl' => YoutubeVideoUrl::embedUrl($experience?->youtubeUrl),
             'pdf' => $pdf ? [
                 'url' => $pdf->url,
                 'previewUrl' => ExternalPdfReference::previewUrl($pdf->url),

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Knowledge extends BaseModel
 {
     protected $table = 'Knowledge';
-    protected $fillable = ['slug', 'type', 'coverMediaId', 'status', 'featured', 'authorName', 'publicationDate', 'createdById', 'updatedById', 'publishedAt'];
+    protected $fillable = ['slug', 'type', 'coverMediaId', 'youtubeUrl', 'status', 'featured', 'authorName', 'publicationDate', 'createdById', 'updatedById', 'publishedAt'];
     protected function casts(): array { return ['type' => KnowledgeType::class, 'status' => ContentStatus::class, 'featured' => 'boolean', 'publicationDate' => 'datetime', 'publishedAt' => 'datetime']; }
     public function coverMedia(): BelongsTo { return $this->belongsTo(Media::class, 'coverMediaId'); }
     public function creator(): BelongsTo { return $this->belongsTo(User::class, 'createdById'); }

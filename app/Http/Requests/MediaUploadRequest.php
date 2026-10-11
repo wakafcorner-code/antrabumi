@@ -12,7 +12,7 @@ class MediaUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'max:15360', 'mimes:jpg,jpeg,png,webp,gif,pdf', 'extensions:jpg,jpeg,png,webp,gif,pdf', 'mimetypes:image/jpeg,image/png,image/webp,image/gif,application/pdf'],
+            'file' => ['required', 'file', 'max:15360'],
             'altText' => ['nullable', 'string', 'max:300'],
             'caption' => ['nullable', 'string', 'max:1000'],
             'attribution' => ['nullable', 'string', 'max:300'],
@@ -31,6 +31,7 @@ class MediaUploadRequest extends FormRequest
     {
         return [
             'file.required' => 'File tidak ditemukan dalam form upload.',
+            'file.max' => 'Ukuran berkas melebihi batas maksimum 15MB.',
         ];
     }
 
@@ -42,8 +43,19 @@ class MediaUploadRequest extends FormRequest
                 return;
             }
 
+            $extension = strtolower($file->getClientOriginalExtension());
             $mimeType = $file->getMimeType();
-            if ($mimeType === 'application/pdf') {
+            if ($extension === 'mp4') {
+                $header = file_get_contents($file->getRealPath(), false, null, 0, 12);
+                $boxSize = is_string($header) && strlen($header) === 12 ? unpack('Nsize', substr($header, 0, 4))['size'] : 0;
+                if (! is_string($header) || substr($header, 4, 4) !== 'ftyp' || $boxSize < 16 || $boxSize > $file->getSize()) {
+                    $validator->errors()->add('file', 'File video MP4 tidak memiliki signature yang valid.');
+                }
+
+                return;
+            }
+
+            if ($extension === 'pdf' && $mimeType === 'application/pdf') {
                 $signature = file_get_contents($file->getRealPath(), false, null, 0, 5);
                 if ($signature !== '%PDF-') {
                     $validator->errors()->add('file', 'File PDF tidak memiliki signature yang valid.');
@@ -52,8 +64,20 @@ class MediaUploadRequest extends FormRequest
                 return;
             }
 
+            $expectedImageMime = match ($extension) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'webp' => 'image/webp',
+                'gif' => 'image/gif',
+                default => null,
+            };
+            if ($expectedImageMime === null) {
+                $validator->errors()->add('file', 'Format berkas tidak didukung.');
+                return;
+            }
+
             $image = @getimagesize($file->getRealPath());
-            if (! $image || $image['mime'] !== $mimeType) {
+            if (! $image || $image['mime'] !== $expectedImageMime || $mimeType !== $expectedImageMime) {
                 $validator->errors()->add('file', 'File gambar tidak valid.');
             }
         });

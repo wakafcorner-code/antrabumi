@@ -111,6 +111,12 @@
             <label for="knowledge-featured" class="text-sm font-medium text-neutral-700">Tandai sebagai konten unggulan</label>
         </div>
         @include('admin.knowledge.partials.pdf-upload')
+        @include('admin.partials.video-field', [
+            'idPrefix' => 'knowledge',
+            'youtubeUrl' => null,
+            'videoMediaId' => null,
+            'videoMedia' => null,
+        ])
         @include('admin.knowledge.partials.media-upload-script')
 
         <div class="flex justify-end gap-3 pt-4">

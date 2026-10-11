@@ -61,7 +61,11 @@
             </div>
             <div>
                 <label for="initiative-category" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Kategori</label>
-                <input id="initiative-category" name="category" value="{{ old('category') }}" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                <select id="initiative-category" name="category" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                    <option value="">Pilih kategori</option>
+                    <option value="Project" @selected(in_array(strtolower((string) old('category')), ['project', 'proyek'], true))>Proyek</option>
+                    <option value="Campaign" @selected(in_array(strtolower((string) old('category')), ['campaign', 'kampanye'], true))>Kampanye</option>
+                </select>
                 @error('category')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
             </div>
             <div class="md:col-span-2">
@@ -110,6 +114,12 @@
 
         @include('admin.initiatives.partials.pdf-upload')
         @include('admin.partials.media-gallery-upload')
+        @include('admin.partials.video-field', [
+            'idPrefix' => 'initiative',
+            'youtubeUrl' => null,
+            'videoMediaId' => null,
+            'videoMedia' => null,
+        ])
 
         <div class="flex justify-end gap-3 pt-4">
             <a href="{{ route('admin.initiatives.index') }}" class="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700">Batal</a>

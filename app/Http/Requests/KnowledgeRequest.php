@@ -6,6 +6,7 @@ use App\Enums\ContentStatus;
 use App\Enums\KnowledgeType;
 use App\Enums\MediaType;
 use App\Services\ExternalPdfReference;
+use App\Services\YoutubeVideoUrl;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -53,6 +54,18 @@ class KnowledgeRequest extends FormRequest
             'authorName' => ['nullable', 'string', 'max:150'],
             'publicationDate' => ['nullable', 'date'],
             'coverMediaId' => ['nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::IMAGE->value)],
+            'youtubeUrl' => ['nullable', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! filled($value)) {
+                    return;
+                }
+
+                if (YoutubeVideoUrl::embedUrl($value) === null) {
+                    $fail('Masukkan URL video YouTube yang valid dan menggunakan HTTPS.');
+                } elseif (filled($this->input('videoMediaId'))) {
+                    $fail('Pilih URL YouTube atau unggah video MP4, jangan keduanya.');
+                }
+            }],
+            'videoMediaId' => ['nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::VIDEO->value)->where('mimeType', 'video/mp4')],
             'pdfMediaId' => ['sometimes', 'nullable', 'string', Rule::exists('Media', 'id')->where('type', MediaType::DOCUMENT->value)->where('mimeType', 'application/pdf')],
             'pdfUrl' => ['nullable', 'string', 'max:191', function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! filled($value)) {

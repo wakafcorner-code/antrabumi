@@ -80,6 +80,37 @@ class StoredMediaFallbackTest extends TestCase
             ->assertStreamedContent($pdfBytes);
     }
 
+    public function test_registered_mp4_supports_inline_byte_range_playback(): void
+    {
+        Storage::fake('public');
+        $user = User::create([
+            'name' => 'Editor',
+            'email' => 'video-editor@example.test',
+            'role' => Role::EDITOR,
+            'status' => UserStatus::ACTIVE,
+        ]);
+        $videoBytes = '0123456789';
+        Storage::disk('public')->put('uploads/clip.mp4', $videoBytes);
+        Media::create([
+            'type' => MediaType::VIDEO,
+            'filename' => 'clip.mp4',
+            'originalName' => 'clip.mp4',
+            'mimeType' => 'video/mp4',
+            'size' => strlen($videoBytes),
+            'storageKey' => 'uploads/clip.mp4',
+            'uploadedById' => $user->id,
+        ]);
+
+        $this->withHeader('Range', 'bytes=2-5')
+            ->get('/media-file/uploads/clip.mp4')
+            ->assertStatus(206)
+            ->assertHeader('Content-Type', 'video/mp4')
+            ->assertHeader('Content-Disposition', 'inline; filename=clip.mp4')
+            ->assertHeader('Accept-Ranges', 'bytes')
+            ->assertHeader('Content-Range', 'bytes 2-5/10')
+            ->assertStreamedContent('2345');
+    }
+
     public function test_legacy_svg_media_is_never_served_inline(): void
     {
         Storage::fake('public');

@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit '.($initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye').' — CMS ANTRABUMI')
+@section('title', 'Edit '.$initiative->displayCategoryLabel().' — CMS ANTRABUMI')
 
 @section('content')
 <div class="mx-auto max-w-4xl space-y-6">
     <div class="flex items-center justify-between gap-4">
         <div>
-            <p class="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">{{ $initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye' }}</p>
-            <h1 class="mt-2 font-heading text-3xl font-bold text-neutral-950">Edit {{ $initiative->type === 'INITIATIVE' ? 'Inisiatif' : 'Pengalaman / Kampanye' }}</h1>
+            <p class="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-brand-teal">{{ $initiative->displayCategoryLabel() }}</p>
+            <h1 class="mt-2 font-heading text-3xl font-bold text-neutral-950">Edit {{ $initiative->displayCategoryLabel() }}</h1>
         </div>
         <a href="{{ route('admin.initiatives.index') }}" class="text-sm font-medium text-neutral-700 underline-offset-2 hover:underline">Kembali ke daftar</a>
     </div>
@@ -92,7 +92,14 @@
             </div>
             <div>
                 <label for="initiative-category" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-600">Kategori</label>
-                <input id="initiative-category" name="category" value="{{ old('category', $initiative->category) }}" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                <select id="initiative-category" name="category" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm focus:border-[#0D5C4D] focus:outline-none">
+                    <option value="">Pilih kategori</option>
+                    <option value="Project" @selected(in_array(strtolower((string) old('category', $initiative->category)), ['project', 'proyek'], true))>Proyek</option>
+                    <option value="Campaign" @selected(in_array(strtolower((string) old('category', $initiative->category)), ['campaign', 'kampanye'], true))>Kampanye</option>
+                    @if($initiative->category && !in_array(strtolower($initiative->category), ['project', 'proyek', 'campaign', 'kampanye'], true))
+                        <option value="{{ $initiative->category }}" @selected(old('category', $initiative->category) === $initiative->category)>{{ $initiative->category }} (kategori lama)</option>
+                    @endif
+                </select>
                 @error('category')<p class="mt-1 text-xs text-red-700">{{ $message }}</p>@enderror
             </div>
             <div class="md:col-span-2">
@@ -141,6 +148,14 @@
         </div>
             </div>
         </details>
+
+        @php($initiativeVideo = $initiative->media->first(fn ($media) => $media->type === \App\Enums\MediaType::VIDEO))
+        @include('admin.partials.video-field', [
+            'idPrefix' => 'initiative',
+            'youtubeUrl' => $initiative->youtubeUrl,
+            'videoMediaId' => $initiativeVideo?->id,
+            'videoMedia' => $initiativeVideo,
+        ])
 
         <div class="flex justify-end gap-3 pt-4">
             <a href="{{ route('admin.initiatives.index') }}" class="rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700">Batal</a>

@@ -124,6 +124,13 @@
             <label for="knowledge-featured" class="text-sm font-medium text-neutral-700">Tandai sebagai konten unggulan</label>
         </div>
         @include('admin.knowledge.partials.pdf-upload')
+        @php($knowledgeVideo = $knowledge->gallery->first(fn ($media) => $media->type === \App\Enums\MediaType::VIDEO))
+        @include('admin.partials.video-field', [
+            'idPrefix' => 'knowledge',
+            'youtubeUrl' => $knowledge->youtubeUrl,
+            'videoMediaId' => $knowledgeVideo?->id,
+            'videoMedia' => $knowledgeVideo,
+        ])
         @include('admin.knowledge.partials.media-upload-script')
 
         <div class="flex justify-end gap-3 pt-4">
@@ -180,7 +187,7 @@
             <input id="knowledge-gallery-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3 py-2.5 text-sm">
             <p id="knowledge-gallery-upload-error" class="hidden text-xs text-red-700" role="alert"></p>
         </form>
-        @forelse($knowledge->gallery as $image)
+        @forelse($knowledge->gallery->where('type', \App\Enums\MediaType::IMAGE) as $image)
             <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 pt-3">
                 <div class="flex items-center gap-3">
                     <img src="{{ $image->url }}" alt="{{ $image->originalName }}" class="h-16 w-24 rounded-lg border border-neutral-200 object-cover">
